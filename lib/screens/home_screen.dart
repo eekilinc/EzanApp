@@ -7,6 +7,8 @@ import '../models/daily_content.dart';
 import '../widgets/prayer_card.dart';
 import '../widgets/location_picker.dart';
 
+import '../services/hijri_service.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -172,6 +174,48 @@ class _HomeScreenState extends State<HomeScreen> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   child: Column(
                     children: [
+                      // Date Banner (Gregorian & Hijri Calendar)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.green.shade900,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.calendar_month, color: Colors.amber, size: 16),
+                                const SizedBox(width: 6),
+                                Text(
+                                  HijriService.getGregorianDate(DateTime.now(), settingsProvider.appLanguage),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.amber.shade700,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                HijriService.getHijriDate(DateTime.now(), settingsProvider.appLanguage),
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                       // Location Bar (Overflow-safe & Responsive)
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),

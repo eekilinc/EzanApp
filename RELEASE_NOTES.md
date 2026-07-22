@@ -1,3 +1,17 @@
+# Ezan Hatırlatıcı v1.8.0 - Release Notes
+
+**Tarih**: 2026-07-23
+
+## 🎉 Sürüm 1.8.0 Güncellemeleri
+
+- 🕌 **Mekke Ezanı Ses Formatı Düzeltmesi (True MPEG MP3)**: Mekke Ezanı ses dosyasının WAV başlığı taşıma sorunu çözüldü. Gerçek MPEG layer III canlı Mekke Ezanı (`adhan_makkah.mp3` - 259KB) ve Medine Ezanı (`adhan_madinah.mp3` - 668KB) olarak 2 tamamen özgün kayıt mobil cihazlarda sorunsuz çalmaktadır.
+- 📱 **Uygulama Adı & Test Bildirimi Düzeltmesi**: `AndroidManifest.xml` etiket ismi **"Ezan Hatırlatıcı"** olarak güncellendi. Android bildirim kanalı ses bağlama ve test bildirimi fonksiyonu anında bildirim düşecek şekilde düzeltildi.
+- 🔗 **Hakkında Ekranında GitHub Reposu**: Hakkında ekranına açık kaynak [GitHub Proje Deposu](https://github.com/eekilinc/EzanApp) bağlantısı ve geliştirici kartları eklendi.
+- 🌙 **Teravih/Yatsı Sonrası Kesintisiz Sabah Namazı Sayacı**: Yatsı namazı geçtikten sonra sayaç "Günün vakitleri tamamlandı" yerine otomatik olarak ertesi günün **Sabah Namazı** vaktine canlı geri saymaya devam eder.
+- 📅 **Miladi & Hicri Takvim Kartı**: Ana ekranda en üst alana canlı Miladi Tarih (örn. *23 Temmuz 2026 Perşembe*) ve Hicri Tarih (örn. *9 Sefer 1448*) başlık kartı eklendi.
+
+---
+
 # Ezan Hatırlatıcı v1.7.0 - Release Notes
 
 **Tarih**: 2026-07-22

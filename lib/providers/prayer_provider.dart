@@ -122,6 +122,13 @@ class PrayerProvider extends ChangeNotifier {
       }
     }
 
+    // If all today's prayers have passed, return tomorrow's Fajr (Sabah Namazı)
+    if (prayers.isNotEmpty) {
+      final todayFajr = prayers.firstWhere((p) => p.name == 'Fajr', orElse: () => prayers.first);
+      final tomorrowFajrTime = todayFajr.time.add(const Duration(days: 1));
+      return PrayerEntry(name: 'Fajr', time: tomorrowFajrTime);
+    }
+
     return null;
   }
 

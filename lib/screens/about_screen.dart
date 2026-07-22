@@ -172,12 +172,12 @@ class AboutScreen extends StatelessWidget {
                     const SizedBox(height: 10),
                     Row(
                       children: [
-                        const Icon(Icons.library_music, color: Colors.orange, size: 20),
+                        const Icon(Icons.code, color: Colors.purple, size: 20),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            settingsProvider.tr('audio_recitations'),
-                            style: const TextStyle(fontSize: 13),
+                            '${settingsProvider.tr("github_repo")}: https://github.com/eekilinc/EzanApp',
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
                           ),
                         ),
                       ],
