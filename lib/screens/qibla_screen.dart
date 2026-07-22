@@ -12,6 +12,8 @@ class QiblaScreen extends StatefulWidget {
 }
 
 class _QiblaScreenState extends State<QiblaScreen> {
+  double _deviceHeading = 0.0; // Device Heading from North (0..360°)
+
   @override
   Widget build(BuildContext context) {
     final prayerProvider = context.watch<PrayerProvider>();
@@ -19,11 +21,15 @@ class _QiblaScreenState extends State<QiblaScreen> {
 
     final qiblaAngle = location != null
         ? QiblaService.calculateQiblaDirection(location.latitude, location.longitude)
-        : 147.0;
+        : 151.6;
 
     final distanceKm = location != null
         ? QiblaService.calculateDistanceToMecca(location.latitude, location.longitude)
         : 2400.0;
+
+    // Calculate relative rotation angle for needle/dial relative to device heading
+    final relativeQiblaAngle = (qiblaAngle - _deviceHeading + 360) % 360;
+    final isAligned = (relativeQiblaAngle < 6 || relativeQiblaAngle > 354);
 
     return Scaffold(
       appBar: AppBar(
@@ -38,7 +44,9 @@ class _QiblaScreenState extends State<QiblaScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.green.shade900, Colors.green.shade700, Colors.grey.shade900],
+            colors: isAligned
+                ? [Colors.green.shade900, Colors.teal.shade800, Colors.grey.shade900]
+                : [Colors.green.shade900, Colors.green.shade800, Colors.grey.shade900],
           ),
         ),
         child: SingleChildScrollView(
@@ -47,103 +55,138 @@ class _QiblaScreenState extends State<QiblaScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 10),
-                // Location summary badge
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                // Alignment status badge
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                    color: isAligned
+                        ? Colors.lightGreen.shade700
+                        : Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(
+                      color: isAligned ? Colors.amber : Colors.white.withValues(alpha: 0.3),
+                      width: isAligned ? 2 : 1,
+                    ),
+                    boxShadow: isAligned
+                        ? [
+                            BoxShadow(
+                              color: Colors.lightGreen.withValues(alpha: 0.5),
+                              blurRadius: 16,
+                              spreadRadius: 2,
+                            )
+                          ]
+                        : [],
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.location_on, color: Colors.amber, size: 20),
+                      Icon(
+                        isAligned ? Icons.check_circle : Icons.location_on,
+                        color: isAligned ? Colors.amber : Colors.amber.shade300,
+                        size: 22,
+                      ),
                       const SizedBox(width: 8),
                       Text(
-                        location?.city ?? 'Konum Seçilmedi',
+                        isAligned
+                            ? 'Kıble Yönündesiniz! 🕌'
+                            : '${location?.city ?? "Konum"}: Kıble ${qiblaAngle.toStringAsFixed(1)}° (Güneydoğu)',
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontSize: 15,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 28),
 
                 // Compass Dial Card
-                Container(
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
                   width: 300,
                   height: 300,
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.black.withValues(alpha: 0.3),
+                    color: Colors.black.withValues(alpha: 0.35),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.greenAccent.withValues(alpha: 0.2),
+                        color: isAligned
+                            ? Colors.amber.withValues(alpha: 0.4)
+                            : Colors.greenAccent.withValues(alpha: 0.2),
                         blurRadius: 30,
                         spreadRadius: 5,
                       ),
                     ],
-                    border: Border.all(color: Colors.amber.shade400, width: 3),
+                    border: Border.all(
+                      color: isAligned ? Colors.amber.shade300 : Colors.amber.shade600,
+                      width: isAligned ? 4 : 3,
+                    ),
                   ),
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      // Degree Markings
-                      ...List.generate(12, (index) {
-                        final angle = index * 30.0;
-                        return Transform.rotate(
-                          angle: angle * (math.pi / 180),
-                          child: Align(
-                            alignment: Alignment.topCenter,
-                            child: Container(
-                              width: 2,
-                              height: 10,
-                              color: Colors.white54,
-                            ),
-                          ),
-                        );
-                      }),
-
-                      // Cardinal Directions
-                      const Positioned(
-                        top: 25,
-                        child: Text('K (North)', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 13)),
-                      ),
-                      const Positioned(
-                        bottom: 25,
-                        child: Text('G (South)', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                      ),
-                      const Positioned(
-                        right: 25,
-                        child: Text('D (East)', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                      ),
-                      const Positioned(
-                        left: 25,
-                        child: Text('B (West)', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                      ),
-
-                      // Animated Qibla Needle
+                      // Rotating Compass Ring (Relative to device heading)
                       Transform.rotate(
-                        angle: qiblaAngle * (math.pi / 180),
+                        angle: -_deviceHeading * (math.pi / 180),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            // Degree Markings
+                            ...List.generate(12, (index) {
+                              final angle = index * 30.0;
+                              return Transform.rotate(
+                                angle: angle * (math.pi / 180),
+                                child: Align(
+                                  alignment: Alignment.topCenter,
+                                  child: Container(
+                                    width: 2,
+                                    height: 10,
+                                    color: Colors.white54,
+                                  ),
+                                ),
+                              );
+                            }),
+
+                            // Cardinal Directions
+                            const Positioned(
+                              top: 20,
+                              child: Text('K (0°)', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 13)),
+                            ),
+                            const Positioned(
+                              bottom: 20,
+                              child: Text('G (180°)', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                            ),
+                            const Positioned(
+                              right: 20,
+                              child: Text('D (90°)', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                            ),
+                            const Positioned(
+                              left: 20,
+                              child: Text('B (270°)', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Animated Qibla Needle (Rotated relative to device heading)
+                      Transform.rotate(
+                        angle: relativeQiblaAngle * (math.pi / 180),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.navigation,
-                              size: 72,
-                              color: Colors.amber,
+                              size: 76,
+                              color: isAligned ? Colors.amber.shade300 : Colors.amber,
                             ),
                             Container(
                               width: 6,
                               height: 60,
                               decoration: BoxDecoration(
-                                color: Colors.amber.shade300,
+                                color: isAligned ? Colors.amber : Colors.amber.shade400,
                                 borderRadius: BorderRadius.circular(3),
                               ),
                             ),
@@ -153,20 +196,56 @@ class _QiblaScreenState extends State<QiblaScreen> {
 
                       // Kaaba Icon in Center
                       Container(
-                        width: 44,
-                        height: 44,
+                        width: 48,
+                        height: 48,
                         decoration: BoxDecoration(
-                          color: Colors.black,
+                          color: isAligned ? Colors.teal.shade900 : Colors.black,
                           shape: BoxShape.circle,
                           border: Border.all(color: Colors.amber, width: 2),
                         ),
-                        child: const Icon(Icons.mosque, color: Colors.amber, size: 24),
+                        child: Icon(Icons.mosque, color: isAligned ? Colors.amber : Colors.amber.shade200, size: 26),
                       ),
                     ],
                   ),
                 ),
 
-                const SizedBox(height: 36),
+                const SizedBox(height: 28),
+
+                // Manual Heading Adjustment Slider for Calibration
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Cihaz Yönü (Pusula Ayarı)',
+                            style: TextStyle(color: Colors.white70, fontSize: 13),
+                          ),
+                          Text(
+                            '${_deviceHeading.toInt()}°',
+                            style: const TextStyle(color: Colors.amber, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      Slider(
+                        value: _deviceHeading,
+                        min: 0,
+                        max: 360,
+                        activeColor: Colors.amber,
+                        inactiveColor: Colors.white24,
+                        onChanged: (val) {
+                          setState(() {
+                            _deviceHeading = val;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 16),
 
                 // Qibla Info Details Card
                 Container(
@@ -213,7 +292,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  '💡 Doğru yön için cihazınızı düz bir zeminde tutunuz.',
+                  '💡 Telefonunuzu düz bir zeminde tutun ve sarı ok tam yukarı gelene kadar cihazınızı döndürün.',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.white60, fontSize: 12),
                 ),

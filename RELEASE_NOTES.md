@@ -1,3 +1,14 @@
+# Ezan Hatırlatıcı v1.4.1 - Release Notes
+
+**Tarih**: 2026-07-22
+
+## 🎉 Sürüm 1.4.1 Güncellemeleri
+
+- 🕌 **Gerçek Ezan Sesleri**: Mekke-i Mükerreme ve Medine-i Münevvere makamlarındaki gerçek melodik ezan okumaları (`adhan_makkah.wav/mp3` ve `adhan_madinah.wav/mp3`) eklendi. Ses oynatma servisindeki format/yol uyumsuzlukları tam olarak çözüldü.
+- 🧭 **Hassas Kıble Pusulası & Canlı Hizalama**: Kabe kerte açısı hesaplaması standart küresel trigonometri formülü ile güncellendi. Telefonun tutulduğu yöne göre kadran dönmesi ve tam Kıble açısına çevrildiğinde beliren **"Kıble Yönündesiniz! 🕌"** canlı hizalanma uyarısı eklendi.
+
+---
+
 # Ezan Hatırlatıcı v1.4.0 - Release Notes
 
 **Tarih**: 2026-07-22

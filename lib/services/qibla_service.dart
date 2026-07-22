@@ -11,8 +11,9 @@ class QiblaService {
     final phi2 = _degreesToRadians(meccaLatitude);
     final deltaLambda = _degreesToRadians(meccaLongitude - longitude);
 
-    final y = math.sin(deltaLambda);
-    final x = math.cos(phi1) * math.tan(phi2) - math.sin(phi1) * math.cos(deltaLambda);
+    final y = math.sin(deltaLambda) * math.cos(phi2);
+    final x = math.cos(phi1) * math.sin(phi2) -
+        math.sin(phi1) * math.cos(phi2) * math.cos(deltaLambda);
 
     double qiblaAngle = math.atan2(y, x);
     qiblaAngle = _radiansToDegrees(qiblaAngle);
