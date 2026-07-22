@@ -253,35 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 6),
-                            // Qibla Button
-                            InkWell(
-                              borderRadius: BorderRadius.circular(20),
-                              onTap: () => Navigator.pushNamed(context, '/qibla'),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: Colors.green.withValues(alpha: 0.12),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(Icons.explore_outlined, size: 16, color: Colors.green),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      settingsProvider.tr('qibla'),
-                                      style: TextStyle(
-                                        color: Colors.green.shade800,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 6),
+                            const SizedBox(width: 8),
                             // Change Location Button
                             InkWell(
                               borderRadius: BorderRadius.circular(20),

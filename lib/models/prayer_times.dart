@@ -22,8 +22,10 @@ class PrayerTimes {
     );
 
     for (final entry in timingsData.entries) {
-      final timeStr = entry.value as String;
-      final timeParts = timeStr.split(':');
+      final rawTimeStr = entry.value as String;
+      // Strip any trailing timezone strings like " (+03)" or " (EET)"
+      final cleanTimeStr = rawTimeStr.split(' ')[0].split('(')[0].trim();
+      final timeParts = cleanTimeStr.split(':');
       final hour = int.parse(timeParts[0]);
       final minute = int.parse(timeParts[1]);
       timings[entry.key] = DateTime(
