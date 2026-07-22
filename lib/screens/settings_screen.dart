@@ -21,6 +21,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           customReminderMinutes: settingsProvider.reminderMinutes,
           soundEnabled: settingsProvider.soundEnabled,
           vibrationEnabled: settingsProvider.vibrationEnabled,
+          soundKey: settingsProvider.notificationSound,
         );
   }
 
@@ -348,12 +349,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               await NotificationService().showTestNotification(
                                 soundEnabled: settingsProvider.soundEnabled,
                                 vibrationEnabled: settingsProvider.vibrationEnabled,
+                                soundKey: settingsProvider.notificationSound,
                               );
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Test bildirimi gönderildi! 🔔'),
-                                    duration: Duration(seconds: 2),
+                                  SnackBar(
+                                    content: Text(settingsProvider.tr('test_notification_sent')),
+                                    duration: const Duration(seconds: 2),
                                   ),
                                 );
                               }

@@ -41,15 +41,19 @@ class NotificationService {
     final androidImplementation = _notificationsPlugin
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
     if (androidImplementation != null) {
-      const androidChannel = AndroidNotificationChannel(
-        'ezan_channel',
-        'Ezan Hatırlatıcı Bildirimleri',
-        description: 'Namaz vakitleri hatırlatma bildirimleri',
-        importance: Importance.max,
-        playSound: true,
-        enableVibration: true,
-      );
-      await androidImplementation.createNotificationChannel(androidChannel);
+      final sounds = ['adhan_makkah', 'adhan_madinah', 'ney', 'beep'];
+      for (final sKey in sounds) {
+        final channel = AndroidNotificationChannel(
+          'ezan_channel_${sKey}_v3',
+          'Ezan Hatırlatıcı ($sKey)',
+          description: 'Namaz vakitleri hatırlatma bildirimleri',
+          importance: Importance.max,
+          playSound: true,
+          sound: _getSoundResource(sKey),
+          enableVibration: true,
+        );
+        await androidImplementation.createNotificationChannel(channel);
+      }
 
       await androidImplementation.requestNotificationsPermission();
       await androidImplementation.requestExactAlarmsPermission();
@@ -71,6 +75,21 @@ class NotificationService {
     }
   }
 
+  String _getChannelId(String soundKey) {
+    switch (soundKey) {
+      case 'adhan_madinah':
+        return 'ezan_channel_adhan_madinah_v3';
+      case 'ney':
+        return 'ezan_channel_ney_v3';
+      case 'beep':
+        return 'ezan_channel_beep_v3';
+      case 'adhan_makkah':
+      case 'adhan':
+      default:
+        return 'ezan_channel_adhan_makkah_v3';
+    }
+  }
+
   Future<void> showTestNotification({
     bool soundEnabled = true,
     bool vibrationEnabled = true,
@@ -82,7 +101,7 @@ class NotificationService {
       'Bildirim sisteminiz ve ayarlarınız başarıyla çalışıyor!',
       NotificationDetails(
         android: AndroidNotificationDetails(
-          'ezan_channel',
+          _getChannelId(soundKey),
           'Ezan Hatırlatıcı Bildirimleri',
           channelDescription: 'Namaz vakitleri hatırlatma bildirimleri',
           importance: Importance.max,
@@ -118,7 +137,7 @@ class NotificationService {
         scheduledTzDateTime,
         NotificationDetails(
           android: AndroidNotificationDetails(
-            'ezan_channel',
+            _getChannelId(soundKey),
             'Ezan Hatırlatıcı Bildirimleri',
             channelDescription: 'Namaz vakitleri hatırlatma bildirimleri',
             importance: Importance.max,
@@ -148,7 +167,7 @@ class NotificationService {
           scheduledTzDateTime,
           NotificationDetails(
             android: AndroidNotificationDetails(
-              'ezan_channel',
+              _getChannelId(soundKey),
               'Ezan Hatırlatıcı Bildirimleri',
               channelDescription: 'Namaz vakitleri hatırlatma bildirimleri',
               importance: Importance.max,

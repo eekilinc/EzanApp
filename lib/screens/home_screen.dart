@@ -191,7 +191,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(width: 6),
                             Expanded(
                               child: Text(
-                                prayerProvider.location?.city ?? settingsProvider.tr('unknown'),
+                                (prayerProvider.location?.city == 'Current Location' ||
+                                        prayerProvider.location?.city == 'current_location')
+                                    ? settingsProvider.tr('current_location')
+                                    : (prayerProvider.location?.city ?? settingsProvider.tr('unknown')),
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                                 style: const TextStyle(

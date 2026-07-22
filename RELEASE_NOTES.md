@@ -1,3 +1,15 @@
+# Ezan Hatırlatıcı v1.7.0 - Release Notes
+
+**Tarih**: 2026-07-22
+
+## 🎉 Sürüm 1.7.0 Güncellemeleri
+
+- 🕌 **2 Farklı Özgün İnsan Sesli Ezan Kaydı**: Mekke Ezanı (`adhan_makkah.mp3` - 259KB) ve Medine Ezanı (`adhan_madinah.mp3` - 668KB) olarak tamamen farklı iki makamda canlı ezan ses kaydı entegre edildi.
+- 🔔 **Android Ses Kanalı Kilidi & Test Bildirimi Düzeltmesi**: Android 8.0+ bildirim kanalı kilitlenme sorunu çözüldü. Her ses seçeneği için özel güncel kanal ID'leri (`ezan_channel_makkah_v3`, `ezan_channel_madinah_v3` vb.) ve raw kaynak bağlandı. Test bildirimi ve zamanlanmış bildirimler cihazda anında seçilen ezan sesiyle çalışmaktadır.
+- 🌍 **"Current Location" Türkçe Dil Çeviri Düzeltmesi**: GPS konumundan gelen `'Current Location'` ifadesi tespit edilerek Türkçe modda **"Mevcut Konum"**, İngilizce modda **"Current Location"** olarak dinamik çevrilmesi sağlandı.
+
+---
+
 # Ezan Hatırlatıcı v1.6.0 - Release Notes
 
 **Tarih**: 2026-07-22
