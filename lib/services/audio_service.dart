@@ -18,12 +18,24 @@ class AudioService {
     try {
       await stop();
       _isPlaying = true;
-      if (soundKey == 'adhan') {
-        await _audioPlayer.play(AssetSource('sounds/adhan.mp3'));
-      } else {
-        // Fallback preview for default or beep
-        await _audioPlayer.play(AssetSource('sounds/adhan.mp3'));
+      String assetPath;
+      switch (soundKey) {
+        case 'adhan_madinah':
+          assetPath = 'sounds/adhan_madinah.mp3';
+          break;
+        case 'ney':
+          assetPath = 'sounds/ney_tone.mp3';
+          break;
+        case 'beep':
+          assetPath = 'sounds/beep_tone.mp3';
+          break;
+        case 'adhan_makkah':
+        case 'adhan':
+        default:
+          assetPath = 'sounds/adhan_makkah.mp3';
+          break;
       }
+      await _audioPlayer.play(AssetSource(assetPath));
     } catch (e) {
       try {
         await _audioPlayer.play(AssetSource('sounds/adhan.wav'));

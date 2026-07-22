@@ -6,6 +6,7 @@ import 'services/notification_service.dart';
 import 'screens/home_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/about_screen.dart';
+import 'screens/qibla_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +36,7 @@ class MyApp extends StatelessWidget {
         routes: {
           '/settings': (context) => const SettingsScreen(),
           '/about': (context) => const AboutScreen(),
+          '/qibla': (context) => const QiblaScreen(),
         },
       ),
     );

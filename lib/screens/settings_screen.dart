@@ -98,104 +98,146 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   const Divider(),
 
-                  // Notification Sound Selection
+                  // Notification Sound Selection Cards
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
                           'Bildirim Sesi Seçimi',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                         ),
-                        const SizedBox(height: 8),
-                        DropdownButtonFormField<String>(
-                          initialValue: settingsProvider.notificationSound,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          ),
-                          items: const [
-                            DropdownMenuItem(
-                              value: 'adhan',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.mosque, color: Colors.green, size: 20),
-                                  SizedBox(width: 8),
-                                  Text('Tam Ezan Sesi'),
-                                ],
-                              ),
-                            ),
-                            DropdownMenuItem(
-                              value: 'default',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.notifications_active, color: Colors.blue, size: 20),
-                                  SizedBox(width: 8),
-                                  Text('Klasik Bildirim Tonu'),
-                                ],
-                              ),
-                            ),
-                            DropdownMenuItem(
-                              value: 'beep',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.volume_up, color: Colors.orange, size: 20),
-                                  SizedBox(width: 8),
-                                  Text('Kısa Bip Sesi'),
-                                ],
-                              ),
-                            ),
-                          ],
-                          onChanged: (value) async {
-                            if (value != null) {
-                              await settingsProvider.setNotificationSound(value);
-                              _updateNotifications(settingsProvider);
-                            }
-                          },
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Namaz vakti veya hatırlatmada çalacak olan sesi tercih edin:',
+                          style: TextStyle(color: Colors.grey, fontSize: 13),
                         ),
                         const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: () => _toggleAudioPreview(settingsProvider.notificationSound),
-                                icon: Icon(_isPlayingAudio ? Icons.stop : Icons.play_arrow),
-                                label: Text(_isPlayingAudio ? 'Sesi Durdur' : 'Sesi Dinle / Test Et'),
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: Colors.green.shade800,
-                                  side: BorderSide(color: Colors.green.shade600),
-                                ),
+
+                        // List of available audio sounds
+                        ...[
+                          {
+                            'key': 'adhan_makkah',
+                            'title': 'Mekke Ezanı',
+                            'subtitle': 'Klasik ve heybetli Mekke-i Mükerreme Ezanı',
+                            'icon': Icons.mosque,
+                            'color': Colors.green,
+                          },
+                          {
+                            'key': 'adhan_madinah',
+                            'title': 'Medine Ezanı',
+                            'subtitle': 'Huzur veren Medine-i Münevvere Ezanı',
+                            'icon': Icons.brightness_3,
+                            'color': Colors.lightGreen,
+                          },
+                          {
+                            'key': 'ney',
+                            'title': 'Huzurlu Ney Tonu',
+                            'subtitle': 'Yumuşak ve dinlendirici enstrümantal ses',
+                            'icon': Icons.music_note,
+                            'color': Colors.teal,
+                          },
+                          {
+                            'key': 'beep',
+                            'title': 'Kısa Bip Sesi',
+                            'subtitle': 'Sade ve kısa uyarı tonu',
+                            'icon': Icons.volume_up,
+                            'color': Colors.amber,
+                          },
+                        ].map((sound) {
+                          final soundKey = sound['key'] as String;
+                          final isSelected = settingsProvider.notificationSound == soundKey;
+                          final soundIcon = sound['icon'] as IconData;
+                          final iconColor = sound['color'] as MaterialColor;
+
+                          return Card(
+                            margin: const EdgeInsets.symmetric(vertical: 4),
+                            elevation: isSelected ? 3 : 1,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              side: BorderSide(
+                                color: isSelected ? Colors.green.shade600 : Colors.transparent,
+                                width: isSelected ? 2 : 0,
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: () async {
-                                  await NotificationService().showTestNotification(
-                                    soundEnabled: settingsProvider.soundEnabled,
-                                    vibrationEnabled: settingsProvider.vibrationEnabled,
-                                  );
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Test bildirimi gönderildi! 🔔'),
-                                        duration: Duration(seconds: 2),
-                                      ),
-                                    );
-                                  }
-                                },
-                                icon: const Icon(Icons.send, size: 18),
-                                label: const Text('Test Bildirimi'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green.shade700,
-                                  foregroundColor: Colors.white,
+                            color: isSelected ? Colors.green.shade50 : Colors.white,
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: iconColor.shade100,
+                                child: Icon(soundIcon, color: iconColor.shade800),
+                              ),
+                              title: Text(
+                                sound['title'] as String,
+                                style: TextStyle(
+                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                  color: isSelected ? Colors.green.shade900 : Colors.black87,
                                 ),
                               ),
+                              subtitle: Text(
+                                sound['subtitle'] as String,
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(
+                                      (_isPlayingAudio && settingsProvider.notificationSound == soundKey)
+                                          ? Icons.stop_circle
+                                          : Icons.play_circle_fill,
+                                      color: Colors.green.shade700,
+                                      size: 32,
+                                    ),
+                                    onPressed: () => _toggleAudioPreview(soundKey),
+                                  ),
+                                  Icon(
+                                    isSelected
+                                        ? Icons.check_circle
+                                        : Icons.radio_button_off,
+                                    color: isSelected
+                                        ? Colors.green.shade700
+                                        : Colors.grey.shade400,
+                                  ),
+                                ],
+                              ),
+                              onTap: () async {
+                                await settingsProvider.setNotificationSound(soundKey);
+                                _updateNotifications(settingsProvider);
+                              },
                             ),
-                          ],
+                          );
+                        }),
+
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () async {
+                              await NotificationService().showTestNotification(
+                                soundEnabled: settingsProvider.soundEnabled,
+                                vibrationEnabled: settingsProvider.vibrationEnabled,
+                              );
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Test bildirimi gönderildi! 🔔'),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              }
+                            },
+                            icon: const Icon(Icons.send, size: 18),
+                            label: const Text('Test Bildirimi Gönder'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green.shade700,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),

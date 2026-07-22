@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/prayer_provider.dart';
 import '../providers/settings_provider.dart';
+import '../models/daily_content.dart';
 import '../widgets/prayer_card.dart';
 import '../widgets/location_picker.dart';
 import '../constants/reminders.dart';
@@ -78,6 +79,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final todayContent = DailyContent.getTodayContent();
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -100,6 +103,13 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.explore),
+            tooltip: 'Kıble Pusulası',
+            onPressed: () => Navigator.pushNamed(context, '/qibla'),
+          ),
+        ],
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.green.shade700,
@@ -179,6 +189,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                       color: Colors.green.shade900,
                                     ),
                               ),
+                            ),
+                            TextButton.icon(
+                              icon: const Icon(Icons.explore_outlined, size: 18),
+                              label: const Text('Kıble'),
+                              style: TextButton.styleFrom(foregroundColor: Colors.green.shade800),
+                              onPressed: () => Navigator.pushNamed(context, '/qibla'),
                             ),
                             TextButton.icon(
                               icon: const Icon(Icons.edit_location_alt, size: 18),
@@ -262,9 +278,62 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
 
+                      // Daily Verse / Hadith Card
+                      Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.shade50,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.amber.shade200),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.format_quote, color: Colors.amber.shade900, size: 20),
+                                const SizedBox(width: 6),
+                                Text(
+                                  todayContent.type,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.amber.shade900,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              '"${todayContent.text}"',
+                              style: TextStyle(
+                                fontStyle: FontStyle.italic,
+                                color: Colors.grey.shade900,
+                                fontSize: 14,
+                                height: 1.3,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                '— ${todayContent.source}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
                       // Prayer times list header
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         child: Row(
                           children: [
                             const Icon(Icons.access_time, size: 20, color: Colors.grey),

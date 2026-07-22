@@ -1,3 +1,17 @@
+# Ezan Hatırlatıcı v1.4.0 - Release Notes
+
+**Tarih**: 2026-07-22
+
+## 🎉 Sürüm 1.4.0 Güncellemeleri
+
+- 📱 **Özel Uygulama İkonu (Launcher Icon)**: Telefonunuzda varsayılan Flutter logosu yerine yeni Hilal & Cami temalı `ic_launcher` simgesi tanımlandı.
+- 🎵 **Çeşitlendirilmiş MP3 Ses Tonları & Modern Ses Paneli**: Mekke Ezanı, Medine Ezanı, Huzurlu Ney Tonu ve Bip Uyarısı ses seçenekleri eklendi. Ayarlar panelinde her ses için inline oynatma/durdurma ve görsel vurgu kartları tasarlandı.
+- 🧭 **Kıble Pusulası (Qibla Compass)**: Konumunuza göre Kabe açısını ve mesafesini hassas matematiksel algoritmalarla hesaplayan interaktif Kıble Pusulası ekranı eklendi.
+- 📖 **Günün Ayet & Hadis Kartı**: Ana ekrana her gün yenilenen ilham verici Ayet ve Hadis bölümü eklendi.
+- 🎨 **Modern UI Overhaul**: Degrade renk tonları, kart vurguları ve Material 3 tipografisi ile kullanıcı deneyimi iyileştirildi.
+
+---
+
 # Ezan Hatırlatıcı v1.3.1 - Release Notes
 
 **Tarih**: 2026-07-22
