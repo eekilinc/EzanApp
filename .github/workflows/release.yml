@@ -9,17 +9,31 @@ permissions:
   contents: write
 
 jobs:
-  create_release:
+  build_and_release:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.5'
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
+          files: build/app/outputs/flutter-release/app-release.apk
           body: |
             ## 🎉 Ezan Hatırlatıcı ${{ github.ref_name }}
+
+            ### 📦 Download
+            - **APK**: `ezan-app-${{ github.ref_name }}.apk`
 
             ### ✨ Features
             - 📍 GPS + Şehir seçimi (12+ Türk şehri)
