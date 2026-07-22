@@ -1,3 +1,16 @@
+# Ezan Hatırlatıcı v1.5.0 - Release Notes
+
+**Tarih**: 2026-07-22
+
+## 🎉 Sürüm 1.5.0 Güncellemeleri
+
+- 🕌 **Gerçek İnsan Sesli Ezan Kayıtları**: Yapay tonlar yerine `assets/sounds/` içerisindeki gerçek Mekke-i Mükerreme ve Medine-i Münevvere insan sesli ezan okumaları (`adhan_makkah.mp3` & `adhan_madinah.mp3`) bağlandı.
+- 🌍 **Türkçe & İngilizce Çift Dil Desteği**: `SettingsProvider` altyapısı ile Türkçe 🇹🇷 ve İngilizce 🇬🇧 dil desteği entegre edildi. Tüm namaz vakitleri, sayaçlar, ayarlar, bildirimler ve Hakkında ekranı seçilen dile göre anında güncellenir.
+- ℹ️ **Yenilenen & Zenginleştirilmiş Hakkında Ekranı**: Sürüm rozetleri (`v1.5.0`), öne çıkan özellikler kartları, Aladhan API & Haramain Audio veri kaynağı bilgileri ve kullanıcı değerlendirme butonları ile Hakkında ekranı baştan tasarlandı.
+- 🎨 **Göz Alıcı Arayüz Yenilemesi**: Yeşil degrade tonlar, cam efektli (glassmorphism) sayaç kartları ve yenilenen modern Material 3 tipografisi ile kullanıcı deneyimi en üst seviyeye taşındı.
+
+---
+
 # Ezan Hatırlatıcı v1.4.1 - Release Notes
 
 **Tarih**: 2026-07-22

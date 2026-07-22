@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../constants/reminders.dart';
+import '../constants/app_strings.dart';
 
 class SettingsProvider extends ChangeNotifier {
   late SharedPreferences _prefs;
@@ -9,12 +10,16 @@ class SettingsProvider extends ChangeNotifier {
   Map<String, int> _reminderMinutes = Map<String, int>.from(defaultReminderMinutes);
   bool _soundEnabled = true;
   bool _vibrationEnabled = true;
-  String _notificationSound = 'adhan'; // 'adhan', 'default', 'beep'
+  String _notificationSound = 'adhan_makkah'; // 'adhan_makkah', 'adhan_madinah', 'ney', 'beep'
+  String _appLanguage = 'tr'; // 'tr' or 'en'
 
   Map<String, int> get reminderMinutes => _reminderMinutes;
   bool get soundEnabled => _soundEnabled;
   bool get vibrationEnabled => _vibrationEnabled;
   String get notificationSound => _notificationSound;
+  String get appLanguage => _appLanguage;
+
+  String tr(String key) => AppStrings.get(key, _appLanguage);
 
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -32,7 +37,8 @@ class SettingsProvider extends ChangeNotifier {
 
     _soundEnabled = _prefs.getBool('sound_enabled') ?? true;
     _vibrationEnabled = _prefs.getBool('vibration_enabled') ?? true;
-    _notificationSound = _prefs.getString('notification_sound') ?? 'adhan';
+    _notificationSound = _prefs.getString('notification_sound') ?? 'adhan_makkah';
+    _appLanguage = _prefs.getString('app_language') ?? 'tr';
 
     notifyListeners();
   }
@@ -62,6 +68,12 @@ class SettingsProvider extends ChangeNotifier {
   Future<void> setNotificationSound(String soundKey) async {
     _notificationSound = soundKey;
     await _prefs.setString('notification_sound', soundKey);
+    notifyListeners();
+  }
+
+  Future<void> setAppLanguage(String langCode) async {
+    _appLanguage = langCode;
+    await _prefs.setString('app_language', langCode);
     notifyListeners();
   }
 

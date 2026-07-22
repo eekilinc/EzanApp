@@ -6,7 +6,6 @@ import '../providers/settings_provider.dart';
 import '../models/daily_content.dart';
 import '../widgets/prayer_card.dart';
 import '../widgets/location_picker.dart';
-import '../constants/reminders.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -164,8 +163,8 @@ class _HomeScreenState extends State<HomeScreen> {
               final nextPrayer = prayerProvider.getNextPrayer();
               final timeUntilNext = prayerProvider.getTimeUntilNextPrayer();
               final nextDisplayName = nextPrayer != null
-                  ? (prayerDisplayNames[nextPrayer.name] ?? nextPrayer.name)
-                  : 'Günün vakitleri tamamlandı';
+                  ? settingsProvider.tr(nextPrayer.name.toLowerCase())
+                  : settingsProvider.tr('on_time');
 
               return RefreshIndicator(
                 onRefresh: () => prayerProvider.loadPrayerTimes(settingsProvider),
@@ -183,7 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                prayerProvider.location?.city ?? 'Bilinmiyor',
+                                prayerProvider.location?.city ?? settingsProvider.tr('unknown'),
                                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.green.shade900,
@@ -192,13 +191,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             TextButton.icon(
                               icon: const Icon(Icons.explore_outlined, size: 18),
-                              label: const Text('Kıble'),
+                              label: Text(settingsProvider.tr('qibla')),
                               style: TextButton.styleFrom(foregroundColor: Colors.green.shade800),
                               onPressed: () => Navigator.pushNamed(context, '/qibla'),
                             ),
                             TextButton.icon(
                               icon: const Icon(Icons.edit_location_alt, size: 18),
-                              label: const Text('Değiştir'),
+                              label: Text(settingsProvider.tr('change')),
                               style: TextButton.styleFrom(foregroundColor: Colors.green.shade800),
                               onPressed: _showLocationPicker,
                             ),
@@ -213,15 +212,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [Colors.green.shade800, Colors.green.shade600],
+                            colors: [Colors.green.shade900, Colors.green.shade700],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(22),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.green.withValues(alpha: 0.3),
-                              blurRadius: 10,
+                              color: Colors.green.withValues(alpha: 0.35),
+                              blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),
                           ],
@@ -229,12 +228,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           children: [
                             Text(
-                              'SONRAKİ VAKİT',
+                              settingsProvider.tr('next_prayer'),
                               style: TextStyle(
                                 color: Colors.green.shade100,
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                letterSpacing: 1.2,
+                                letterSpacing: 1.3,
                               ),
                             ),
                             const SizedBox(height: 6),
@@ -242,7 +241,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               nextDisplayName,
                               style: const TextStyle(
                                 color: Colors.white,
-                                fontSize: 22,
+                                fontSize: 24,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -256,14 +255,15 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               const SizedBox(height: 12),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                                 decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.2),
+                                  color: Colors.black.withValues(alpha: 0.25),
                                   borderRadius: BorderRadius.circular(30),
+                                  border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
                                 ),
                                 child: Text(
                                   timeUntilNext != null
-                                      ? 'Kalan Süre: ${_formatDuration(timeUntilNext)}'
+                                      ? '${settingsProvider.tr("time_remaining")}: ${_formatDuration(timeUntilNext)}'
                                       : '--:--:--',
                                   style: const TextStyle(
                                     color: Colors.white,

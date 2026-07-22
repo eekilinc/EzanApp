@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/settings_provider.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final settingsProvider = context.watch<SettingsProvider>();
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Hakkında'),
-        backgroundColor: Colors.green,
+        title: Text(settingsProvider.tr('about')),
+        backgroundColor: Colors.green.shade700,
         foregroundColor: Colors.white,
         centerTitle: true,
       ),
@@ -16,50 +20,57 @@ class AboutScreen extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             // Logo Image
             ClipRRect(
               borderRadius: BorderRadius.circular(24),
               child: Image.asset(
                 'assets/images/app_logo.png',
-                width: 120,
-                height: 120,
+                width: 100,
+                height: 100,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Container(
-                  width: 120,
-                  height: 120,
+                  width: 100,
+                  height: 100,
                   decoration: BoxDecoration(
                     color: Colors.green.shade100,
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: const Icon(
                     Icons.mosque,
-                    size: 64,
+                    size: 54,
                     color: Colors.green,
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             Text(
-              'Ezan Hatırlatıcı',
+              settingsProvider.tr('app_title'),
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.green.shade800,
+                    color: Colors.green.shade900,
                   ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              'Sürüm 1.0.0',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey.shade600,
-                  ),
+            const SizedBox(height: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.green.shade100,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                '${settingsProvider.tr('version')} 1.5.0',
+                style: TextStyle(
+                  color: Colors.green.shade900,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+              ),
             ),
             const SizedBox(height: 24),
-            const Divider(),
-            const SizedBox(height: 16),
 
-            // Feature Card
+            // Description Card
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
@@ -70,17 +81,23 @@ class AboutScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Uygulama Hakkında',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.green.shade700,
-                          ),
+                    Row(
+                      children: [
+                        Icon(Icons.info_outline, color: Colors.green.shade700),
+                        const SizedBox(width: 8),
+                        Text(
+                          settingsProvider.tr('about'),
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green.shade800,
+                              ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 12),
-                    const Text(
-                      'Ezan Hatırlatıcı, bulunduğunuz konuma veya seçeceğiniz şehre göre namaz vakitlerini tam zamanında öğrenmenizi ve vakit girmeden önce özelleştirilebilir bildirimler almanızı sağlayan kullanıcı dostu bir Flutter uygulamasıdır.',
-                      style: TextStyle(height: 1.4),
+                    const SizedBox(height: 10),
+                    Text(
+                      settingsProvider.tr('about_description'),
+                      style: const TextStyle(height: 1.4, fontSize: 14),
                     ),
                   ],
                 ),
@@ -101,18 +118,19 @@ class AboutScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Öne Çıkan Özellikler',
+                      settingsProvider.tr('features'),
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: Colors.green.shade700,
+                            color: Colors.green.shade800,
                           ),
                     ),
                     const SizedBox(height: 12),
-                    _buildFeatureRow(Icons.my_location, 'Otomatik GPS & Şehir Seçimi'),
-                    _buildFeatureRow(Icons.timer, 'Canlı Geri Sayım Sayacı'),
-                    _buildFeatureRow(Icons.notifications_active, 'Özelleştirilebilir Hatırlatıcılar (0-60 dk)'),
-                    _buildFeatureRow(Icons.wifi_off, 'Çevrimdışı (Offline) Önbellekleme'),
-                    _buildFeatureRow(Icons.volume_up, 'Ezan & Uyarı Sesi Desteği'),
+                    _buildFeatureRow(settingsProvider.tr('feature_1')),
+                    _buildFeatureRow(settingsProvider.tr('feature_2')),
+                    _buildFeatureRow(settingsProvider.tr('feature_3')),
+                    _buildFeatureRow(settingsProvider.tr('feature_4')),
+                    _buildFeatureRow(settingsProvider.tr('feature_5')),
+                    _buildFeatureRow(settingsProvider.tr('feature_6')),
                   ],
                 ),
               ),
@@ -126,27 +144,78 @@ class AboutScreen extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const Padding(
-                padding: EdgeInsets.all(16),
-                child: Row(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.info_outline, color: Colors.green),
-                    SizedBox(width: 16),
-                    Expanded(
-                      child: Text(
-                        'Namaz vakitleri Aladhan API altyapısı kullanılarak hesaplanmaktadır.',
-                        style: TextStyle(fontSize: 13, height: 1.3),
-                      ),
+                    Text(
+                      settingsProvider.tr('data_source'),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green.shade800,
+                          ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(Icons.api, color: Colors.blue, size: 20),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            settingsProvider.tr('aladhan_api'),
+                            style: const TextStyle(fontSize: 13),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Icon(Icons.library_music, color: Colors.orange, size: 20),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            settingsProvider.tr('audio_recitations'),
+                            style: const TextStyle(fontSize: 13),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
             ),
 
+            const SizedBox(height: 16),
+
+            // Feedback & Rate Button
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(settingsProvider.tr('test_notification_sent')),
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.star, color: Colors.amber),
+                label: Text(settingsProvider.tr('rate_app')),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  side: BorderSide(color: Colors.green.shade600),
+                  foregroundColor: Colors.green.shade900,
+                ),
+              ),
+            ),
+
             const SizedBox(height: 24),
             Text(
-              '© 2026 Ezan Hatırlatıcı. Tüm Hakları Saklıdır.',
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+              '© 2026 Ezan Hatırlatıcı. ${settingsProvider.tr("mit_license")}',
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
           ],
@@ -155,20 +224,12 @@ class AboutScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFeatureRow(IconData icon, String title) {
+  Widget _buildFeatureRow(String text) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: Colors.green),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(fontSize: 14),
-            ),
-          ),
-        ],
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 14, height: 1.3),
       ),
     );
   }

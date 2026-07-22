@@ -47,9 +47,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final settingsProvider = context.watch<SettingsProvider>();
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ayarlar'),
+        title: Text(settingsProvider.tr('settings')),
         backgroundColor: Colors.green.shade700,
         foregroundColor: Colors.white,
         centerTitle: true,
@@ -62,9 +64,75 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Language Selection Card
+                  Text(
+                    '${settingsProvider.tr('language')} 🌍',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: ChoiceChip(
+                              label: Center(child: Text(settingsProvider.tr('turkish'))),
+                              selected: settingsProvider.appLanguage == 'tr',
+                              selectedColor: Colors.green.shade100,
+                              labelStyle: TextStyle(
+                                fontWeight: settingsProvider.appLanguage == 'tr'
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                                color: settingsProvider.appLanguage == 'tr'
+                                    ? Colors.green.shade900
+                                    : Colors.black87,
+                              ),
+                              onSelected: (selected) {
+                                if (selected) {
+                                  settingsProvider.setAppLanguage('tr');
+                                }
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ChoiceChip(
+                              label: Center(child: Text(settingsProvider.tr('english'))),
+                              selected: settingsProvider.appLanguage == 'en',
+                              selectedColor: Colors.green.shade100,
+                              labelStyle: TextStyle(
+                                fontWeight: settingsProvider.appLanguage == 'en'
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                                color: settingsProvider.appLanguage == 'en'
+                                    ? Colors.green.shade900
+                                    : Colors.black87,
+                              ),
+                              onSelected: (selected) {
+                                if (selected) {
+                                  settingsProvider.setAppLanguage('en');
+                                }
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const Divider(height: 28),
+
                   // Section Header: Notification Settings
                   Text(
-                    'Bildirim Ayarları 🔔',
+                    settingsProvider.tr('notification_settings'),
                     style: Theme.of(context)
                         .textTheme
                         .titleLarge
@@ -74,8 +142,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                   // Sound settings
                   SwitchListTile(
-                    title: const Text('Bildirim Sesi'),
-                    subtitle: const Text('Vakit yaklaştığında sesli uyarı ver'),
+                    title: Text(settingsProvider.tr('notification_sound')),
+                    subtitle: Text(settingsProvider.tr('notification_sound_desc')),
                     value: settingsProvider.soundEnabled,
                     activeTrackColor: Colors.green.shade400,
                     onChanged: (value) async {
@@ -87,8 +155,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                   // Vibration settings
                   SwitchListTile(
-                    title: const Text('Titreşim'),
-                    subtitle: const Text('Bildirim geldiğinde cihazı titreştir'),
+                    title: Text(settingsProvider.tr('vibration')),
+                    subtitle: Text(settingsProvider.tr('vibration_desc')),
                     value: settingsProvider.vibrationEnabled,
                     activeTrackColor: Colors.green.shade400,
                     onChanged: (value) async {
@@ -104,14 +172,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Bildirim Sesi Seçimi',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        Text(
+                          settingsProvider.tr('select_notification_sound'),
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
-                          'Namaz vakti veya hatırlatmada çalacak olan sesi tercih edin:',
-                          style: TextStyle(color: Colors.grey, fontSize: 13),
+                        Text(
+                          settingsProvider.tr('select_sound_sub'),
+                          style: const TextStyle(color: Colors.grey, fontSize: 13),
                         ),
                         const SizedBox(height: 12),
 
