@@ -25,16 +25,10 @@ jobs:
       - name: Build APK
         run: flutter build apk --release
 
-      - name: Check build output
-        run: find build -name "*.apk" -type f
-
-      - name: List build directory
-        run: ls -la build/app/outputs/flutter-release/ || echo "Directory not found"
-
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: build/app/outputs/flutter-release/app-release.apk
+          files: build/app/outputs/apk/release/app-release.apk
           body: |
             ## 🎉 Ezan Hatırlatıcı ${{ github.ref_name }}
 
