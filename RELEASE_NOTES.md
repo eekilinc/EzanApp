@@ -1,3 +1,15 @@
+# Ezan Hatırlatıcı v1.3.1 - Release Notes
+
+**Tarih**: 2026-07-22
+
+## 🎉 Sürüm 1.3.1 Güncellemeleri
+
+- 🎚️ **Slider Düzeltmeleri**: Hatırlatıcı süre slider'larında oluşan sabit harita kilitlenme sorunu çözüldü, süre ayarlamaları artık sorunsuz çalışıyor.
+- 🔔 **Bildirim Saat Dilimi ve İzin İyileştirmeleri**: `Europe/Istanbul` saat dilimi ve Android bildirim kanalı ilklendirilerek bildirimlerin tam zamanında tetiklenmesi sağlandı. Ayrıca anında deneme için **"Test Bildirimi"** butonu eklendi.
+- 🎵 **Bildirim Sesi Seçeneği ve Ses Önizleme**: Tam Ezan Sesi, Klasik Bildirim Tonu ve Kısa Bip seçenekleri eklendi. Seçilen sesi anında dinlemek için **"Sesi Dinle / Test Et"** butonu entegre edildi.
+
+---
+
 # Ezan Hatırlatıcı v1.3.0 - Release Notes
 
 **Tarih**: 2026-07-22

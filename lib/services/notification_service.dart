@@ -17,6 +17,11 @@ class NotificationService {
 
   Future<void> initialize() async {
     tzdata.initializeTimeZones();
+    try {
+      tz.setLocalLocation(tz.getLocation('Europe/Istanbul'));
+    } catch (_) {
+      // Fallback if Europe/Istanbul is not available
+    }
 
     const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -36,9 +41,46 @@ class NotificationService {
     final androidImplementation = _notificationsPlugin
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
     if (androidImplementation != null) {
+      const androidChannel = AndroidNotificationChannel(
+        'ezan_channel',
+        'Ezan Hatırlatıcı Bildirimleri',
+        description: 'Namaz vakitleri hatırlatma bildirimleri',
+        importance: Importance.max,
+        playSound: true,
+        enableVibration: true,
+      );
+      await androidImplementation.createNotificationChannel(androidChannel);
+
       await androidImplementation.requestNotificationsPermission();
       await androidImplementation.requestExactAlarmsPermission();
     }
+  }
+
+  Future<void> showTestNotification({
+    bool soundEnabled = true,
+    bool vibrationEnabled = true,
+  }) async {
+    await _notificationsPlugin.show(
+      999999,
+      'Ezan Hatırlatıcı Test Bildirimi 🔔',
+      'Bildirim sisteminiz ve ayarlarınız başarıyla çalışıyor!',
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          'ezan_channel',
+          'Ezan Hatırlatıcı Bildirimleri',
+          channelDescription: 'Namaz vakitleri hatırlatma bildirimleri',
+          importance: Importance.max,
+          priority: Priority.high,
+          enableVibration: vibrationEnabled,
+          playSound: soundEnabled,
+        ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: soundEnabled,
+        ),
+      ),
+    );
   }
 
   Future<void> scheduleNotification({
@@ -50,11 +92,12 @@ class NotificationService {
     bool vibrationEnabled = true,
   }) async {
     try {
+      final scheduledTzDateTime = tz.TZDateTime.from(scheduledTime, tz.local);
       await _notificationsPlugin.zonedSchedule(
         id,
         title,
         body,
-        tz.TZDateTime.from(scheduledTime, tz.local),
+        scheduledTzDateTime,
         NotificationDetails(
           android: AndroidNotificationDetails(
             'ezan_channel',
@@ -78,11 +121,12 @@ class NotificationService {
     } catch (e) {
       // In case exact alarm fails, fallback to inexact scheduling
       try {
+        final scheduledTzDateTime = tz.TZDateTime.from(scheduledTime, tz.local);
         await _notificationsPlugin.zonedSchedule(
           id,
           title,
           body,
-          tz.TZDateTime.from(scheduledTime, tz.local),
+          scheduledTzDateTime,
           NotificationDetails(
             android: AndroidNotificationDetails(
               'ezan_channel',

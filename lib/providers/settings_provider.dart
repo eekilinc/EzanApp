@@ -6,13 +6,15 @@ import '../constants/reminders.dart';
 class SettingsProvider extends ChangeNotifier {
   late SharedPreferences _prefs;
 
-  Map<String, int> _reminderMinutes = defaultReminderMinutes;
+  Map<String, int> _reminderMinutes = Map<String, int>.from(defaultReminderMinutes);
   bool _soundEnabled = true;
   bool _vibrationEnabled = true;
+  String _notificationSound = 'adhan'; // 'adhan', 'default', 'beep'
 
   Map<String, int> get reminderMinutes => _reminderMinutes;
   bool get soundEnabled => _soundEnabled;
   bool get vibrationEnabled => _vibrationEnabled;
+  String get notificationSound => _notificationSound;
 
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -24,15 +26,19 @@ class SettingsProvider extends ChangeNotifier {
     if (remindersJson != null) {
       final decoded = jsonDecode(remindersJson) as Map<String, dynamic>;
       _reminderMinutes = decoded.cast<String, int>();
+    } else {
+      _reminderMinutes = Map<String, int>.from(defaultReminderMinutes);
     }
 
     _soundEnabled = _prefs.getBool('sound_enabled') ?? true;
     _vibrationEnabled = _prefs.getBool('vibration_enabled') ?? true;
+    _notificationSound = _prefs.getString('notification_sound') ?? 'adhan';
 
     notifyListeners();
   }
 
   Future<void> setReminderMinutes(String prayer, int minutes) async {
+    _reminderMinutes = Map<String, int>.from(_reminderMinutes);
     _reminderMinutes[prayer] = minutes;
     await _prefs.setString(
       'reminder_minutes',
@@ -50,6 +56,12 @@ class SettingsProvider extends ChangeNotifier {
   Future<void> setVibrationEnabled(bool enabled) async {
     _vibrationEnabled = enabled;
     await _prefs.setBool('vibration_enabled', enabled);
+    notifyListeners();
+  }
+
+  Future<void> setNotificationSound(String soundKey) async {
+    _notificationSound = soundKey;
+    await _prefs.setString('notification_sound', soundKey);
     notifyListeners();
   }
 
