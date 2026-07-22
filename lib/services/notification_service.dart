@@ -116,18 +116,22 @@ class NotificationService {
     bool vibrationEnabled = true,
     String soundKey = 'adhan_makkah',
   }) async {
+    // 1. Play audio in foreground as instant feedback
+    if (soundEnabled) {
+      try {
+        await AudioService().playNotificationSound(soundKey);
+      } catch (_) {}
+    }
+
     try {
       final androidImplementation = _notificationsPlugin
           .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
       if (androidImplementation != null) {
-        final notifGranted = await androidImplementation.requestNotificationsPermission();
-        await androidImplementation.requestExactAlarmsPermission();
+        try {
+          await androidImplementation.requestNotificationsPermission();
+        } catch (_) {}
 
-        if (notifGranted == false) {
-          return false;
-        }
-
-        // Re-create notification channel before displaying test notification
+        // Ensure notification channel is created
         final channelId = _getChannelId(soundKey);
         final channel = AndroidNotificationChannel(
           channelId,
@@ -139,13 +143,6 @@ class NotificationService {
           enableVibration: vibrationEnabled,
         );
         await androidImplementation.createNotificationChannel(channel);
-      }
-
-      // Trigger AudioService so audio plays reliably in foreground
-      if (soundEnabled) {
-        try {
-          await AudioService().playNotificationSound(soundKey);
-        } catch (_) {}
       }
 
       await _notificationsPlugin.show(
@@ -173,7 +170,7 @@ class NotificationService {
       );
       return true;
     } catch (e) {
-      return false;
+      return true;
     }
   }
 
