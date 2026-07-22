@@ -367,7 +367,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           width: double.infinity,
                           child: ElevatedButton.icon(
                             onPressed: () async {
-                              await NotificationService().showTestNotification(
+                              final success = await NotificationService().showTestNotification(
                                 soundEnabled: settingsProvider.soundEnabled,
                                 vibrationEnabled: settingsProvider.vibrationEnabled,
                                 soundKey: settingsProvider.notificationSound,
@@ -375,8 +375,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text(settingsProvider.tr('test_notification_sent')),
-                                    duration: const Duration(seconds: 2),
+                                    content: Text(
+                                      success
+                                          ? settingsProvider.tr('test_notification_sent')
+                                          : (settingsProvider.appLanguage == 'en'
+                                              ? 'Notification permission denied. Please enable notifications in Android Settings.'
+                                              : 'Bildirim izni kapalı. Lütfen cihaz ayarlarınızdan izin verin.'),
+                                    ),
+                                    duration: const Duration(seconds: 3),
                                   ),
                                 );
                               }

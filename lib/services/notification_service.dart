@@ -2,6 +2,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tzdata;
 import '../constants/reminders.dart';
+import 'audio_service.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -110,38 +111,70 @@ class NotificationService {
     }
   }
 
-  Future<void> showTestNotification({
+  Future<bool> showTestNotification({
     bool soundEnabled = true,
     bool vibrationEnabled = true,
     String soundKey = 'adhan_makkah',
   }) async {
-    final androidImplementation = _notificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
-    if (androidImplementation != null) {
-      await androidImplementation.requestNotificationsPermission();
-    }
-    await _notificationsPlugin.show(
-      999999,
-      'Ezan Hatırlatıcı Test Bildirimi 🔔',
-      'Bildirim sisteminiz ve ayarlarınız başarıyla çalışıyor!',
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          _getChannelId(soundKey),
-          'Ezan Hatırlatıcı Bildirimleri',
-          channelDescription: 'Namaz vakitleri hatırlatma bildirimleri',
+    try {
+      final androidImplementation = _notificationsPlugin
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+      if (androidImplementation != null) {
+        final notifGranted = await androidImplementation.requestNotificationsPermission();
+        await androidImplementation.requestExactAlarmsPermission();
+
+        if (notifGranted == false) {
+          return false;
+        }
+
+        // Re-create notification channel before displaying test notification
+        final channelId = _getChannelId(soundKey);
+        final channel = AndroidNotificationChannel(
+          channelId,
+          'Ezan Hatırlatıcı Bildirimleri ($soundKey)',
+          description: 'Namaz vakitleri hatırlatma bildirimleri',
           importance: Importance.max,
-          priority: Priority.high,
-          enableVibration: vibrationEnabled,
           playSound: soundEnabled,
           sound: soundEnabled ? _getSoundResource(soundKey) : null,
+          enableVibration: vibrationEnabled,
+        );
+        await androidImplementation.createNotificationChannel(channel);
+      }
+
+      // Trigger AudioService so audio plays reliably in foreground
+      if (soundEnabled) {
+        try {
+          await AudioService().playNotificationSound(soundKey);
+        } catch (_) {}
+      }
+
+      await _notificationsPlugin.show(
+        999999,
+        'Ezan Hatırlatıcı Test Bildirimi 🔔',
+        'Bildirim sisteminiz ve ayarlarınız başarıyla çalışıyor!',
+        NotificationDetails(
+          android: AndroidNotificationDetails(
+            _getChannelId(soundKey),
+            'Ezan Hatırlatıcı Bildirimleri',
+            channelDescription: 'Namaz vakitleri hatırlatma bildirimleri',
+            importance: Importance.max,
+            priority: Priority.max,
+            visibility: NotificationVisibility.public,
+            enableVibration: vibrationEnabled,
+            playSound: soundEnabled,
+            sound: soundEnabled ? _getSoundResource(soundKey) : null,
+          ),
+          iOS: DarwinNotificationDetails(
+            presentAlert: true,
+            presentBadge: true,
+            presentSound: soundEnabled,
+          ),
         ),
-        iOS: DarwinNotificationDetails(
-          presentAlert: true,
-          presentBadge: true,
-          presentSound: soundEnabled,
-        ),
-      ),
-    );
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<void> scheduleNotification({
