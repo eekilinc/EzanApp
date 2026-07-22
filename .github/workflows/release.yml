@@ -12,31 +12,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get tag name
-        id: tag
-        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-
       - name: Create Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.tag.outputs.TAG_NAME }}
-          release_name: Release ${{ steps.tag.outputs.TAG_NAME }}
           body: |
-            ## 🎉 Ezan Hatırlatıcı ${{ steps.tag.outputs.TAG_NAME }}
-
-            ### 📦 Download
-            - [Release Notes](../../releases/tag/${{ steps.tag.outputs.TAG_NAME }})
+            ## 🎉 Ezan Hatırlatıcı ${{ github.ref_name }}
 
             ### ✨ Features
-            - Prayer times with customizable reminders
-            - GPS location + city selection
-            - Adhan notifications
-            - Settings panel
+            - 📍 GPS + Şehir seçimi (12+ Türk şehri)
+            - 🕌 5 vakit namaz saatleri
+            - 🔔 Özelleştirilebilir hatırlatmalar (0-60 dakika)
+            - 🎵 Ezan sesi oynatma
+            - ⚙️ Ayarlar paneli (ses, titreşim, hatırlatma süreleri)
+            - 🌙 Kullanıcı dostu Türkçe arayüz
 
-            ### 📖 Documentation
-            - [README](../../blob/main/README.md)
-            - [GitHub](https://github.com/eekilinc/EzanApp)
+            ### 🛠️ Technical Stack
+            - Flutter 3.38.5
+            - Dart 3.10.4
+            - Provider state management
+            - Aladhan API
+
+            ### 📖 Links
+            - [README](https://github.com/eekilinc/EzanApp/blob/main/README.md)
+            - [Release Notes](https://github.com/eekilinc/EzanApp/blob/main/RELEASE_NOTES.md)
           draft: false
           prerelease: false
