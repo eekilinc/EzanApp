@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/settings_provider.dart';
 
 class LocationPicker extends StatefulWidget {
   final List<String> cities;
@@ -48,6 +50,8 @@ class _LocationPickerState extends State<LocationPicker> {
 
   @override
   Widget build(BuildContext context) {
+    final settingsProvider = context.watch<SettingsProvider>();
+
     return Column(
       children: [
         Padding(
@@ -57,7 +61,7 @@ class _LocationPickerState extends State<LocationPicker> {
               ElevatedButton.icon(
                 onPressed: widget.onUseGpsPressed,
                 icon: const Icon(Icons.location_on),
-                label: const Text('GPS ile Konumumu Al'),
+                label: Text(settingsProvider.tr('use_gps_location')),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
@@ -68,14 +72,14 @@ class _LocationPickerState extends State<LocationPicker> {
               const Divider(),
               const SizedBox(height: 16),
               Text(
-                'Şehir Seç',
+                settingsProvider.tr('select_city'),
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
-                  hintText: 'Şehir ara...',
+                  hintText: settingsProvider.tr('search_city'),
                   prefixIcon: const Icon(Icons.search),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),

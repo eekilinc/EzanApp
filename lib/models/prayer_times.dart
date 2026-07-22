@@ -44,6 +44,18 @@ class PrayerTimes {
 
   DateTime? getTimingByName(String name) => timings[name];
 
+  String _formatTime(DateTime? dt) {
+    if (dt == null) return '--:--';
+    return '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+  }
+
+  String get fajrTime => _formatTime(timings['Fajr']);
+  String get sunriseTime => _formatTime(timings['Sunrise']);
+  String get dhuhrTime => _formatTime(timings['Dhuhr']);
+  String get asrTime => _formatTime(timings['Asr']);
+  String get maghribTime => _formatTime(timings['Maghrib']);
+  String get ishaTime => _formatTime(timings['Isha']);
+
   List<PrayerEntry> getPrayerList() {
     final prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
     return prayers

@@ -13,6 +13,7 @@ class SettingsProvider extends ChangeNotifier {
   String _notificationSound = 'adhan_makkah'; // 'adhan_makkah', 'adhan_madinah', 'ney', 'beep'
   String _appLanguage = 'tr'; // 'tr' or 'en'
   ThemeMode _themeMode = ThemeMode.system;
+  String _asrSchool = 'standard'; // 'standard' or 'hanafi'
 
   Map<String, int> get reminderMinutes => _reminderMinutes;
   bool get soundEnabled => _soundEnabled;
@@ -20,6 +21,7 @@ class SettingsProvider extends ChangeNotifier {
   String get notificationSound => _notificationSound;
   String get appLanguage => _appLanguage;
   ThemeMode get themeMode => _themeMode;
+  String get asrSchool => _asrSchool;
 
   String tr(String key) => AppStrings.get(key, _appLanguage);
 
@@ -41,6 +43,7 @@ class SettingsProvider extends ChangeNotifier {
     _vibrationEnabled = _prefs.getBool('vibration_enabled') ?? true;
     _notificationSound = _prefs.getString('notification_sound') ?? 'adhan_makkah';
     _appLanguage = _prefs.getString('app_language') ?? 'tr';
+    _asrSchool = _prefs.getString('asr_school') ?? 'standard';
 
     final themeStr = _prefs.getString('theme_mode') ?? 'system';
     if (themeStr == 'light') {
@@ -94,6 +97,12 @@ class SettingsProvider extends ChangeNotifier {
     if (mode == ThemeMode.light) modeStr = 'light';
     if (mode == ThemeMode.dark) modeStr = 'dark';
     await _prefs.setString('theme_mode', modeStr);
+    notifyListeners();
+  }
+
+  Future<void> setAsrSchool(String school) async {
+    _asrSchool = school;
+    await _prefs.setString('asr_school', school);
     notifyListeners();
   }
 

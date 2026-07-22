@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/prayer_provider.dart';
 import '../providers/settings_provider.dart';
+import '../services/audio_service.dart';
 import '../models/daily_content.dart';
 import '../widgets/prayer_card.dart';
 import '../widgets/location_picker.dart';
@@ -148,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ElevatedButton.icon(
                           onPressed: () => prayerProvider.loadPrayerTimes(settingsProvider),
                           icon: const Icon(Icons.refresh),
-                          label: const Text('Tekrar Dene'),
+                          label: Text(settingsProvider.tr('retry')),
                         ),
                       ],
                     ),
@@ -157,8 +158,8 @@ class _HomeScreenState extends State<HomeScreen> {
               }
 
               if (prayerProvider.prayerTimes == null) {
-                return const Center(
-                  child: Text('Namaz saatleri yüklenemedi'),
+                return Center(
+                  child: Text(settingsProvider.tr('prayer_load_error')),
                 );
               }
 
@@ -308,9 +309,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
 
-                      // Quick Action Bar (Zikirmatik & Dini Günler & Kıble)
+                      // Quick Action Bar (Kıble & Zikirmatik & Dini Günler & Aylık Takvim)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                         margin: const EdgeInsets.only(top: 8),
                         child: Row(
                           children: [
@@ -327,12 +328,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   child: Column(
                                     children: [
-                                      const Icon(Icons.explore, color: Colors.green, size: 22),
+                                      const Icon(Icons.explore, color: Colors.green, size: 20),
                                       const SizedBox(height: 4),
                                       Text(
                                         settingsProvider.tr('qibla'),
                                         style: TextStyle(
-                                          fontSize: 12,
+                                          fontSize: 11,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.green.shade900,
                                         ),
@@ -342,7 +343,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 10),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(14),
@@ -356,12 +357,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   child: Column(
                                     children: [
-                                      const Icon(Icons.touch_app, color: Colors.teal, size: 22),
+                                      const Icon(Icons.touch_app, color: Colors.teal, size: 20),
                                       const SizedBox(height: 4),
                                       Text(
                                         settingsProvider.appLanguage == 'en' ? 'Dhikr 📿' : 'Zikirmatik 📿',
                                         style: TextStyle(
-                                          fontSize: 12,
+                                          fontSize: 11,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.teal.shade900,
                                         ),
@@ -371,7 +372,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 10),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(14),
@@ -385,14 +386,43 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   child: Column(
                                     children: [
-                                      Icon(Icons.calendar_month, color: Colors.amber.shade900, size: 22),
+                                      Icon(Icons.calendar_month, color: Colors.amber.shade900, size: 20),
                                       const SizedBox(height: 4),
                                       Text(
                                         settingsProvider.appLanguage == 'en' ? 'Events 📅' : 'Dini Günler 📅',
                                         style: TextStyle(
-                                          fontSize: 12,
+                                          fontSize: 11,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.amber.shade900,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(14),
+                                onTap: () => Navigator.pushNamed(context, '/monthly'),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.shade50,
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(color: Colors.blue.shade200),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      const Icon(Icons.calendar_today, color: Colors.blue, size: 20),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        settingsProvider.appLanguage == 'en' ? 'Monthly 🗓️' : 'Aylık 🗓️',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.blue.shade900,
                                         ),
                                       ),
                                     ],
@@ -559,7 +589,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             const Icon(Icons.access_time, size: 20, color: Colors.grey),
                             const SizedBox(width: 8),
                             Text(
-                              'Bugünün Namaz Saatleri',
+                              settingsProvider.tr('todays_prayers'),
                               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -590,12 +620,19 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Navigator.pushNamed(context, '/settings');
+          if (AudioService().isPlaying) {
+            AudioService().stop();
+            setState(() {});
+          } else {
+            Navigator.pushNamed(context, '/settings');
+          }
         },
-        backgroundColor: Colors.green.shade700,
+        backgroundColor: AudioService().isPlaying ? Colors.red.shade700 : Colors.green.shade700,
         foregroundColor: Colors.white,
-        icon: const Icon(Icons.settings),
-        label: const Text('Ayarlar'),
+        icon: Icon(AudioService().isPlaying ? Icons.stop_circle : Icons.settings),
+        label: Text(AudioService().isPlaying
+            ? context.watch<SettingsProvider>().tr('stop_audio')
+            : context.watch<SettingsProvider>().tr('settings')),
       ),
     );
   }

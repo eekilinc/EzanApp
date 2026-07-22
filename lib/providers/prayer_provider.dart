@@ -44,6 +44,7 @@ class PrayerProvider extends ChangeNotifier {
       _prayerTimes = await _apiService.getPrayerTimesForToday(
         latitude: _location!.latitude,
         longitude: _location!.longitude,
+        school: settingsProvider?.asrSchool ?? 'standard',
       );
 
       // Schedule notifications for today's prayers using settings

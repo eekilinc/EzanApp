@@ -403,27 +403,83 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
 
+                  // Asr School Selection Card
+                  const SizedBox(height: 16),
+                  Text(
+                    settingsProvider.tr('asr_school'),
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    settingsProvider.tr('asr_school_desc'),
+                    style: const TextStyle(color: Colors.grey, fontSize: 13),
+                  ),
+                  const SizedBox(height: 8),
+                  Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: ChoiceChip(
+                              label: Center(child: Text(settingsProvider.tr('asr_standard'))),
+                              selected: settingsProvider.asrSchool == 'standard',
+                              selectedColor: Colors.green.shade100,
+                              onSelected: (selected) {
+                                if (selected) {
+                                  settingsProvider.setAsrSchool('standard');
+                                  context.read<PrayerProvider>().loadPrayerTimes(settingsProvider);
+                                }
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: ChoiceChip(
+                              label: Center(child: Text(settingsProvider.tr('asr_hanafi'))),
+                              selected: settingsProvider.asrSchool == 'hanafi',
+                              selectedColor: Colors.green.shade100,
+                              onSelected: (selected) {
+                                if (selected) {
+                                  settingsProvider.setAsrSchool('hanafi');
+                                  context.read<PrayerProvider>().loadPrayerTimes(settingsProvider);
+                                }
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
                   const Divider(height: 32, thickness: 1.5),
 
                   // Reminder times section
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Text(
-                      'Hatırlatma Süreleri ⏰',
+                      settingsProvider.tr('reminder_times'),
                       style: Theme.of(context)
                           .textTheme
                           .titleLarge
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                   ),
-                  const Text(
-                    'Her vakitten ne kadar süre önce bildirim almak istediğinizi belirleyin:',
-                    style: TextStyle(color: Colors.grey, fontSize: 13),
+                  Text(
+                    settingsProvider.tr('reminder_times_desc'),
+                    style: const TextStyle(color: Colors.grey, fontSize: 13),
                   ),
                   const SizedBox(height: 12),
 
                   ...prayerNames.map((prayer) {
-                    final displayName = prayerDisplayNames[prayer] ?? prayer;
+                    final displayName = settingsProvider.tr(prayer.toLowerCase());
                     final currentMinutes =
                         settingsProvider.getReminderMinutes(prayer);
 
@@ -457,8 +513,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   ),
                                   child: Text(
                                     currentMinutes == 0
-                                        ? 'Vakit girince'
-                                        : '$currentMinutes dakika önce',
+                                        ? settingsProvider.tr('on_time')
+                                        : '$currentMinutes ${settingsProvider.tr("min_before")}',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.green.shade800,
@@ -474,8 +530,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               divisions: 12,
                               activeColor: Colors.green.shade700,
                               label: currentMinutes == 0
-                                  ? 'Tam Vaktinde'
-                                  : '$currentMinutes dk',
+                                  ? settingsProvider.tr('exact_time')
+                                  : '$currentMinutes min',
                               onChanged: (value) {
                                 settingsProvider.setReminderMinutes(
                                   prayer,
@@ -497,8 +553,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   // About Section Button
                   ListTile(
                     leading: const Icon(Icons.info_outline, color: Colors.green),
-                    title: const Text('Hakkında'),
-                    subtitle: const Text('Uygulama sürümü, kaynaklar ve bilgiler'),
+                    title: Text(settingsProvider.tr('about')),
+                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 2.1.0'),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       Navigator.pushNamed(context, '/about');

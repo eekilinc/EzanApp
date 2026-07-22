@@ -14,10 +14,11 @@ class ApiService {
   Future<PrayerTimes> getPrayerTimesForToday({
     required double latitude,
     required double longitude,
+    String school = 'standard',
   }) async {
     final now = DateTime.now();
     final dateStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-    final cacheKey = '$_cacheKeyPrefix${dateStr}_${latitude.toStringAsFixed(2)}_${longitude.toStringAsFixed(2)}';
+    final cacheKey = '$_cacheKeyPrefix${dateStr}_${latitude.toStringAsFixed(2)}_${longitude.toStringAsFixed(2)}_$school';
 
     try {
       final timestamp = now.millisecondsSinceEpoch ~/ 1000;
@@ -26,7 +27,8 @@ class ApiService {
         queryParameters: {
           'latitude': latitude,
           'longitude': longitude,
-          'method': 2,
+          'method': 13, // Diyanet / Turkey Method
+          'school': school == 'hanafi' ? 1 : 0,
         },
       );
 
