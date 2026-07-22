@@ -69,6 +69,8 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      isDismissible: true,
     );
   }
 
@@ -169,6 +171,8 @@ class _HomeScreenState extends State<HomeScreen> {
               final nextDisplayName = nextPrayer != null
                   ? settingsProvider.tr(nextPrayer.name.toLowerCase())
                   : settingsProvider.tr('on_time');
+
+              final isDark = Theme.of(context).brightness == Brightness.dark;
 
               return RefreshIndicator(
                 onRefresh: () => prayerProvider.loadPrayerTimes(settingsProvider),
@@ -309,126 +313,61 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
 
-                      // Quick Action Bar (Kıble & Zikirmatik & Dini Günler & Aylık Takvim)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                        margin: const EdgeInsets.only(top: 8),
-                        child: Row(
+                      // Quick Action Bar (2x2 Grid with Dark/Light Mode Adaptability)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Column(
                           children: [
-                            Expanded(
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(14),
-                                onTap: () => Navigator.pushNamed(context, '/qibla'),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
-                                  decoration: BoxDecoration(
-                                    color: Colors.green.shade50,
-                                    borderRadius: BorderRadius.circular(14),
-                                    border: Border.all(color: Colors.green.shade200),
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      const Icon(Icons.explore, color: Colors.green, size: 20),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        settingsProvider.tr('qibla'),
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.green.shade900,
-                                        ),
-                                      ),
-                                    ],
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildQuickTile(
+                                    context: context,
+                                    icon: Icons.explore_rounded,
+                                    label: settingsProvider.tr('qibla'),
+                                    color: Colors.green,
+                                    route: '/qibla',
+                                    isDark: isDark,
                                   ),
                                 ),
-                              ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: _buildQuickTile(
+                                    context: context,
+                                    icon: Icons.touch_app_rounded,
+                                    label: settingsProvider.appLanguage == 'en' ? 'Dhikr 📿' : 'Zikirmatik 📿',
+                                    color: Colors.teal,
+                                    route: '/dhikr',
+                                    isDark: isDark,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(14),
-                                onTap: () => Navigator.pushNamed(context, '/dhikr'),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
-                                  decoration: BoxDecoration(
-                                    color: Colors.teal.shade50,
-                                    borderRadius: BorderRadius.circular(14),
-                                    border: Border.all(color: Colors.teal.shade200),
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      const Icon(Icons.touch_app, color: Colors.teal, size: 20),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        settingsProvider.appLanguage == 'en' ? 'Dhikr 📿' : 'Zikirmatik 📿',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.teal.shade900,
-                                        ),
-                                      ),
-                                    ],
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildQuickTile(
+                                    context: context,
+                                    icon: Icons.calendar_month_rounded,
+                                    label: settingsProvider.appLanguage == 'en' ? 'Events 📅' : 'Dini Günler 📅',
+                                    color: Colors.amber,
+                                    route: '/calendar',
+                                    isDark: isDark,
                                   ),
                                 ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(14),
-                                onTap: () => Navigator.pushNamed(context, '/calendar'),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
-                                  decoration: BoxDecoration(
-                                    color: Colors.amber.shade50,
-                                    borderRadius: BorderRadius.circular(14),
-                                    border: Border.all(color: Colors.amber.shade300),
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      Icon(Icons.calendar_month, color: Colors.amber.shade900, size: 20),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        settingsProvider.appLanguage == 'en' ? 'Events 📅' : 'Dini Günler 📅',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.amber.shade900,
-                                        ),
-                                      ),
-                                    ],
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: _buildQuickTile(
+                                    context: context,
+                                    icon: Icons.calendar_today_rounded,
+                                    label: settingsProvider.tr('monthly_times'),
+                                    color: Colors.blue,
+                                    route: '/monthly',
+                                    isDark: isDark,
                                   ),
                                 ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(14),
-                                onTap: () => Navigator.pushNamed(context, '/monthly'),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue.shade50,
-                                    borderRadius: BorderRadius.circular(14),
-                                    border: Border.all(color: Colors.blue.shade200),
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      const Icon(Icons.calendar_today, color: Colors.blue, size: 20),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        settingsProvider.appLanguage == 'en' ? 'Monthly 🗓️' : 'Aylık 🗓️',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.blue.shade900,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                              ],
                             ),
                           ],
                         ),
@@ -633,6 +572,65 @@ class _HomeScreenState extends State<HomeScreen> {
         label: Text(AudioService().isPlaying
             ? context.watch<SettingsProvider>().tr('stop_audio')
             : context.watch<SettingsProvider>().tr('settings')),
+      ),
+    );
+  }
+
+  Widget _buildQuickTile({
+    required BuildContext context,
+    required IconData icon,
+    required String label,
+    required MaterialColor color,
+    required String route,
+    required bool isDark,
+  }) {
+    final tileBg = isDark
+        ? Color.alphaBlend(color.withValues(alpha: 0.15), const Color(0xFF1C271E))
+        : color.shade50;
+    final borderColor = isDark
+        ? color.withValues(alpha: 0.3)
+        : color.shade200;
+    final iconColor = isDark ? color.shade300 : color.shade700;
+    final textColor = isDark ? Colors.white : color.shade900;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () => Navigator.pushNamed(context, route),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+          decoration: BoxDecoration(
+            color: tileBg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: borderColor, width: 1.2),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
+                blurRadius: 6,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: iconColor, size: 22),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  label,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

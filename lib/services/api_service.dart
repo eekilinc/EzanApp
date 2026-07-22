@@ -68,4 +68,46 @@ class ApiService {
       throw Exception('Namaz vakitleri alınamadı. İnternet bağlantınızı kontrol edin.');
     }
   }
+
+  Future<List<PrayerTimes>> getMonthlyPrayerTimes({
+    required double latitude,
+    required double longitude,
+    required int year,
+    required int month,
+    String school = 'standard',
+  }) async {
+    final cacheKey = 'cached_monthly_${year}_${month}_${latitude.toStringAsFixed(2)}_${longitude.toStringAsFixed(2)}_$school';
+
+    try {
+      final response = await _dio.get(
+        '$_baseUrl/calendar/$year/$month',
+        queryParameters: {
+          'latitude': latitude,
+          'longitude': longitude,
+          'method': 13,
+          'school': school == 'hanafi' ? 1 : 0,
+        },
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        final data = response.data as Map<String, dynamic>;
+        final list = data['data'] as List<dynamic>;
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(cacheKey, jsonEncode(list));
+
+        return list.map((item) => PrayerTimes.fromJson(item as Map<String, dynamic>)).toList();
+      } else {
+        throw Exception('Aylık takvim alınamadı');
+      }
+    } catch (e) {
+      final prefs = await SharedPreferences.getInstance();
+      final cachedJson = prefs.getString(cacheKey);
+      if (cachedJson != null) {
+        final list = jsonDecode(cachedJson) as List<dynamic>;
+        return list.map((item) => PrayerTimes.fromJson(item as Map<String, dynamic>)).toList();
+      }
+      rethrow;
+    }
+  }
 }

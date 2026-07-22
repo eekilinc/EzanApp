@@ -554,7 +554,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ListTile(
                     leading: const Icon(Icons.info_outline, color: Colors.green),
                     title: Text(settingsProvider.tr('about')),
-                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 2.1.0'),
+                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 2.1.1'),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       Navigator.pushNamed(context, '/about');

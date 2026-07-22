@@ -48,14 +48,27 @@ class MyApp extends StatelessWidget {
             ),
             darkTheme: ThemeData(
               colorScheme: ColorScheme.fromSeed(
-                seedColor: Colors.green.shade700,
+                seedColor: const Color(0xFF10B981),
                 brightness: Brightness.dark,
+                surface: const Color(0xFF162018),
               ),
               useMaterial3: true,
-              scaffoldBackgroundColor: const Color(0xFF121814),
-              appBarTheme: AppBarTheme(
-                backgroundColor: Colors.green.shade900,
+              scaffoldBackgroundColor: const Color(0xFF0C130E),
+              cardTheme: CardThemeData(
+                color: const Color(0xFF18241B),
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
+                ),
+              ),
+              appBarTheme: const AppBarTheme(
+                backgroundColor: Color(0xFF0F1A11),
                 foregroundColor: Colors.white,
+                elevation: 0,
+              ),
+              dividerTheme: DividerThemeData(
+                color: Colors.white.withValues(alpha: 0.1),
               ),
             ),
             home: const HomeScreen(),
