@@ -28,29 +28,27 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: build/app/outputs/apk/release/app-release.apk
+          files: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/apk/release/app-release.apk
           body: |
             ## 🎉 Ezan Hatırlatıcı ${{ github.ref_name }}
 
-            ### 📦 Download
-            - **APK**: `ezan-app-${{ github.ref_name }}.apk`
+            ### 📦 İndirme
+            - **Android APK**: `app-release.apk`
 
-            ### ✨ Features
-            - 📍 GPS + Şehir seçimi (12+ Türk şehri)
-            - 🕌 5 vakit namaz saatleri
-            - 🔔 Özelleştirilebilir hatırlatmalar (0-60 dakika)
-            - 🎵 Ezan sesi oynatma
-            - ⚙️ Ayarlar paneli (ses, titreşim, hatırlatma süreleri)
-            - 🌙 Kullanıcı dostu Türkçe arayüz
+            ### ✨ Yenilikler ve Öne Çıkan Özellikler
+            - ⏱️ **Canlı Geri Sayım Sayacı**: Sonraki namaz vaktine kalan canlı saat, dakika ve saniye gösterimi
+            - 🔔 **Dinamik Bildirim Sistemi**: 0-60 dakika arasında anında güncellenen tam zamanlı yerel bildirimler
+            - 🕌 **Özel Uygulama Logosu & İkonu**: Modern Hilal & Cami temalı yeni logo entegrasyonu
+            - 📶 **Çevrimdışı (Offline) Önbellekleme**: İnternet olmadığında da namaz saatlerinin ve bildirimlerin aksamadan çalışması
+            - ℹ️ **"Hakkında" Ekranı**: Sürüm bilgisi, kaynaklar ve uygulama açıklamaları
+            - 📍 **GPS & Şehir Seçimi**: 12+ Türkiye şehri ve otomatik konum algılama
 
-            ### 🛠️ Technical Stack
-            - Flutter 3.38.5
-            - Dart 3.10.4
-            - Provider state management
-            - Aladhan API
-
-            ### 📖 Links
-            - [README](https://github.com/eekilinc/EzanApp/blob/main/README.md)
-            - [Release Notes](https://github.com/eekilinc/EzanApp/blob/main/RELEASE_NOTES.md)
+            ### 🛠️ Teknik Stack
+            - Flutter 3.38.5 & Dart 3.10.4
+            - Provider State Management
+            - Local Notifications & Timezone Entegrasyonu
+            - Aladhan API & Offline SharedPreferences Caching
           draft: false
           prerelease: false

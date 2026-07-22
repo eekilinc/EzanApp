@@ -5,6 +5,7 @@ import '../services/api_service.dart';
 import '../services/location_service.dart';
 import '../services/notification_service.dart';
 import '../constants/reminders.dart';
+import 'settings_provider.dart';
 
 class PrayerProvider extends ChangeNotifier {
   final ApiService _apiService = ApiService();
@@ -21,18 +22,18 @@ class PrayerProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  Future<void> initializeLocation() async {
+  Future<void> initializeLocation(SettingsProvider settingsProvider) async {
     await _locationService.init();
     await _locationService.requestLocationPermission();
 
     _location = await _locationService.getLocation();
     if (_location != null) {
-      await loadPrayerTimes();
+      await loadPrayerTimes(settingsProvider);
     }
     notifyListeners();
   }
 
-  Future<void> loadPrayerTimes() async {
+  Future<void> loadPrayerTimes([SettingsProvider? settingsProvider]) async {
     if (_location == null) return;
 
     _isLoading = true;
@@ -45,47 +46,59 @@ class PrayerProvider extends ChangeNotifier {
         longitude: _location!.longitude,
       );
 
-      // Schedule notifications for today's prayers
-      await scheduleNotifications();
+      // Schedule notifications for today's prayers using settings
+      await scheduleNotifications(
+        customReminderMinutes: settingsProvider?.reminderMinutes,
+        soundEnabled: settingsProvider?.soundEnabled ?? true,
+        vibrationEnabled: settingsProvider?.vibrationEnabled ?? true,
+      );
 
       _isLoading = false;
       notifyListeners();
     } catch (e) {
-      _error = e.toString();
+      _error = e.toString().replaceAll('Exception: ', '');
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  Future<void> scheduleNotifications() async {
+  Future<void> scheduleNotifications({
+    Map<String, int>? customReminderMinutes,
+    bool soundEnabled = true,
+    bool vibrationEnabled = true,
+  }) async {
     if (_prayerTimes == null) return;
 
     await _notificationService.cancelAllNotifications();
 
     final prayers = _prayerTimes!.getPrayerList();
+    final reminders = customReminderMinutes ?? defaultReminderMinutes;
+
     for (final prayer in prayers) {
-      final reminderMinutes = defaultReminderMinutes[prayer.name] ?? 5;
+      final reminderMinutes = reminders[prayer.name] ?? defaultReminderMinutes[prayer.name] ?? 5;
       await _notificationService.schedulePrayerNotification(
         prayerName: prayer.name,
         prayerTime: prayer.time,
         minutesBefore: reminderMinutes,
+        soundEnabled: soundEnabled,
+        vibrationEnabled: vibrationEnabled,
       );
     }
   }
 
-  Future<void> selectCity(String cityName) async {
+  Future<void> selectCity(String cityName, [SettingsProvider? settingsProvider]) async {
     _location = await _locationService.selectCity(cityName);
-    await loadPrayerTimes();
+    await loadPrayerTimes(settingsProvider);
     notifyListeners();
   }
 
-  Future<void> useGpsLocation() async {
+  Future<void> useGpsLocation([SettingsProvider? settingsProvider]) async {
     final gpsLocation = await _locationService.getCurrentLocation();
     if (gpsLocation != null) {
       _location = gpsLocation;
       await _locationService.saveLocation(gpsLocation);
       await _locationService.setUseGps(true);
-      await loadPrayerTimes();
+      await loadPrayerTimes(settingsProvider);
       notifyListeners();
     }
   }
@@ -114,6 +127,7 @@ class PrayerProvider extends ChangeNotifier {
     if (nextPrayer == null) return null;
 
     final now = DateTime.now();
-    return nextPrayer.time.difference(now);
+    final diff = nextPrayer.time.difference(now);
+    return diff.isNegative ? Duration.zero : diff;
   }
 }

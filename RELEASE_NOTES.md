@@ -1,59 +1,25 @@
-# Ezan Hatırlatıcı v1.0.0 - Release Notes
+# Ezan Hatırlatıcı v1.3.0 - Release Notes
 
-**Date**: 2026-07-22
+**Tarih**: 2026-07-22
 
-## 🎉 Initial Release
+## 🎉 Sürüm 1.3.0 Güncellemeleri
 
-Ezan Hatırlatıcı uygulamasının ilk resmi sürümü.
+Ezan Hatırlatıcı uygulamasının en güncel, gelişmiş ve stabil sürümü.
 
-### ✨ Özellikler
+### ✨ Yenilikler ve İyileştirmeler
+
+- ⏱️ **Canlı Geri Sayım Sayacı**: Sonraki vakte kalan süre "Saat:Dakika:Saniye" cinsinden canlı olarak akmaktadır.
+- 🔔 **Tam Zamanlı Dinamik Bildirimler**: 0-60 dk arasındaki hatırlatma ve ses/titreşim ayarları değiştirildiği anda bildirimler otomatik yeniden planlanır.
+- 🕌 **Yeni Uygulama Logosu & İkonu**: Modern Hilal & Cami temalı yeni logo entegrasyonu.
+- 📶 **Çevrimdışı (Offline) Önbellekleme**: İnternet bağlantısı kesildiğinde önbellekteki verilerle çalışmaya devam eder.
+- ℹ️ **"Hakkında" Ekranı**: Uygulama sürümü, özellikler ve kaynak bilgisi sunan yeni ekran.
+- 🐛 **API Timestamp & İzin Düzeltmeleri**: Android 12+ ve 13+ exact alarm ve bildirim izinleri eklendi, güncel tarih zaman damgası düzeltildi.
+
+---
+
+# Ezan Hatırlatıcı v1.0.0 - Initial Release Notes
 
 - 📍 **GPS + Şehir Seçimi**: Otomatik konum algılama veya 12+ Türk şehrinden seçim
 - 🕌 **5 Vakit Namaz**: Sabah, Öğle, İkindi, Akşam, Yatsı namazlarının saatleri
 - 🔔 **Hatırlatma Sistemi**: Her namaz için özelleştirilebilir hatırlatma (0-60 dakika)
 - 🎵 **Ezan Sesi**: Namaz saati başında ezan sesi oynatma desteği
-- ⚙️ **Ayarlar**: Ses, titreşim, ve hatırlatma sürelerini kişiselleştir
-- 🌙 **Kullanıcı Dostu Arayüz**: Temiz, Türkçe arayüz
-
-### 🛠️ Teknik Bilgiler
-
-- **Platform**: Android 5.0+
-- **Framework**: Flutter 3.38.5
-- **API**: Aladhan (ücretsiz, kimlik doğrulama yok)
-- **Varsayılan Hatırlatmalar**:
-  - Fajr (Sabah): 20 dakika önce
-  - Dhuhr (Öğle): 5 dakika önce
-  - Asr (İkindi): 5 dakika önce
-  - Maghrib (Akşam): Hemen
-  - Isha (Yatsı): 5 dakika önce
-
-### 📥 Kurulum
-
-APK dosyasını indirip Android cihazınıza yükleyin:
-```bash
-adb install ezan-app-v1.0.0.apk
-```
-
-Veya Google Play Store'dan (yakında)
-
-### 🐛 Bilinen Sorunlar
-
-- Ezan sesi dosyası uygulamaya dahil edilmemiş (manuel ekleme gerekli)
-- Background execution Windows/Mac'te test edilmemiş
-
-### 🔮 İleriki Sürümler
-
-- [ ] Google Play Store yayını
-- [ ] Dark mode tema
-- [ ] Widget desteği
-- [ ] Hijri takvim entegrasyonu
-- [ ] Çoklu dil desteği
-- [ ] Background execution optimization
-
-### 📝 Lisans
-
-MIT License - Özgür kullanım, kopyalama, dağıtım
-
----
-
-**Download**: [ezan-app-v1.0.0.apk](ezan-app-v1.0.0.apk) (51.4 MB)

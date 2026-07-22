@@ -17,15 +17,23 @@ class AudioService {
         AssetSource('sounds/adhan.mp3'),
       );
     } catch (e) {
-      // Silently fail
+      try {
+        await _audioPlayer.play(
+          AssetSource('sounds/adhan.wav'),
+        );
+      } catch (_) {}
     }
   }
 
   Future<void> stop() async {
-    await _audioPlayer.stop();
+    try {
+      await _audioPlayer.stop();
+    } catch (_) {}
   }
 
   Future<void> setVolume(double volume) async {
-    await _audioPlayer.setVolume(volume);
+    try {
+      await _audioPlayer.setVolume(volume);
+    } catch (_) {}
   }
 }

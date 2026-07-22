@@ -5,6 +5,7 @@ import 'providers/settings_provider.dart';
 import 'services/notification_service.dart';
 import 'screens/home_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/about_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'Ezan Hatırlatıcı',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
           useMaterial3: true,
@@ -32,6 +34,7 @@ class MyApp extends StatelessWidget {
         home: const HomeScreen(),
         routes: {
           '/settings': (context) => const SettingsScreen(),
+          '/about': (context) => const AboutScreen(),
         },
       ),
     );

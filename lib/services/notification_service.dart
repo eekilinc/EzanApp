@@ -1,6 +1,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tzdata;
+import '../constants/reminders.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -31,6 +32,13 @@ class NotificationService {
     );
 
     await _notificationsPlugin.initialize(initSettings);
+
+    final androidImplementation = _notificationsPlugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    if (androidImplementation != null) {
+      await androidImplementation.requestNotificationsPermission();
+      await androidImplementation.requestExactAlarmsPermission();
+    }
   }
 
   Future<void> scheduleNotification({
@@ -38,6 +46,8 @@ class NotificationService {
     required String title,
     required String body,
     required DateTime scheduledTime,
+    bool soundEnabled = true,
+    bool vibrationEnabled = true,
   }) async {
     try {
       await _notificationsPlugin.zonedSchedule(
@@ -48,24 +58,52 @@ class NotificationService {
         NotificationDetails(
           android: AndroidNotificationDetails(
             'ezan_channel',
-            'Ezan Notifications',
-            channelDescription: 'Notifications for prayer times',
+            'Ezan Hatırlatıcı Bildirimleri',
+            channelDescription: 'Namaz vakitleri hatırlatma bildirimleri',
             importance: Importance.max,
             priority: Priority.high,
-            enableVibration: true,
-            playSound: true,
+            enableVibration: vibrationEnabled,
+            playSound: soundEnabled,
           ),
-          iOS: const DarwinNotificationDetails(
+          iOS: DarwinNotificationDetails(
             presentAlert: true,
             presentBadge: true,
-            presentSound: true,
+            presentSound: soundEnabled,
           ),
         ),
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
       );
     } catch (e) {
-      // Silently fail for now
+      // In case exact alarm fails, fallback to inexact scheduling
+      try {
+        await _notificationsPlugin.zonedSchedule(
+          id,
+          title,
+          body,
+          tz.TZDateTime.from(scheduledTime, tz.local),
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              'ezan_channel',
+              'Ezan Hatırlatıcı Bildirimleri',
+              channelDescription: 'Namaz vakitleri hatırlatma bildirimleri',
+              importance: Importance.max,
+              priority: Priority.high,
+              enableVibration: vibrationEnabled,
+              playSound: soundEnabled,
+            ),
+            iOS: DarwinNotificationDetails(
+              presentAlert: true,
+              presentBadge: true,
+              presentSound: soundEnabled,
+            ),
+          ),
+          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+        );
+      } catch (_) {}
     }
   }
 
@@ -85,6 +123,8 @@ class NotificationService {
     required String prayerName,
     required DateTime prayerTime,
     required int minutesBefore,
+    bool soundEnabled = true,
+    bool vibrationEnabled = true,
   }) async {
     final notificationTime = prayerTime.subtract(Duration(minutes: minutesBefore));
 
@@ -93,12 +133,18 @@ class NotificationService {
     }
 
     final id = _generateNotificationId(prayerName, prayerTime);
+    final displayName = prayerDisplayNames[prayerName] ?? prayerName;
+    final message = minutesBefore == 0
+        ? '$displayName vakti girdi!'
+        : '$displayName vakit girmesine $minutesBefore dakika kaldı.';
 
     await scheduleNotification(
       id: id,
-      title: '$prayerName Vakti',
-      body: 'Namaz vakti $minutesBefore dakika içinde başlıyor',
+      title: '$displayName Hatırlatması',
+      body: message,
       scheduledTime: notificationTime,
+      soundEnabled: soundEnabled,
+      vibrationEnabled: vibrationEnabled,
     );
   }
 }
