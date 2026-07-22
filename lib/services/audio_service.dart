@@ -23,6 +23,15 @@ class AudioService {
         case 'adhan_madinah':
           assetPath = 'sounds/adhan_madinah.mp3';
           break;
+        case 'adhan_istanbul':
+          assetPath = 'sounds/adhan_istanbul.mp3';
+          break;
+        case 'adhan_cairo':
+          assetPath = 'sounds/adhan_cairo.mp3';
+          break;
+        case 'adhan_aqsa':
+          assetPath = 'sounds/adhan_aqsa.mp3';
+          break;
         case 'ney':
           assetPath = 'sounds/ney_tone.mp3';
           break;

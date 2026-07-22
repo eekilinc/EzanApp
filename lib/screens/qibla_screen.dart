@@ -1,5 +1,8 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_compass/flutter_compass.dart';
 import 'package:provider/provider.dart';
 import '../providers/prayer_provider.dart';
 import '../providers/settings_provider.dart';
@@ -14,6 +17,43 @@ class QiblaScreen extends StatefulWidget {
 
 class _QiblaScreenState extends State<QiblaScreen> {
   double _deviceHeading = 0.0; // Device Heading from North (0..360°)
+  StreamSubscription<CompassEvent>? _compassSubscription;
+  bool _hasCompassSensor = true;
+  bool _wasAligned = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initCompass();
+  }
+
+  void _initCompass() {
+    try {
+      _compassSubscription = FlutterCompass.events?.listen((event) {
+        if (event.heading != null && mounted) {
+          final newHeading = (event.heading! + 360) % 360;
+          setState(() {
+            _deviceHeading = newHeading;
+            _hasCompassSensor = true;
+          });
+        }
+      }, onError: (_) {
+        if (mounted) {
+          setState(() {
+            _hasCompassSensor = false;
+          });
+        }
+      });
+    } catch (_) {
+      _hasCompassSensor = false;
+    }
+  }
+
+  @override
+  void dispose() {
+    _compassSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +72,13 @@ class _QiblaScreenState extends State<QiblaScreen> {
     // Calculate relative rotation angle for needle/dial relative to device heading
     final relativeQiblaAngle = (qiblaAngle - _deviceHeading + 360) % 360;
     final isAligned = (relativeQiblaAngle < 6 || relativeQiblaAngle > 354);
+
+    if (isAligned && !_wasAligned) {
+      _wasAligned = true;
+      HapticFeedback.mediumImpact();
+    } else if (!isAligned) {
+      _wasAligned = false;
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -221,9 +268,25 @@ class _QiblaScreenState extends State<QiblaScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            settingsProvider.tr('device_heading'),
-                            style: const TextStyle(color: Colors.white70, fontSize: 13),
+                          Row(
+                            children: [
+                              Text(
+                                settingsProvider.tr('device_heading'),
+                                style: const TextStyle(color: Colors.white70, fontSize: 13),
+                              ),
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: _hasCompassSensor ? Colors.green.shade800 : Colors.orange.shade900,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  _hasCompassSensor ? 'Pusula Live 📡' : 'Manuel ⚙️',
+                                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
                           ),
                           Text(
                             '${_deviceHeading.toInt()}°',

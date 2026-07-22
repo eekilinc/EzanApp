@@ -251,29 +251,50 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ...[
                           {
                             'key': 'adhan_makkah',
-                            'title': 'Mekke Ezanı',
-                            'subtitle': 'Klasik ve heybetli Mekke-i Mükerreme Ezanı',
+                            'titleKey': 'sound_makkah',
+                            'subKey': 'sound_makkah_sub',
                             'icon': Icons.mosque,
                             'color': Colors.green,
                           },
                           {
                             'key': 'adhan_madinah',
-                            'title': 'Medine Ezanı',
-                            'subtitle': 'Huzur veren Medine-i Münevvere Ezanı',
+                            'titleKey': 'sound_madinah',
+                            'subKey': 'sound_madinah_sub',
                             'icon': Icons.brightness_3,
                             'color': Colors.lightGreen,
                           },
                           {
+                            'key': 'adhan_istanbul',
+                            'titleKey': 'sound_istanbul',
+                            'subKey': 'sound_istanbul_sub',
+                            'icon': Icons.account_balance,
+                            'color': Colors.red,
+                          },
+                          {
+                            'key': 'adhan_cairo',
+                            'titleKey': 'sound_cairo',
+                            'subKey': 'sound_cairo_sub',
+                            'icon': Icons.explore,
+                            'color': Colors.orange,
+                          },
+                          {
+                            'key': 'adhan_aqsa',
+                            'titleKey': 'sound_aqsa',
+                            'subKey': 'sound_aqsa_sub',
+                            'icon': Icons.location_city,
+                            'color': Colors.cyan,
+                          },
+                          {
                             'key': 'ney',
-                            'title': 'Huzurlu Ney Tonu',
-                            'subtitle': 'Yumuşak ve dinlendirici enstrümantal ses',
+                            'titleKey': 'sound_ney',
+                            'subKey': 'sound_ney_sub',
                             'icon': Icons.music_note,
                             'color': Colors.teal,
                           },
                           {
                             'key': 'beep',
-                            'title': 'Kısa Bip Sesi',
-                            'subtitle': 'Sade ve kısa uyarı tonu',
+                            'titleKey': 'sound_beep',
+                            'subKey': 'sound_beep_sub',
                             'icon': Icons.volume_up,
                             'color': Colors.amber,
                           },
@@ -300,14 +321,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 child: Icon(soundIcon, color: iconColor.shade800),
                               ),
                               title: Text(
-                                sound['title'] as String,
+                                settingsProvider.tr(sound['titleKey'] as String),
                                 style: TextStyle(
                                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                                   color: isSelected ? Colors.green.shade900 : Colors.black87,
                                 ),
                               ),
                               subtitle: Text(
-                                sound['subtitle'] as String,
+                                settingsProvider.tr(sound['subKey'] as String),
                                 style: const TextStyle(fontSize: 12),
                               ),
                               trailing: Row(
@@ -361,7 +382,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               }
                             },
                             icon: const Icon(Icons.send, size: 18),
-                            label: const Text('Test Bildirimi Gönder'),
+                            label: Text(settingsProvider.tr('test_notification')),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.green.shade700,
                               foregroundColor: Colors.white,

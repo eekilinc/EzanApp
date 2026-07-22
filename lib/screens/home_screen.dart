@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/prayer_provider.dart';
 import '../providers/settings_provider.dart';
@@ -307,6 +308,102 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
 
+                      // Quick Action Bar (Zikirmatik & Dini Günler & Kıble)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        margin: const EdgeInsets.only(top: 8),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(14),
+                                onTap: () => Navigator.pushNamed(context, '/qibla'),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.shade50,
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(color: Colors.green.shade200),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      const Icon(Icons.explore, color: Colors.green, size: 22),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        settingsProvider.tr('qibla'),
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.green.shade900,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(14),
+                                onTap: () => Navigator.pushNamed(context, '/dhikr'),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.teal.shade50,
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(color: Colors.teal.shade200),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      const Icon(Icons.touch_app, color: Colors.teal, size: 22),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        settingsProvider.appLanguage == 'en' ? 'Dhikr 📿' : 'Zikirmatik 📿',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.teal.shade900,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(14),
+                                onTap: () => Navigator.pushNamed(context, '/calendar'),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.amber.shade50,
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(color: Colors.amber.shade300),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Icon(Icons.calendar_month, color: Colors.amber.shade900, size: 22),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        settingsProvider.appLanguage == 'en' ? 'Events 📅' : 'Dini Günler 📅',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.amber.shade900,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
                       // Next prayer countdown card
                       Container(
                         width: double.infinity,
@@ -394,20 +491,41 @@ class _HomeScreenState extends State<HomeScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Icon(Icons.format_quote, color: Colors.amber.shade900, size: 20),
-                                const SizedBox(width: 6),
-                                Text(
-                                  todayContent.type,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.amber.shade900,
-                                    fontSize: 13,
-                                  ),
+                                Row(
+                                  children: [
+                                    Icon(Icons.format_quote, color: Colors.amber.shade900, size: 20),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      todayContent.type,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.amber.shade900,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.copy, size: 18, color: Colors.amber.shade900),
+                                  tooltip: settingsProvider.appLanguage == 'en' ? 'Copy Text' : 'Metni Kopyala',
+                                  onPressed: () {
+                                    final shareText = '"${todayContent.text}" — ${todayContent.source}';
+                                    Clipboard.setData(ClipboardData(text: shareText));
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(settingsProvider.appLanguage == 'en'
+                                            ? 'Text copied to clipboard! 📋'
+                                            : 'Ayet/Hadis metni panoya kopyalandı! 📋'),
+                                        duration: const Duration(seconds: 2),
+                                      ),
+                                    );
+                                  },
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: 2),
                             Text(
                               '"${todayContent.text}"',
                               style: TextStyle(

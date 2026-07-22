@@ -1,3 +1,17 @@
+# Ezan Hatırlatıcı v2.0.0 - Release Notes
+
+**Tarih**: 2026-07-23
+
+## 🎉 Sürüm 2.0.0 Güncellemeleri
+
+- 🕌 **5 Dünya Ezanı Seçeneği**: Mekke 🕋, Medine 🕌, İstanbul 🇹🇷, Mısır (Kahire) 🇪🇬 ve Mescid-i Aksa (Kudüs) 🇵🇸 ezan ses kayıtları ve bağımsız Android bildirim kanalları entegre edildi. Ayarlar ekranından dinlenebilir ve seçilebilir.
+- 🧭 **Donanımsal Canlı Kıble Pusulası**: `FlutterCompass` sensör akışı entegre edildi. Telefon yönüne göre canlı pusula kadranı döner ve tam Kıble açısında titreşim verir.
+- 📿 **Zikirmatik Modülü**: Dualı, dokunsal titreşimli, 33/99/Serbest modlu dijital Zikirmatik ekranı entegre edildi.
+- 📅 **Dini Günler & Kandiller Takvimi**: Kandiller, Ramazan, Kadir Gecesi ve Bayramlar canlı kalan gün sayacı ile takvim modülüne eklendi.
+- 📋 **Ayet & Hadis Metin Paylaşımı**: Günün Ayet/Hadis kartına tek tıkla sosyal medyada paylaşma / panoya kopyalama butonu eklendi.
+
+---
+
 # Ezan Hatırlatıcı v1.8.0 - Release Notes
 
 **Tarih**: 2026-07-23

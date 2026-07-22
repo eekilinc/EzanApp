@@ -41,10 +41,18 @@ class NotificationService {
     final androidImplementation = _notificationsPlugin
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
     if (androidImplementation != null) {
-      final sounds = ['adhan_makkah', 'adhan_madinah', 'ney', 'beep'];
+      final sounds = [
+        'adhan_makkah',
+        'adhan_madinah',
+        'adhan_istanbul',
+        'adhan_cairo',
+        'adhan_aqsa',
+        'ney',
+        'beep'
+      ];
       for (final sKey in sounds) {
         final channel = AndroidNotificationChannel(
-          'ezan_channel_${sKey}_v3',
+          'ezan_channel_${sKey}_v4',
           'Ezan Hatırlatıcı ($sKey)',
           description: 'Namaz vakitleri hatırlatma bildirimleri',
           importance: Importance.max,
@@ -64,6 +72,12 @@ class NotificationService {
     switch (soundKey) {
       case 'adhan_madinah':
         return const RawResourceAndroidNotificationSound('adhan_madinah');
+      case 'adhan_istanbul':
+        return const RawResourceAndroidNotificationSound('adhan_istanbul');
+      case 'adhan_cairo':
+        return const RawResourceAndroidNotificationSound('adhan_cairo');
+      case 'adhan_aqsa':
+        return const RawResourceAndroidNotificationSound('adhan_aqsa');
       case 'ney':
         return const RawResourceAndroidNotificationSound('ney_tone');
       case 'beep':
@@ -78,15 +92,21 @@ class NotificationService {
   String _getChannelId(String soundKey) {
     switch (soundKey) {
       case 'adhan_madinah':
-        return 'ezan_channel_adhan_madinah_v3';
+        return 'ezan_channel_adhan_madinah_v4';
+      case 'adhan_istanbul':
+        return 'ezan_channel_adhan_istanbul_v4';
+      case 'adhan_cairo':
+        return 'ezan_channel_adhan_cairo_v4';
+      case 'adhan_aqsa':
+        return 'ezan_channel_adhan_aqsa_v4';
       case 'ney':
-        return 'ezan_channel_ney_v3';
+        return 'ezan_channel_ney_v4';
       case 'beep':
-        return 'ezan_channel_beep_v3';
+        return 'ezan_channel_beep_v4';
       case 'adhan_makkah':
       case 'adhan':
       default:
-        return 'ezan_channel_adhan_makkah_v3';
+        return 'ezan_channel_adhan_makkah_v4';
     }
   }
 
@@ -95,6 +115,11 @@ class NotificationService {
     bool vibrationEnabled = true,
     String soundKey = 'adhan_makkah',
   }) async {
+    final androidImplementation = _notificationsPlugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    if (androidImplementation != null) {
+      await androidImplementation.requestNotificationsPermission();
+    }
     await _notificationsPlugin.show(
       999999,
       'Ezan Hatırlatıcı Test Bildirimi 🔔',

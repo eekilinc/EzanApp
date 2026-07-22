@@ -7,6 +7,8 @@ import 'screens/home_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/about_screen.dart';
 import 'screens/qibla_screen.dart';
+import 'screens/dhikr_screen.dart';
+import 'screens/islamic_events_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -60,6 +62,8 @@ class MyApp extends StatelessWidget {
               '/settings': (context) => const SettingsScreen(),
               '/about': (context) => const AboutScreen(),
               '/qibla': (context) => const QiblaScreen(),
+              '/dhikr': (context) => const DhikrScreen(),
+              '/calendar': (context) => const IslamicEventsScreen(),
             },
           );
         },
