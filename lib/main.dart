@@ -25,18 +25,43 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => PrayerProvider()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
       ],
-      child: MaterialApp(
-        title: 'Ezan Hatırlatıcı',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-          useMaterial3: true,
-        ),
-        home: const HomeScreen(),
-        routes: {
-          '/settings': (context) => const SettingsScreen(),
-          '/about': (context) => const AboutScreen(),
-          '/qibla': (context) => const QiblaScreen(),
+      child: Consumer<SettingsProvider>(
+        builder: (context, settingsProvider, _) {
+          return MaterialApp(
+            title: 'Ezan Hatırlatıcı',
+            debugShowCheckedModeBanner: false,
+            themeMode: settingsProvider.themeMode,
+            theme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: Colors.green.shade800,
+                brightness: Brightness.light,
+              ),
+              useMaterial3: true,
+              scaffoldBackgroundColor: const Color(0xFFF6F8F6),
+              appBarTheme: AppBarTheme(
+                backgroundColor: Colors.green.shade800,
+                foregroundColor: Colors.white,
+              ),
+            ),
+            darkTheme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: Colors.green.shade700,
+                brightness: Brightness.dark,
+              ),
+              useMaterial3: true,
+              scaffoldBackgroundColor: const Color(0xFF121814),
+              appBarTheme: AppBarTheme(
+                backgroundColor: Colors.green.shade900,
+                foregroundColor: Colors.white,
+              ),
+            ),
+            home: const HomeScreen(),
+            routes: {
+              '/settings': (context) => const SettingsScreen(),
+              '/about': (context) => const AboutScreen(),
+              '/qibla': (context) => const QiblaScreen(),
+            },
+          );
         },
       ),
     );

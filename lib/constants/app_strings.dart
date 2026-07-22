@@ -65,6 +65,10 @@ class AppStrings {
       'license': 'Lisans',
       'mit_license': 'MIT Açık Kaynak Lisansı',
       'rate_app': 'Uygulamayı Değerlendir & Geri Bildirim',
+      'theme_selection': 'Görünüm Teması 🎨',
+      'theme_system': 'Sistem 📱',
+      'theme_light': 'Aydınlık ☀️',
+      'theme_dark': 'Karanlık 🌙',
     },
     'en': {
       'app_title': 'Prayer Times Reminder',
@@ -131,6 +135,10 @@ class AppStrings {
       'license': 'License',
       'mit_license': 'MIT Open Source License',
       'rate_app': 'Rate App & Send Feedback',
+      'theme_selection': 'App Theme 🎨',
+      'theme_system': 'System 📱',
+      'theme_light': 'Light ☀️',
+      'theme_dark': 'Dark 🌙',
     },
   };
 

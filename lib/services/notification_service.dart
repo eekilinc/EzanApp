@@ -56,9 +56,25 @@ class NotificationService {
     }
   }
 
+  RawResourceAndroidNotificationSound _getSoundResource(String soundKey) {
+    switch (soundKey) {
+      case 'adhan_madinah':
+        return const RawResourceAndroidNotificationSound('adhan_madinah');
+      case 'ney':
+        return const RawResourceAndroidNotificationSound('ney_tone');
+      case 'beep':
+        return const RawResourceAndroidNotificationSound('beep_tone');
+      case 'adhan_makkah':
+      case 'adhan':
+      default:
+        return const RawResourceAndroidNotificationSound('adhan_makkah');
+    }
+  }
+
   Future<void> showTestNotification({
     bool soundEnabled = true,
     bool vibrationEnabled = true,
+    String soundKey = 'adhan_makkah',
   }) async {
     await _notificationsPlugin.show(
       999999,
@@ -73,6 +89,7 @@ class NotificationService {
           priority: Priority.high,
           enableVibration: vibrationEnabled,
           playSound: soundEnabled,
+          sound: soundEnabled ? _getSoundResource(soundKey) : null,
         ),
         iOS: DarwinNotificationDetails(
           presentAlert: true,
@@ -90,6 +107,7 @@ class NotificationService {
     required DateTime scheduledTime,
     bool soundEnabled = true,
     bool vibrationEnabled = true,
+    String soundKey = 'adhan_makkah',
   }) async {
     try {
       final scheduledTzDateTime = tz.TZDateTime.from(scheduledTime, tz.local);
@@ -107,6 +125,7 @@ class NotificationService {
             priority: Priority.high,
             enableVibration: vibrationEnabled,
             playSound: soundEnabled,
+            sound: soundEnabled ? _getSoundResource(soundKey) : null,
           ),
           iOS: DarwinNotificationDetails(
             presentAlert: true,
@@ -136,6 +155,7 @@ class NotificationService {
               priority: Priority.high,
               enableVibration: vibrationEnabled,
               playSound: soundEnabled,
+              sound: soundEnabled ? _getSoundResource(soundKey) : null,
             ),
             iOS: DarwinNotificationDetails(
               presentAlert: true,
@@ -169,6 +189,7 @@ class NotificationService {
     required int minutesBefore,
     bool soundEnabled = true,
     bool vibrationEnabled = true,
+    String soundKey = 'adhan_makkah',
   }) async {
     final notificationTime = prayerTime.subtract(Duration(minutes: minutesBefore));
 
@@ -189,6 +210,7 @@ class NotificationService {
       scheduledTime: notificationTime,
       soundEnabled: soundEnabled,
       vibrationEnabled: vibrationEnabled,
+      soundKey: soundKey,
     );
   }
 }

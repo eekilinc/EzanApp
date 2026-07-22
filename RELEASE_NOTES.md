@@ -1,3 +1,16 @@
+# Ezan Hatırlatıcı v1.6.0 - Release Notes
+
+**Tarih**: 2026-07-22
+
+## 🎉 Sürüm 1.6.0 Güncellemeleri
+
+- 🕌 **Gerçek İnsan Sesli Ezan & Android Native Raw Kaynağı**: `.wav` önceliği kaldırıldı, birincil oynatma hedefleri doğrudan Mekke ve Medine insan sesli MP3 kayıtları olarak sabitlendi. Ayrıca Android zamanlanmış bildirimlerinde seslerin varsayılana düşmemesi için `android/app/src/main/res/raw/` dizinine MP3 kaynakları tanımlandı.
+- 📱 **Taşmasız Esnek Konum Çubuğu (Responsive Bar)**: Ana ekrandaki `Konum | Kıble | Değiştir` alanı responsive (`Flexible`, sıkı dolgulu butonlar & `TextOverflow.ellipsis`) yapıya geçirilerek küçük ekranlarda ve İngilizce metinlerde yaşanan `RenderFlex` taşmaları tamamen engellendi.
+- 🎨 **Aydınlık ☀️ & Karanlık 🌙 Tema Desteği**: `SettingsProvider` altyapısına Tema Modu (`Sistem 📱`, `Aydınlık ☀️`, `Karanlık 🌙`) seçeneği eklendi. Ayarlar ekranından anında tema değiştirilebilir.
+- 🌍 **Kusursuz Dil Çevirileri**: Ana Ekran, Vakit Kartları, Kıble Pusulası, Ayarlar ve Hakkında ekranındaki tüm metinler Türkçe 🇹🇷 ve İngilizce 🇬🇧 olarak kusursuzlaştırıldı.
+
+---
+
 # Ezan Hatırlatıcı v1.5.0 - Release Notes
 
 **Tarih**: 2026-07-22

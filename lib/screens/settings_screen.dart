@@ -128,6 +128,69 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
 
+                  const SizedBox(height: 16),
+
+                  // Theme Selection Card
+                  Text(
+                    settingsProvider.tr('theme_selection'),
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: ChoiceChip(
+                              label: Center(child: Text(settingsProvider.tr('theme_system'))),
+                              selected: settingsProvider.themeMode == ThemeMode.system,
+                              selectedColor: Colors.green.shade100,
+                              onSelected: (selected) {
+                                if (selected) {
+                                  settingsProvider.setThemeMode(ThemeMode.system);
+                                }
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: ChoiceChip(
+                              label: Center(child: Text(settingsProvider.tr('theme_light'))),
+                              selected: settingsProvider.themeMode == ThemeMode.light,
+                              selectedColor: Colors.green.shade100,
+                              onSelected: (selected) {
+                                if (selected) {
+                                  settingsProvider.setThemeMode(ThemeMode.light);
+                                }
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: ChoiceChip(
+                              label: Center(child: Text(settingsProvider.tr('theme_dark'))),
+                              selected: settingsProvider.themeMode == ThemeMode.dark,
+                              selectedColor: Colors.green.shade100,
+                              onSelected: (selected) {
+                                if (selected) {
+                                  settingsProvider.setThemeMode(ThemeMode.dark);
+                                }
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
                   const Divider(height: 28),
 
                   // Section Header: Notification Settings

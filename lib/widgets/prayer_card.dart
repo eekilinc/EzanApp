@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/prayer_times.dart';
-import '../constants/reminders.dart';
+import '../providers/settings_provider.dart';
 
 class PrayerCard extends StatelessWidget {
   final PrayerEntry prayer;
@@ -16,10 +17,13 @@ class PrayerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayName = prayerDisplayNames[prayer.name] ?? prayer.name;
+    final settingsProvider = context.watch<SettingsProvider>();
+    final displayName = settingsProvider.tr(prayer.name.toLowerCase());
     final reminderText = minutesBefore == 0
-        ? 'Hatırlatma: Tam vaktinde'
-        : 'Hatırlatma: $minutesBefore dk önce';
+        ? settingsProvider.tr('exact_time')
+        : '$minutesBefore ${settingsProvider.tr("min_before")}';
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Card(
       elevation: isNext ? 4 : 1,
@@ -29,7 +33,9 @@ class PrayerCard extends StatelessWidget {
             ? BorderSide(color: Colors.green.shade400, width: 2)
             : BorderSide.none,
       ),
-      color: isNext ? Colors.green.shade50 : Colors.white,
+      color: isNext
+          ? (isDark ? Colors.green.shade900.withValues(alpha: 0.5) : Colors.green.shade50)
+          : (isDark ? Colors.grey.shade900 : Colors.white),
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
@@ -41,12 +47,12 @@ class PrayerCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: isNext ? Colors.green : Colors.grey.shade100,
+                    color: isNext ? Colors.green : (isDark ? Colors.grey.shade800 : Colors.grey.shade100),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.access_time_filled,
-                    color: isNext ? Colors.white : Colors.grey.shade600,
+                    color: isNext ? Colors.white : (isDark ? Colors.grey.shade400 : Colors.grey.shade600),
                     size: 20,
                   ),
                 ),
@@ -58,7 +64,9 @@ class PrayerCard extends StatelessWidget {
                       displayName,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: isNext ? FontWeight.bold : FontWeight.w600,
-                        color: isNext ? Colors.green.shade900 : Colors.black87,
+                        color: isNext
+                            ? (isDark ? Colors.green.shade200 : Colors.green.shade900)
+                            : (isDark ? Colors.white : Colors.black87),
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -66,7 +74,9 @@ class PrayerCard extends StatelessWidget {
                       reminderText,
                       style: TextStyle(
                         fontSize: 12,
-                        color: isNext ? Colors.green.shade700 : Colors.grey.shade600,
+                        color: isNext
+                            ? (isDark ? Colors.green.shade300 : Colors.green.shade700)
+                            : (isDark ? Colors.grey.shade400 : Colors.grey.shade600),
                       ),
                     ),
                   ],
@@ -80,7 +90,9 @@ class PrayerCard extends StatelessWidget {
                   prayer.getDisplayTime(),
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: isNext ? Colors.green.shade700 : Colors.black87,
+                    color: isNext
+                        ? (isDark ? Colors.green.shade300 : Colors.green.shade700)
+                        : (isDark ? Colors.white : Colors.black87),
                   ),
                 ),
                 if (isNext)
@@ -91,9 +103,9 @@ class PrayerCard extends StatelessWidget {
                       color: Colors.green,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Text(
-                      'Sıradaki',
-                      style: TextStyle(
+                    child: Text(
+                      settingsProvider.tr('next_prayer'),
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,

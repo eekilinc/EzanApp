@@ -51,6 +51,7 @@ class PrayerProvider extends ChangeNotifier {
         customReminderMinutes: settingsProvider?.reminderMinutes,
         soundEnabled: settingsProvider?.soundEnabled ?? true,
         vibrationEnabled: settingsProvider?.vibrationEnabled ?? true,
+        soundKey: settingsProvider?.notificationSound ?? 'adhan_makkah',
       );
 
       _isLoading = false;
@@ -66,6 +67,7 @@ class PrayerProvider extends ChangeNotifier {
     Map<String, int>? customReminderMinutes,
     bool soundEnabled = true,
     bool vibrationEnabled = true,
+    String soundKey = 'adhan_makkah',
   }) async {
     if (_prayerTimes == null) return;
 
@@ -82,6 +84,7 @@ class PrayerProvider extends ChangeNotifier {
         minutesBefore: reminderMinutes,
         soundEnabled: soundEnabled,
         vibrationEnabled: vibrationEnabled,
+        soundKey: soundKey,
       );
     }
   }

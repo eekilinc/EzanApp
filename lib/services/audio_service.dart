@@ -19,35 +19,26 @@ class AudioService {
       await stop();
       _isPlaying = true;
       String assetPath;
-      String fallbackPath;
       switch (soundKey) {
         case 'adhan_madinah':
-          assetPath = 'sounds/adhan_madinah.wav';
-          fallbackPath = 'sounds/adhan_madinah.mp3';
+          assetPath = 'sounds/adhan_madinah.mp3';
           break;
         case 'ney':
-          assetPath = 'sounds/ney_tone.wav';
-          fallbackPath = 'sounds/ney_tone.mp3';
+          assetPath = 'sounds/ney_tone.mp3';
           break;
         case 'beep':
-          assetPath = 'sounds/beep_tone.wav';
-          fallbackPath = 'sounds/beep_tone.mp3';
+          assetPath = 'sounds/beep_tone.mp3';
           break;
         case 'adhan_makkah':
         case 'adhan':
         default:
-          assetPath = 'sounds/adhan_makkah.wav';
-          fallbackPath = 'sounds/adhan_makkah.mp3';
+          assetPath = 'sounds/adhan_makkah.mp3';
           break;
       }
-      try {
-        await _audioPlayer.play(AssetSource(assetPath));
-      } catch (_) {
-        await _audioPlayer.play(AssetSource(fallbackPath));
-      }
+      await _audioPlayer.play(AssetSource(assetPath));
     } catch (e) {
       try {
-        await _audioPlayer.play(AssetSource('sounds/adhan.wav'));
+        await _audioPlayer.play(AssetSource('sounds/adhan.mp3'));
       } catch (_) {}
     }
   }

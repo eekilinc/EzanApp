@@ -12,12 +12,14 @@ class SettingsProvider extends ChangeNotifier {
   bool _vibrationEnabled = true;
   String _notificationSound = 'adhan_makkah'; // 'adhan_makkah', 'adhan_madinah', 'ney', 'beep'
   String _appLanguage = 'tr'; // 'tr' or 'en'
+  ThemeMode _themeMode = ThemeMode.system;
 
   Map<String, int> get reminderMinutes => _reminderMinutes;
   bool get soundEnabled => _soundEnabled;
   bool get vibrationEnabled => _vibrationEnabled;
   String get notificationSound => _notificationSound;
   String get appLanguage => _appLanguage;
+  ThemeMode get themeMode => _themeMode;
 
   String tr(String key) => AppStrings.get(key, _appLanguage);
 
@@ -39,6 +41,15 @@ class SettingsProvider extends ChangeNotifier {
     _vibrationEnabled = _prefs.getBool('vibration_enabled') ?? true;
     _notificationSound = _prefs.getString('notification_sound') ?? 'adhan_makkah';
     _appLanguage = _prefs.getString('app_language') ?? 'tr';
+
+    final themeStr = _prefs.getString('theme_mode') ?? 'system';
+    if (themeStr == 'light') {
+      _themeMode = ThemeMode.light;
+    } else if (themeStr == 'dark') {
+      _themeMode = ThemeMode.dark;
+    } else {
+      _themeMode = ThemeMode.system;
+    }
 
     notifyListeners();
   }
@@ -74,6 +85,15 @@ class SettingsProvider extends ChangeNotifier {
   Future<void> setAppLanguage(String langCode) async {
     _appLanguage = langCode;
     await _prefs.setString('app_language', langCode);
+    notifyListeners();
+  }
+
+  Future<void> setThemeMode(ThemeMode mode) async {
+    _themeMode = mode;
+    String modeStr = 'system';
+    if (mode == ThemeMode.light) modeStr = 'light';
+    if (mode == ThemeMode.dark) modeStr = 'dark';
+    await _prefs.setString('theme_mode', modeStr);
     notifyListeners();
   }
 

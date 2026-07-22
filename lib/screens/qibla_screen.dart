@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/prayer_provider.dart';
+import '../providers/settings_provider.dart';
 import '../services/qibla_service.dart';
 
 class QiblaScreen extends StatefulWidget {
@@ -17,6 +18,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
   @override
   Widget build(BuildContext context) {
     final prayerProvider = context.watch<PrayerProvider>();
+    final settingsProvider = context.watch<SettingsProvider>();
     final location = prayerProvider.location;
 
     final qiblaAngle = location != null
@@ -33,7 +35,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Kıble Pusulası'),
+        title: Text(settingsProvider.tr('qibla')),
         backgroundColor: Colors.green.shade800,
         foregroundColor: Colors.white,
         centerTitle: true,
@@ -89,8 +91,8 @@ class _QiblaScreenState extends State<QiblaScreen> {
                       const SizedBox(width: 8),
                       Text(
                         isAligned
-                            ? 'Kıble Yönündesiniz! 🕌'
-                            : '${location?.city ?? "Konum"}: Kıble ${qiblaAngle.toStringAsFixed(1)}° (Güneydoğu)',
+                            ? settingsProvider.tr('qibla_aligned')
+                            : '${location?.city ?? settingsProvider.tr("location")}: ${qiblaAngle.toStringAsFixed(1)}°',
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -219,9 +221,9 @@ class _QiblaScreenState extends State<QiblaScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Cihaz Yönü (Pusula Ayarı)',
-                            style: TextStyle(color: Colors.white70, fontSize: 13),
+                          Text(
+                            settingsProvider.tr('device_heading'),
+                            style: const TextStyle(color: Colors.white70, fontSize: 13),
                           ),
                           Text(
                             '${_deviceHeading.toInt()}°',
@@ -260,7 +262,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
                     children: [
                       Column(
                         children: [
-                          const Text('Kıble Açısı', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                          Text(settingsProvider.tr('qibla_angle'), style: const TextStyle(color: Colors.white70, fontSize: 13)),
                           const SizedBox(height: 4),
                           Text(
                             '${qiblaAngle.toStringAsFixed(1)}°',
@@ -275,7 +277,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
                       Container(width: 1, height: 40, color: Colors.white24),
                       Column(
                         children: [
-                          const Text('Kâbe\'ye Uzaklık', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                          Text(settingsProvider.tr('distance_to_kaaba'), style: const TextStyle(color: Colors.white70, fontSize: 13)),
                           const SizedBox(height: 4),
                           Text(
                             '${distanceKm.toStringAsFixed(0)} km',
@@ -291,10 +293,10 @@ class _QiblaScreenState extends State<QiblaScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  '💡 Telefonunuzu düz bir zeminde tutun ve sarı ok tam yukarı gelene kadar cihazınızı döndürün.',
+                Text(
+                  settingsProvider.tr('qibla_guide'),
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white60, fontSize: 12),
+                  style: const TextStyle(color: Colors.white60, fontSize: 12),
                 ),
                 const SizedBox(height: 24),
               ],

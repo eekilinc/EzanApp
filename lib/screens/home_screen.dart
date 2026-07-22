@@ -172,34 +172,89 @@ class _HomeScreenState extends State<HomeScreen> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   child: Column(
                     children: [
-                      // Location Bar
+                      // Location Bar (Overflow-safe & Responsive)
                       Container(
-                        color: Colors.green.shade50,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).cardColor,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
                         child: Row(
                           children: [
-                            const Icon(Icons.location_on, color: Colors.green),
-                            const SizedBox(width: 8),
+                            const Icon(Icons.location_on, color: Colors.green, size: 22),
+                            const SizedBox(width: 6),
                             Expanded(
                               child: Text(
                                 prayerProvider.location?.city ?? settingsProvider.tr('unknown'),
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.green.shade900,
-                                    ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                ),
                               ),
                             ),
-                            TextButton.icon(
-                              icon: const Icon(Icons.explore_outlined, size: 18),
-                              label: Text(settingsProvider.tr('qibla')),
-                              style: TextButton.styleFrom(foregroundColor: Colors.green.shade800),
-                              onPressed: () => Navigator.pushNamed(context, '/qibla'),
+                            const SizedBox(width: 6),
+                            // Qibla Button
+                            InkWell(
+                              borderRadius: BorderRadius.circular(20),
+                              onTap: () => Navigator.pushNamed(context, '/qibla'),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.explore_outlined, size: 16, color: Colors.green),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      settingsProvider.tr('qibla'),
+                                      style: TextStyle(
+                                        color: Colors.green.shade800,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                            TextButton.icon(
-                              icon: const Icon(Icons.edit_location_alt, size: 18),
-                              label: Text(settingsProvider.tr('change')),
-                              style: TextButton.styleFrom(foregroundColor: Colors.green.shade800),
-                              onPressed: _showLocationPicker,
+                            const SizedBox(width: 6),
+                            // Change Location Button
+                            InkWell(
+                              borderRadius: BorderRadius.circular(20),
+                              onTap: _showLocationPicker,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.edit_location_alt, size: 16, color: Colors.green),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      settingsProvider.tr('change'),
+                                      style: TextStyle(
+                                        color: Colors.green.shade800,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                           ],
                         ),
