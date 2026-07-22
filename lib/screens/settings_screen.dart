@@ -4,7 +4,7 @@ import '../providers/settings_provider.dart';
 import '../constants/reminders.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  const SettingsScreen({super.key});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -98,7 +98,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ],
                       ),
                     );
-                  }).toList(),
+                  }),
 
                   const SizedBox(height: 32),
                 ],

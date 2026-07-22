@@ -6,11 +6,11 @@ class LocationPicker extends StatefulWidget {
   final Function() onUseGpsPressed;
 
   const LocationPicker({
-    Key? key,
+    super.key,
     required this.cities,
     required this.onCitySelected,
     required this.onUseGpsPressed,
-  }) : super(key: key);
+  });
 
   @override
   State<LocationPicker> createState() => _LocationPickerState();

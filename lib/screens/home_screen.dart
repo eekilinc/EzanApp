@@ -6,7 +6,7 @@ import '../widgets/prayer_card.dart';
 import '../widgets/location_picker.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -170,7 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         minutesBefore: minutes,
                         isNext: prayer.name == nextPrayer?.name,
                       );
-                    }).toList(),
+                    }),
 
                     const SizedBox(height: 24),
                   ],
