@@ -399,6 +399,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                           ),
                         ),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () async {
+                              await NotificationService().requestExactAlarmsPermission();
+                              final isGranted = await NotificationService().isExactAlarmPermissionGranted();
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      isGranted
+                                          ? (settingsProvider.appLanguage == 'en'
+                                              ? 'Exact Alarm Permission is ACTIVE! ⏰'
+                                              : 'Tam Vakit Alarm İzni AKTİF! ⏰')
+                                          : (settingsProvider.appLanguage == 'en'
+                                              ? 'Please enable Alarms & Reminders in system settings.'
+                                              : 'Lütfen cihaz ayarlarınızdan Alarmlar ve Hatırlatıcılar iznini açın.'),
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                            icon: const Icon(Icons.alarm_on, size: 18),
+                            label: Text(settingsProvider.tr('request_exact_alarm')),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.green.shade800,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              side: BorderSide(color: Colors.green.shade700),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -554,7 +589,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ListTile(
                     leading: const Icon(Icons.info_outline, color: Colors.green),
                     title: Text(settingsProvider.tr('about')),
-                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 2.1.2'),
+                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 2.1.3'),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       Navigator.pushNamed(context, '/about');

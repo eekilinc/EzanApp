@@ -47,12 +47,13 @@ class PrayerProvider extends ChangeNotifier {
         school: settingsProvider?.asrSchool ?? 'standard',
       );
 
-      // Schedule notifications for today's prayers using settings
+      // Schedule multi-day notifications for upcoming prayers using settings
       await scheduleNotifications(
         customReminderMinutes: settingsProvider?.reminderMinutes,
         soundEnabled: settingsProvider?.soundEnabled ?? true,
         vibrationEnabled: settingsProvider?.vibrationEnabled ?? true,
         soundKey: settingsProvider?.notificationSound ?? 'adhan_makkah',
+        asrSchool: settingsProvider?.asrSchool ?? 'standard',
       );
 
       _isLoading = false;
@@ -69,24 +70,67 @@ class PrayerProvider extends ChangeNotifier {
     bool soundEnabled = true,
     bool vibrationEnabled = true,
     String soundKey = 'adhan_makkah',
+    String asrSchool = 'standard',
   }) async {
-    if (_prayerTimes == null) return;
+    if (_prayerTimes == null || _location == null) return;
 
     await _notificationService.cancelAllNotifications();
 
-    final prayers = _prayerTimes!.getPrayerList();
     final reminders = customReminderMinutes ?? defaultReminderMinutes;
+    final now = DateTime.now();
 
-    for (final prayer in prayers) {
-      final reminderMinutes = reminders[prayer.name] ?? defaultReminderMinutes[prayer.name] ?? 5;
-      await _notificationService.schedulePrayerNotification(
-        prayerName: prayer.name,
-        prayerTime: prayer.time,
-        minutesBefore: reminderMinutes,
-        soundEnabled: soundEnabled,
-        vibrationEnabled: vibrationEnabled,
-        soundKey: soundKey,
+    try {
+      final monthlyList = await _apiService.getMonthlyPrayerTimes(
+        latitude: _location!.latitude,
+        longitude: _location!.longitude,
+        year: now.year,
+        month: now.month,
+        school: asrSchool,
       );
+
+      List<PrayerTimes> allDays = List.from(monthlyList);
+      if (now.day >= 20) {
+        final nextMonthDate = DateTime(now.year, now.month + 1, 1);
+        try {
+          final nextMonthList = await _apiService.getMonthlyPrayerTimes(
+            latitude: _location!.latitude,
+            longitude: _location!.longitude,
+            year: nextMonthDate.year,
+            month: nextMonthDate.month,
+            school: asrSchool,
+          );
+          allDays.addAll(nextMonthList);
+        } catch (_) {}
+      }
+
+      for (final dayTimes in allDays) {
+        final prayers = dayTimes.getPrayerList();
+        for (final prayer in prayers) {
+          final reminderMinutes = reminders[prayer.name] ?? defaultReminderMinutes[prayer.name] ?? 5;
+          await _notificationService.schedulePrayerNotification(
+            prayerName: prayer.name,
+            prayerTime: prayer.time,
+            minutesBefore: reminderMinutes,
+            soundEnabled: soundEnabled,
+            vibrationEnabled: vibrationEnabled,
+            soundKey: soundKey,
+          );
+        }
+      }
+    } catch (_) {
+      // Fallback to today's prayer times if monthly fetch fails
+      final prayers = _prayerTimes!.getPrayerList();
+      for (final prayer in prayers) {
+        final reminderMinutes = reminders[prayer.name] ?? defaultReminderMinutes[prayer.name] ?? 5;
+        await _notificationService.schedulePrayerNotification(
+          prayerName: prayer.name,
+          prayerTime: prayer.time,
+          minutesBefore: reminderMinutes,
+          soundEnabled: soundEnabled,
+          vibrationEnabled: vibrationEnabled,
+          soundKey: soundKey,
+        );
+      }
     }
   }
 

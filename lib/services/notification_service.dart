@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tzdata;
@@ -21,7 +22,7 @@ class NotificationService {
     try {
       tz.setLocalLocation(tz.getLocation('Europe/Istanbul'));
     } catch (_) {
-      // Fallback if Europe/Istanbul is not available
+      // Fallback
     }
 
     const androidSettings =
@@ -53,19 +54,41 @@ class NotificationService {
       ];
       for (final sKey in sounds) {
         final channel = AndroidNotificationChannel(
-          'ezan_channel_${sKey}_v4',
+          _getChannelId(sKey),
           'Ezan Hatırlatıcı ($sKey)',
           description: 'Namaz vakitleri hatırlatma bildirimleri',
           importance: Importance.max,
           playSound: true,
           sound: _getSoundResource(sKey),
           enableVibration: true,
+          vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
+          audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
         );
         await androidImplementation.createNotificationChannel(channel);
       }
 
-      await androidImplementation.requestNotificationsPermission();
-      await androidImplementation.requestExactAlarmsPermission();
+      try {
+        await androidImplementation.requestNotificationsPermission();
+      } catch (_) {}
+    }
+  }
+
+  Future<bool> isExactAlarmPermissionGranted() async {
+    final androidImplementation = _notificationsPlugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    if (androidImplementation != null) {
+      return await androidImplementation.areNotificationsEnabled() ?? true;
+    }
+    return true;
+  }
+
+  Future<void> requestExactAlarmsPermission() async {
+    final androidImplementation = _notificationsPlugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    if (androidImplementation != null) {
+      try {
+        await androidImplementation.requestExactAlarmsPermission();
+      } catch (_) {}
     }
   }
 
@@ -93,21 +116,37 @@ class NotificationService {
   String _getChannelId(String soundKey) {
     switch (soundKey) {
       case 'adhan_madinah':
-        return 'ezan_channel_adhan_madinah_v4';
+        return 'ezan_channel_adhan_madinah_v5';
       case 'adhan_istanbul':
-        return 'ezan_channel_adhan_istanbul_v4';
+        return 'ezan_channel_adhan_istanbul_v5';
       case 'adhan_cairo':
-        return 'ezan_channel_adhan_cairo_v4';
+        return 'ezan_channel_adhan_cairo_v5';
       case 'adhan_aqsa':
-        return 'ezan_channel_adhan_aqsa_v4';
+        return 'ezan_channel_adhan_aqsa_v5';
       case 'ney':
-        return 'ezan_channel_ney_v4';
+        return 'ezan_channel_ney_v5';
       case 'beep':
-        return 'ezan_channel_beep_v4';
+        return 'ezan_channel_beep_v5';
       case 'adhan_makkah':
       case 'adhan':
       default:
-        return 'ezan_channel_adhan_makkah_v4';
+        return 'ezan_channel_adhan_makkah_v5';
+    }
+  }
+
+  tz.TZDateTime _toTZDateTime(DateTime dateTime) {
+    try {
+      return tz.TZDateTime(
+        tz.local,
+        dateTime.year,
+        dateTime.month,
+        dateTime.day,
+        dateTime.hour,
+        dateTime.minute,
+        dateTime.second,
+      );
+    } catch (_) {
+      return tz.TZDateTime.from(dateTime, tz.local);
     }
   }
 
@@ -116,7 +155,6 @@ class NotificationService {
     bool vibrationEnabled = true,
     String soundKey = 'adhan_makkah',
   }) async {
-    // 1. Play audio in foreground as instant feedback
     if (soundEnabled) {
       try {
         await AudioService().playNotificationSound(soundKey);
@@ -131,16 +169,17 @@ class NotificationService {
           await androidImplementation.requestNotificationsPermission();
         } catch (_) {}
 
-        // Ensure notification channel is created
         final channelId = _getChannelId(soundKey);
         final channel = AndroidNotificationChannel(
           channelId,
-          'Ezan Hatırlatıcı Bildirimleri ($soundKey)',
+          'Ezan Hatırlatıcı ($soundKey)',
           description: 'Namaz vakitleri hatırlatma bildirimleri',
           importance: Importance.max,
           playSound: soundEnabled,
           sound: soundEnabled ? _getSoundResource(soundKey) : null,
           enableVibration: vibrationEnabled,
+          vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
+          audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
         );
         await androidImplementation.createNotificationChannel(channel);
       }
@@ -160,6 +199,8 @@ class NotificationService {
             enableVibration: vibrationEnabled,
             playSound: soundEnabled,
             sound: soundEnabled ? _getSoundResource(soundKey) : null,
+            audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
+            category: AndroidNotificationCategory.alarm,
           ),
           iOS: DarwinNotificationDetails(
             presentAlert: true,
@@ -183,60 +224,49 @@ class NotificationService {
     bool vibrationEnabled = true,
     String soundKey = 'adhan_makkah',
   }) async {
+    final scheduledTzDateTime = _toTZDateTime(scheduledTime);
+
+    final notificationDetails = NotificationDetails(
+      android: AndroidNotificationDetails(
+        _getChannelId(soundKey),
+        'Ezan Hatırlatıcı Bildirimleri',
+        channelDescription: 'Namaz vakitleri hatırlatma bildirimleri',
+        importance: Importance.max,
+        priority: Priority.max,
+        visibility: NotificationVisibility.public,
+        enableVibration: vibrationEnabled,
+        playSound: soundEnabled,
+        sound: soundEnabled ? _getSoundResource(soundKey) : null,
+        audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
+        category: AndroidNotificationCategory.alarm,
+      ),
+      iOS: DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: soundEnabled,
+      ),
+    );
+
     try {
-      final scheduledTzDateTime = tz.TZDateTime.from(scheduledTime, tz.local);
       await _notificationsPlugin.zonedSchedule(
         id,
         title,
         body,
         scheduledTzDateTime,
-        NotificationDetails(
-          android: AndroidNotificationDetails(
-            _getChannelId(soundKey),
-            'Ezan Hatırlatıcı Bildirimleri',
-            channelDescription: 'Namaz vakitleri hatırlatma bildirimleri',
-            importance: Importance.max,
-            priority: Priority.high,
-            enableVibration: vibrationEnabled,
-            playSound: soundEnabled,
-            sound: soundEnabled ? _getSoundResource(soundKey) : null,
-          ),
-          iOS: DarwinNotificationDetails(
-            presentAlert: true,
-            presentBadge: true,
-            presentSound: soundEnabled,
-          ),
-        ),
+        notificationDetails,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
       );
     } catch (e) {
-      // In case exact alarm fails, fallback to inexact scheduling
+      // In case exact alarm fails or is disallowed by OS policy, fallback to inexact scheduling
       try {
-        final scheduledTzDateTime = tz.TZDateTime.from(scheduledTime, tz.local);
         await _notificationsPlugin.zonedSchedule(
           id,
           title,
           body,
           scheduledTzDateTime,
-          NotificationDetails(
-            android: AndroidNotificationDetails(
-              _getChannelId(soundKey),
-              'Ezan Hatırlatıcı Bildirimleri',
-              channelDescription: 'Namaz vakitleri hatırlatma bildirimleri',
-              importance: Importance.max,
-              priority: Priority.high,
-              enableVibration: vibrationEnabled,
-              playSound: soundEnabled,
-              sound: soundEnabled ? _getSoundResource(soundKey) : null,
-            ),
-            iOS: DarwinNotificationDetails(
-              presentAlert: true,
-              presentBadge: true,
-              presentSound: soundEnabled,
-            ),
-          ),
+          notificationDetails,
           androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
           uiLocalNotificationDateInterpretation:
               UILocalNotificationDateInterpretation.absoluteTime,
@@ -279,7 +309,7 @@ class NotificationService {
 
     await scheduleNotification(
       id: id,
-      title: '$displayName Hatırlatması',
+      title: '$displayName Hatırlatması 🕌',
       body: message,
       scheduledTime: notificationTime,
       soundEnabled: soundEnabled,
