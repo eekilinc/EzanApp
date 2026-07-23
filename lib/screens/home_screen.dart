@@ -790,18 +790,25 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       ),
-      floatingActionButton: AudioService().isPlaying
-          ? FloatingActionButton.extended(
-              onPressed: () {
-                AudioService().stop();
-                setState(() {});
-              },
-              backgroundColor: Colors.red.shade700,
-              foregroundColor: Colors.white,
-              icon: const Icon(Icons.stop_circle),
-              label: Text(context.watch<SettingsProvider>().tr('stop_audio')),
-            )
-          : null,
+      floatingActionButton: ListenableBuilder(
+        listenable: AudioService(),
+        builder: (context, _) {
+          if (!AudioService().isPlaying) return const SizedBox.shrink();
+          return FloatingActionButton.extended(
+            onPressed: () {
+              AudioService().stop();
+            },
+            backgroundColor: Colors.red.shade700,
+            foregroundColor: Colors.white,
+            elevation: 6,
+            icon: const Icon(Icons.volume_off_rounded),
+            label: Text(
+              settingsProvider.tr('stop_audio'),
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          );
+        },
+      ),
     );
   }
 

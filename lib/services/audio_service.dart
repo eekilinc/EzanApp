@@ -1,13 +1,26 @@
+import 'package:flutter/foundation.dart';
 import 'package:audioplayers/audioplayers.dart';
 
-class AudioService {
+class AudioService extends ChangeNotifier {
   static final AudioService _instance = AudioService._internal();
 
   factory AudioService() {
     return _instance;
   }
 
-  AudioService._internal();
+  AudioService._internal() {
+    _audioPlayer.onPlayerComplete.listen((_) {
+      _isPlaying = false;
+      notifyListeners();
+    });
+    _audioPlayer.onPlayerStateChanged.listen((state) {
+      final playing = state == PlayerState.playing;
+      if (_isPlaying != playing) {
+        _isPlaying = playing;
+        notifyListeners();
+      }
+    });
+  }
 
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _isPlaying = false;
@@ -18,6 +31,8 @@ class AudioService {
     try {
       await stop();
       _isPlaying = true;
+      notifyListeners();
+
       String assetPath;
       switch (soundKey) {
         case 'adhan_madinah':
@@ -48,7 +63,10 @@ class AudioService {
     } catch (e) {
       try {
         await _audioPlayer.play(AssetSource('sounds/adhan.mp3'));
-      } catch (_) {}
+      } catch (_) {
+        _isPlaying = false;
+        notifyListeners();
+      }
     }
   }
 
@@ -59,8 +77,9 @@ class AudioService {
   Future<void> stop() async {
     try {
       await _audioPlayer.stop();
-      _isPlaying = false;
     } catch (_) {}
+    _isPlaying = false;
+    notifyListeners();
   }
 
   Future<void> setVolume(double volume) async {

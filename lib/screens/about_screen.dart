@@ -1,18 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../providers/settings_provider.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
+  Future<void> _launchGitHubUrl(BuildContext context) async {
+    final Uri url = Uri.parse('https://github.com/eekilinc/EzanApp');
+    try {
+      if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('https://github.com/eekilinc/EzanApp')),
+          );
+        }
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('https://github.com/eekilinc/EzanApp')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final settingsProvider = context.watch<SettingsProvider>();
+    final primaryColor = settingsProvider.primaryColor;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(settingsProvider.tr('about')),
-        backgroundColor: Colors.green.shade700,
+        backgroundColor: primaryColor,
         foregroundColor: Colors.white,
         centerTitle: true,
       ),
@@ -33,13 +55,13 @@ class AboutScreen extends StatelessWidget {
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
-                    color: Colors.green.shade100,
+                    color: primaryColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(24),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.mosque,
                     size: 54,
-                    color: Colors.green,
+                    color: primaryColor,
                   ),
                 ),
               ),
@@ -49,20 +71,20 @@ class AboutScreen extends StatelessWidget {
               settingsProvider.tr('app_title'),
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.green.shade900,
+                    color: isDark ? Colors.white : primaryColor,
                   ),
             ),
             const SizedBox(height: 6),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.green.shade100,
+                color: isDark ? primaryColor.withValues(alpha: 0.3) : primaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                '${settingsProvider.tr('version')} 2.2.1',
+                '${settingsProvider.tr('version')} 2.2.2',
                 style: TextStyle(
-                  color: Colors.green.shade900,
+                  color: isDark ? Colors.white : primaryColor,
                   fontWeight: FontWeight.bold,
                   fontSize: 13,
                 ),
@@ -83,13 +105,13 @@ class AboutScreen extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.info_outline, color: Colors.green.shade700),
+                        Icon(Icons.info_outline, color: primaryColor),
                         const SizedBox(width: 8),
                         Text(
                           settingsProvider.tr('about'),
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.green.shade800,
+                                color: isDark ? Colors.white : primaryColor,
                               ),
                         ),
                       ],
@@ -121,7 +143,7 @@ class AboutScreen extends StatelessWidget {
                       settingsProvider.tr('features'),
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: Colors.green.shade800,
+                            color: isDark ? Colors.white : primaryColor,
                           ),
                     ),
                     const SizedBox(height: 12),
@@ -138,7 +160,7 @@ class AboutScreen extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // Source & Credits Card
+            // Source & Credits Card with Interactive GitHub Link
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
@@ -153,10 +175,10 @@ class AboutScreen extends StatelessWidget {
                       settingsProvider.tr('data_source'),
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: Colors.green.shade800,
+                            color: isDark ? Colors.white : primaryColor,
                           ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 12),
                     Row(
                       children: [
                         const Icon(Icons.api, color: Colors.blue, size: 20),
@@ -169,18 +191,45 @@ class AboutScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        const Icon(Icons.code, color: Colors.purple, size: 20),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            '${settingsProvider.tr("github_repo")}: https://github.com/eekilinc/EzanApp',
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-                          ),
+                    const Divider(height: 20),
+                    InkWell(
+                      borderRadius: BorderRadius.circular(10),
+                      onTap: () => _launchGitHubUrl(context),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                        decoration: BoxDecoration(
+                          color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: isDark ? Colors.white12 : Colors.grey.shade300),
                         ),
-                      ],
+                        child: Row(
+                          children: [
+                            const Icon(Icons.code, color: Colors.purple, size: 22),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    settingsProvider.tr('github_repo'),
+                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                  ),
+                                  const Text(
+                                    'https://github.com/eekilinc/EzanApp 🔗',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.blue,
+                                      decoration: TextDecoration.underline,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Icon(Icons.open_in_new, size: 18, color: Colors.blue),
+                          ],
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -193,20 +242,13 @@ class AboutScreen extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(settingsProvider.tr('test_notification_sent')),
-                      duration: const Duration(seconds: 2),
-                    ),
-                  );
-                },
+                onPressed: () => _launchGitHubUrl(context),
                 icon: const Icon(Icons.star, color: Colors.amber),
                 label: Text(settingsProvider.tr('rate_app')),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
-                  side: BorderSide(color: Colors.green.shade600),
-                  foregroundColor: Colors.green.shade900,
+                  side: BorderSide(color: primaryColor),
+                  foregroundColor: isDark ? Colors.white : primaryColor,
                 ),
               ),
             ),
