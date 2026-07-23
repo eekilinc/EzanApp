@@ -1,7 +1,9 @@
 import 'dart:typed_data';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tzdata;
+import 'package:vibration/vibration.dart';
 import '../constants/reminders.dart';
 
 class NotificationService {
@@ -15,6 +17,9 @@ class NotificationService {
 
   final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
+
+  // Native Android MethodChannel for direct hardware vibration alarm scheduling
+  static const _vibrationChannel = MethodChannel('com.example.ezan_app/vibration_alarm');
 
   FlutterLocalNotificationsPlugin get notificationsPlugin => _notificationsPlugin;
 
@@ -49,7 +54,7 @@ class NotificationService {
     final androidImplementation = _notificationsPlugin
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
     if (androidImplementation != null) {
-      // Clear previous channels to apply fresh v120 alarm clock settings
+      // Clear previous channels to apply fresh v120 settings
       try {
         final existingChannels = await androidImplementation.getNotificationChannels() ?? [];
         for (final ch in existingChannels) {
@@ -108,6 +113,40 @@ class NotificationService {
         await androidImplementation.requestExactAlarmsPermission();
       } catch (_) {}
     }
+  }
+
+  /// Schedule a native Android vibration alarm via AlarmManager + Vibrator service.
+  /// This completely bypasses flutter_local_notifications channel vibration.
+  Future<void> _scheduleNativeVibration({
+    required int requestCode,
+    required int delayMs,
+  }) async {
+    try {
+      await _vibrationChannel.invokeMethod('scheduleVibration', {
+        'delayMs': delayMs,
+        'requestCode': requestCode,
+      });
+    } catch (_) {
+      // Fallback: direct vibration if MethodChannel unavailable
+      try {
+        if ((await Vibration.hasVibrator()) == true) {
+          Vibration.vibrate(pattern: [0, 800, 400, 800, 400, 800]);
+        }
+      } catch (_) {
+        try {
+          await HapticFeedback.vibrate();
+        } catch (_) {}
+      }
+    }
+  }
+
+  /// Cancel a previously scheduled native vibration alarm.
+  Future<void> _cancelNativeVibration(int requestCode) async {
+    try {
+      await _vibrationChannel.invokeMethod('cancelVibration', {
+        'requestCode': requestCode,
+      });
+    } catch (_) {}
   }
 
   RawResourceAndroidNotificationSound _getSoundResource(String soundKey) {
@@ -192,6 +231,19 @@ class NotificationService {
         );
         await androidImplementation.createNotificationChannel(channel);
       } catch (_) {}
+    }
+
+    // Direct vibration for instant test (app is in foreground)
+    if (vibrationEnabled) {
+      try {
+        if ((await Vibration.hasVibrator()) == true) {
+          Vibration.vibrate(pattern: [0, 800, 400, 800, 400, 800]);
+        }
+      } catch (_) {
+        try {
+          await HapticFeedback.vibrate();
+        } catch (_) {}
+      }
     }
 
     try {
@@ -335,10 +387,26 @@ class NotificationService {
         } catch (_) {}
       }
     }
+
+    // Schedule a SEPARATE native Android AlarmManager vibration alarm
+    // that directly calls android.os.Vibrator.vibrate() on the hardware,
+    // completely independent of the notification channel vibration system.
+    if (vibrationEnabled) {
+      final delayMs = scheduledTime.difference(DateTime.now()).inMilliseconds;
+      if (delayMs > 0) {
+        // Use notification id + 100000 as vibration request code to avoid collision
+        await _scheduleNativeVibration(
+          requestCode: id + 100000,
+          delayMs: delayMs,
+        );
+      }
+    }
   }
 
   Future<void> cancelNotification(int id) async {
     await _notificationsPlugin.cancel(id);
+    // Also cancel the corresponding native vibration alarm
+    await _cancelNativeVibration(id + 100000);
   }
 
   Future<void> cancelAllNotifications() async {
