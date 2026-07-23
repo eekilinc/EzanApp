@@ -284,6 +284,9 @@ class NotificationService {
     bool vibrationEnabled = true,
     String soundKey = 'adhan_makkah',
   }) async {
+    // Cancel any previous test notification and vibration alarm first
+    await cancelNotification(888888);
+
     final testTime = DateTime.now().add(const Duration(seconds: 10));
     await scheduleNotification(
       id: 888888,

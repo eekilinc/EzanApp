@@ -37,14 +37,22 @@ class MainActivity : FlutterActivity() {
 
     private fun scheduleVibrationAlarm(delayMs: Long, requestCode: Int) {
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        // Always cancel existing alarm with this requestCode first
+        cancelVibrationAlarm(requestCode)
+
         val intent = Intent(this, VibrationReceiver::class.java).apply {
             action = VibrationReceiver.ACTION_VIBRATE
+            // Add unique timestamp extra to make this PendingIntent distinct
+            putExtra("trigger_time", System.currentTimeMillis() + delayMs)
         }
+
+        // Use FLAG_CANCEL_CURRENT to ensure a completely fresh PendingIntent
         val pendingIntent = PendingIntent.getBroadcast(
             this,
             requestCode,
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         val triggerTime = System.currentTimeMillis() + delayMs
@@ -88,12 +96,16 @@ class MainActivity : FlutterActivity() {
         val intent = Intent(this, VibrationReceiver::class.java).apply {
             action = VibrationReceiver.ACTION_VIBRATE
         }
-        val pendingIntent = PendingIntent.getBroadcast(
+        // Use FLAG_NO_CREATE to check if a PendingIntent exists, then cancel it
+        val existingIntent = PendingIntent.getBroadcast(
             this,
             requestCode,
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
         )
-        alarmManager.cancel(pendingIntent)
+        if (existingIntent != null) {
+            alarmManager.cancel(existingIntent)
+            existingIntent.cancel()
+        }
     }
 }
