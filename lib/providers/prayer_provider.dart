@@ -78,6 +78,7 @@ class PrayerProvider extends ChangeNotifier {
 
     final reminders = customReminderMinutes ?? defaultReminderMinutes;
     final now = DateTime.now();
+    final todayMidnight = DateTime(now.year, now.month, now.day);
 
     try {
       final monthlyList = await _apiService.getMonthlyPrayerTimes(
@@ -89,7 +90,7 @@ class PrayerProvider extends ChangeNotifier {
       );
 
       List<PrayerTimes> allDays = List.from(monthlyList);
-      if (now.day >= 20) {
+      if (now.day >= 24) {
         final nextMonthDate = DateTime(now.year, now.month + 1, 1);
         try {
           final nextMonthList = await _apiService.getMonthlyPrayerTimes(
@@ -104,6 +105,10 @@ class PrayerProvider extends ChangeNotifier {
       }
 
       for (final dayTimes in allDays) {
+        final dayDiff = dayTimes.date.difference(todayMidnight).inDays;
+        // Schedule for today and next 7 days only for maximum performance and OS memory efficiency
+        if (dayDiff < 0 || dayDiff > 7) continue;
+
         final prayers = dayTimes.getPrayerList();
         for (final prayer in prayers) {
           final reminderMinutes = reminders[prayer.name] ?? defaultReminderMinutes[prayer.name] ?? 5;
