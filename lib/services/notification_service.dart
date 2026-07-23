@@ -67,7 +67,7 @@ class NotificationService {
           sound: _getSoundResource(sKey),
           enableVibration: true,
           vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
-          audioAttributesUsage: AudioAttributesUsage.alarm,
+          audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
         );
         await androidImplementation.createNotificationChannel(channel);
       }
@@ -123,21 +123,21 @@ class NotificationService {
   String _getChannelId(String soundKey) {
     switch (soundKey) {
       case 'adhan_madinah':
-        return 'ezan_channel_adhan_madinah_v8';
+        return 'ezan_channel_adhan_madinah_v9';
       case 'adhan_istanbul':
-        return 'ezan_channel_adhan_istanbul_v8';
+        return 'ezan_channel_adhan_istanbul_v9';
       case 'adhan_cairo':
-        return 'ezan_channel_adhan_cairo_v8';
+        return 'ezan_channel_adhan_cairo_v9';
       case 'adhan_aqsa':
-        return 'ezan_channel_adhan_aqsa_v8';
+        return 'ezan_channel_adhan_aqsa_v9';
       case 'ney':
-        return 'ezan_channel_ney_v8';
+        return 'ezan_channel_ney_v9';
       case 'beep':
-        return 'ezan_channel_beep_v8';
+        return 'ezan_channel_beep_v9';
       case 'adhan_makkah':
       case 'adhan':
       default:
-        return 'ezan_channel_adhan_makkah_v8';
+        return 'ezan_channel_adhan_makkah_v9';
     }
   }
 
@@ -182,7 +182,7 @@ class NotificationService {
           sound: soundEnabled ? _getSoundResource(soundKey) : null,
           enableVibration: vibrationEnabled,
           vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
-          audioAttributesUsage: AudioAttributesUsage.alarm,
+          audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
         );
         await androidImplementation.createNotificationChannel(channel);
       }
@@ -190,7 +190,7 @@ class NotificationService {
       await _notificationsPlugin.show(
         999999,
         'Ezan Hatırlatıcı Test Bildirimi 🔔',
-        'Anlık bildirim ve ses sisteminiz başarıyla çalışıyor!',
+        'Anlık bildirim, titreşim ve ses sisteminiz çalışıyor!',
         NotificationDetails(
           android: AndroidNotificationDetails(
             _getChannelId(soundKey),
@@ -200,11 +200,11 @@ class NotificationService {
             priority: Priority.max,
             visibility: NotificationVisibility.public,
             enableVibration: vibrationEnabled,
+            vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
             playSound: soundEnabled,
             sound: soundEnabled ? _getSoundResource(soundKey) : null,
-            audioAttributesUsage: AudioAttributesUsage.alarm,
-            category: AndroidNotificationCategory.alarm,
-            fullScreenIntent: true,
+            audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
+            category: AndroidNotificationCategory.reminder,
           ),
           iOS: DarwinNotificationDetails(
             presentAlert: true,
@@ -228,7 +228,7 @@ class NotificationService {
     await scheduleNotification(
       id: 888888,
       title: 'Zamanlanmış Ezan Testi (10s) 🕌',
-      body: '10 saniyelik zamanlanmış ezan bildirimi başarıyla çaldı!',
+      body: '10 saniyelik zamanlanmış ezan bildirimi ve uyarısı başarıyla çaldı!',
       scheduledTime: testTime,
       soundEnabled: soundEnabled,
       vibrationEnabled: vibrationEnabled,
@@ -262,7 +262,7 @@ class NotificationService {
           sound: soundEnabled ? _getSoundResource(soundKey) : null,
           enableVibration: vibrationEnabled,
           vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
-          audioAttributesUsage: AudioAttributesUsage.alarm,
+          audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
         );
         await androidImplementation.createNotificationChannel(channel);
       } catch (_) {}
@@ -277,11 +277,11 @@ class NotificationService {
         priority: Priority.max,
         visibility: NotificationVisibility.public,
         enableVibration: vibrationEnabled,
+        vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
         playSound: soundEnabled,
         sound: soundEnabled ? _getSoundResource(soundKey) : null,
-        audioAttributesUsage: AudioAttributesUsage.alarm,
-        category: AndroidNotificationCategory.alarm,
-        fullScreenIntent: true,
+        audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
+        category: AndroidNotificationCategory.reminder,
       ),
       iOS: DarwinNotificationDetails(
         presentAlert: true,
