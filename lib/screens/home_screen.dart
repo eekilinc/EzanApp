@@ -581,78 +581,64 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
 
-                      // Quick Action Bar (2x2 Grid with Dark/Light Mode Adaptability)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: Column(
+                      // Single-Row 5-Item Compact Quick Action Bar (Ultra-efficient 70px height)
+                      Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF18241B) : Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.06),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _buildQuickTile(
-                                    context: context,
-                                    icon: Icons.explore_rounded,
-                                    label: settingsProvider.tr('qibla'),
-                                    color: Colors.green,
-                                    route: '/qibla',
-                                    isDark: isDark,
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: _buildQuickTile(
-                                    context: context,
-                                    icon: Icons.touch_app_rounded,
-                                    label: settingsProvider.appLanguage == 'en' ? 'Dhikr 📿' : 'Zikirmatik 📿',
-                                    color: Colors.teal,
-                                    route: '/dhikr',
-                                    isDark: isDark,
-                                  ),
-                                ),
-                              ],
+                            _buildCompactQuickAction(
+                              context: context,
+                              icon: Icons.explore_rounded,
+                              label: settingsProvider.tr('qibla'),
+                              color: Colors.green,
+                              route: '/qibla',
+                              isDark: isDark,
                             ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _buildQuickTile(
-                                    context: context,
-                                    icon: Icons.calendar_month_rounded,
-                                    label: settingsProvider.appLanguage == 'en' ? 'Events 📅' : 'Dini Günler 📅',
-                                    color: Colors.amber,
-                                    route: '/calendar',
-                                    isDark: isDark,
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: _buildQuickTile(
-                                    context: context,
-                                    icon: Icons.calendar_today_rounded,
-                                    label: settingsProvider.tr('monthly_times'),
-                                    color: Colors.blue,
-                                    route: '/monthly',
-                                    isDark: isDark,
-                                  ),
-                                ),
-                              ],
+                            _buildCompactQuickAction(
+                              context: context,
+                              icon: Icons.touch_app_rounded,
+                              label: settingsProvider.appLanguage == 'en' ? 'Dhikr' : 'Zikirmatik',
+                              color: Colors.teal,
+                              route: '/dhikr',
+                              isDark: isDark,
                             ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _buildQuickTile(
-                                    context: context,
-                                    icon: Icons.menu_book_rounded,
-                                    label: settingsProvider.appLanguage == 'en' ? 'Duas 📖' : 'Dualar 📖',
-                                    color: Colors.deepPurple,
-                                    route: '/duas',
-                                    isDark: isDark,
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                const Expanded(child: SizedBox()),
-                              ],
+                            _buildCompactQuickAction(
+                              context: context,
+                              icon: Icons.calendar_month_rounded,
+                              label: settingsProvider.appLanguage == 'en' ? 'Events' : 'Dini Günler',
+                              color: Colors.amber,
+                              route: '/calendar',
+                              isDark: isDark,
+                            ),
+                            _buildCompactQuickAction(
+                              context: context,
+                              icon: Icons.calendar_today_rounded,
+                              label: settingsProvider.tr('monthly_times'),
+                              color: Colors.blue,
+                              route: '/monthly',
+                              isDark: isDark,
+                            ),
+                            _buildCompactQuickAction(
+                              context: context,
+                              icon: Icons.menu_book_rounded,
+                              label: settingsProvider.appLanguage == 'en' ? 'Duas' : 'Dualar',
+                              color: Colors.purple,
+                              route: '/duas',
+                              isDark: isDark,
                             ),
                           ],
                         ),
@@ -871,7 +857,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildQuickTile({
+  Widget _buildCompactQuickAction({
     required BuildContext context,
     required IconData icon,
     required String label,
@@ -879,48 +865,51 @@ class _HomeScreenState extends State<HomeScreen> {
     required String route,
     required bool isDark,
   }) {
-    final tileBg = isDark
-        ? Color.alphaBlend(color.withValues(alpha: 0.15), const Color(0xFF1C271E))
-        : color.shade50;
-    final borderColor = isDark
-        ? color.withValues(alpha: 0.3)
-        : color.shade200;
-    final iconColor = isDark ? color.shade300 : color.shade700;
-    final textColor = isDark ? Colors.white : color.shade900;
+    final bgCircle = isDark
+        ? color.withValues(alpha: 0.25)
+        : color.shade100;
+    final iconColor = isDark ? color.shade200 : color.shade800;
+    final textColor = isDark ? Colors.grey.shade300 : Colors.grey.shade800;
 
-    return Material(
-      color: Colors.transparent,
+    return Expanded(
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
         onTap: () => Navigator.pushNamed(context, route),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
-          decoration: BoxDecoration(
-            color: tileBg,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: borderColor, width: 1.2),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
-                blurRadius: 6,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 1),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, color: iconColor, size: 22),
-              const SizedBox(width: 8),
-              Flexible(
-                child: Text(
-                  label,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: bgCircle,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: color.withValues(alpha: isDark ? 0.4 : 0.3),
+                    width: 1.2,
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: color.withValues(alpha: isDark ? 0.2 : 0.15),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Icon(icon, color: iconColor, size: 22),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.bold,
+                  color: textColor,
                 ),
               ),
             ],
