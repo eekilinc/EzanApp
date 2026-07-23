@@ -315,7 +315,12 @@ class NotificationService {
     bool vibrationEnabled = true,
     String soundKey = 'adhan_makkah',
   }) async {
-    final notificationTime = prayerTime.subtract(Duration(minutes: minutesBefore));
+    final DateTime notificationTime;
+    if (minutesBefore >= 0) {
+      notificationTime = prayerTime.subtract(Duration(minutes: minutesBefore));
+    } else {
+      notificationTime = prayerTime.add(Duration(minutes: minutesBefore.abs()));
+    }
 
     if (notificationTime.isBefore(DateTime.now())) {
       return;
@@ -323,9 +328,16 @@ class NotificationService {
 
     final id = _generateNotificationId(prayerName, prayerTime);
     final displayName = prayerDisplayNames[prayerName] ?? prayerName;
-    final message = minutesBefore == 0
-        ? '$displayName vakti girdi!'
-        : '$displayName vakit girmesine $minutesBefore dakika kaldı.';
+
+    final String message;
+    if (minutesBefore == 0) {
+      message = '$displayName vakti girdi!';
+    } else if (minutesBefore > 0) {
+      message = '$displayName vakit girmesine $minutesBefore dakika kaldı.';
+    } else {
+      final afterMins = minutesBefore.abs();
+      message = '$displayName vakti gireli $afterMins dakika oldu.';
+    }
 
     await scheduleNotification(
       id: id,

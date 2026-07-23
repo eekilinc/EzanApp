@@ -705,30 +705,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 10, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: isDark ? primaryColor.withValues(alpha: 0.4) : primaryColor.withValues(alpha: 0.1),
+                                    color: currentMinutes < 0
+                                        ? (isDark ? Colors.amber.shade900.withValues(alpha: 0.5) : Colors.amber.shade100)
+                                        : (isDark ? primaryColor.withValues(alpha: 0.4) : primaryColor.withValues(alpha: 0.1)),
                                     borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: currentMinutes < 0 ? Colors.amber.shade600 : Colors.transparent,
+                                      width: currentMinutes < 0 ? 1 : 0,
+                                    ),
                                   ),
                                   child: Text(
                                     currentMinutes == 0
                                         ? settingsProvider.tr('on_time')
-                                        : '$currentMinutes ${settingsProvider.tr("min_before")}',
+                                        : (currentMinutes > 0
+                                            ? '$currentMinutes ${settingsProvider.tr("min_before")}'
+                                            : '${currentMinutes.abs()} ${settingsProvider.tr("min_after")} ⏱️'),
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      color: isDark ? Colors.white : primaryColor,
+                                      color: currentMinutes < 0
+                                          ? (isDark ? Colors.amber.shade200 : Colors.amber.shade900)
+                                          : (isDark ? Colors.white : primaryColor),
                                     ),
                                   ),
                                 ),
                               ],
                             ),
                             Slider(
-                              value: currentMinutes.toDouble(),
-                              min: 0,
+                              value: currentMinutes.toDouble().clamp(-30.0, 60.0),
+                              min: -30,
                               max: 60,
-                              divisions: 12,
-                              activeColor: primaryColor,
+                              divisions: 18,
+                              activeColor: currentMinutes < 0 ? Colors.amber.shade700 : primaryColor,
                               label: currentMinutes == 0
                                   ? settingsProvider.tr('exact_time')
-                                  : '$currentMinutes min',
+                                  : (currentMinutes > 0
+                                      ? '$currentMinutes dk önce'
+                                      : '${currentMinutes.abs()} dk sonra'),
                               onChanged: (value) {
                                 settingsProvider.setReminderMinutes(
                                   prayer,
@@ -751,7 +763,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ListTile(
                     leading: Icon(Icons.info_outline, color: primaryColor),
                     title: Text(settingsProvider.tr('about'), style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
-                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 2.1.6', style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
+                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 2.1.7', style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       Navigator.pushNamed(context, '/about');

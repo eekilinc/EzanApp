@@ -19,9 +19,14 @@ class PrayerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final settingsProvider = context.watch<SettingsProvider>();
     final displayName = settingsProvider.tr(prayer.name.toLowerCase());
-    final reminderText = minutesBefore == 0
-        ? settingsProvider.tr('exact_time')
-        : '$minutesBefore ${settingsProvider.tr("min_before")}';
+    final String reminderText;
+    if (minutesBefore == 0) {
+      reminderText = settingsProvider.tr('exact_time');
+    } else if (minutesBefore > 0) {
+      reminderText = '$minutesBefore ${settingsProvider.tr("min_before")}';
+    } else {
+      reminderText = '${minutesBefore.abs()} ${settingsProvider.tr("min_after")}';
+    }
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
