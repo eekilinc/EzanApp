@@ -67,7 +67,7 @@ class NotificationService {
           playSound: true,
           sound: _getSoundResource(sKey),
           enableVibration: true,
-          audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
+          audioAttributesUsage: AudioAttributesUsage.notification,
         );
         await androidImplementation.createNotificationChannel(channel);
       }
@@ -123,21 +123,21 @@ class NotificationService {
   String _getChannelId(String soundKey) {
     switch (soundKey) {
       case 'adhan_madinah':
-        return 'ezan_channel_adhan_madinah_v25';
+        return 'ezan_channel_adhan_madinah_v30';
       case 'adhan_istanbul':
-        return 'ezan_channel_adhan_istanbul_v25';
+        return 'ezan_channel_adhan_istanbul_v30';
       case 'adhan_cairo':
-        return 'ezan_channel_adhan_cairo_v25';
+        return 'ezan_channel_adhan_cairo_v30';
       case 'adhan_aqsa':
-        return 'ezan_channel_adhan_aqsa_v25';
+        return 'ezan_channel_adhan_aqsa_v30';
       case 'ney':
-        return 'ezan_channel_ney_v25';
+        return 'ezan_channel_ney_v30';
       case 'beep':
-        return 'ezan_channel_beep_v25';
+        return 'ezan_channel_beep_v30';
       case 'adhan_makkah':
       case 'adhan':
       default:
-        return 'ezan_channel_adhan_makkah_v25';
+        return 'ezan_channel_adhan_makkah_v30';
     }
   }
 
@@ -176,7 +176,7 @@ class NotificationService {
           playSound: soundEnabled,
           sound: soundEnabled ? _getSoundResource(soundKey) : null,
           enableVibration: vibrationEnabled,
-          audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
+          audioAttributesUsage: AudioAttributesUsage.notification,
         );
         await androidImplementation.createNotificationChannel(channel);
       } catch (_) {}
@@ -211,7 +211,7 @@ class NotificationService {
             enableVibration: vibrationEnabled,
             playSound: soundEnabled,
             sound: soundEnabled ? _getSoundResource(soundKey) : null,
-            audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
+            audioAttributesUsage: AudioAttributesUsage.notification,
             category: AndroidNotificationCategory.reminder,
           ),
           iOS: DarwinNotificationDetails(
@@ -276,7 +276,7 @@ class NotificationService {
           playSound: soundEnabled,
           sound: soundEnabled ? _getSoundResource(soundKey) : null,
           enableVibration: vibrationEnabled,
-          audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
+          audioAttributesUsage: AudioAttributesUsage.notification,
         );
         await androidImplementation.createNotificationChannel(channel);
       } catch (_) {}
@@ -293,7 +293,7 @@ class NotificationService {
         enableVibration: vibrationEnabled,
         playSound: soundEnabled,
         sound: soundEnabled ? _getSoundResource(soundKey) : null,
-        audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
+        audioAttributesUsage: AudioAttributesUsage.notification,
         category: AndroidNotificationCategory.reminder,
       ),
       iOS: DarwinNotificationDetails(
