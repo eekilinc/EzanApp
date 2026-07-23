@@ -47,11 +47,11 @@ class NotificationService {
     final androidImplementation = _notificationsPlugin
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
     if (androidImplementation != null) {
-      // Clear previous channels to prevent Notification.Builder vibration conflict and apply fresh v90 settings
+      // Clear previous channels to apply fresh v100 alarm clock settings
       try {
         final existingChannels = await androidImplementation.getNotificationChannels() ?? [];
         for (final ch in existingChannels) {
-          if (ch.id.startsWith('ezan_channel_') && !ch.id.contains('_v90')) {
+          if (ch.id.startsWith('ezan_channel_') && !ch.id.contains('_v100')) {
             await androidImplementation.deleteNotificationChannel(ch.id);
           }
         }
@@ -132,21 +132,21 @@ class NotificationService {
   String _getChannelId(String soundKey) {
     switch (soundKey) {
       case 'adhan_madinah':
-        return 'ezan_channel_adhan_madinah_v90';
+        return 'ezan_channel_adhan_madinah_v100';
       case 'adhan_istanbul':
-        return 'ezan_channel_adhan_istanbul_v90';
+        return 'ezan_channel_adhan_istanbul_v100';
       case 'adhan_cairo':
-        return 'ezan_channel_adhan_cairo_v90';
+        return 'ezan_channel_adhan_cairo_v100';
       case 'adhan_aqsa':
-        return 'ezan_channel_adhan_aqsa_v90';
+        return 'ezan_channel_adhan_aqsa_v100';
       case 'ney':
-        return 'ezan_channel_ney_v90';
+        return 'ezan_channel_ney_v100';
       case 'beep':
-        return 'ezan_channel_beep_v90';
+        return 'ezan_channel_beep_v100';
       case 'adhan_makkah':
       case 'adhan':
       default:
-        return 'ezan_channel_adhan_makkah_v90';
+        return 'ezan_channel_adhan_makkah_v100';
     }
   }
 
@@ -302,7 +302,7 @@ class NotificationService {
         body,
         scheduledTzDateTime,
         notificationDetails,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        androidScheduleMode: AndroidScheduleMode.alarmClock,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
       );
@@ -314,7 +314,7 @@ class NotificationService {
           body,
           scheduledTzDateTime,
           notificationDetails,
-          androidScheduleMode: AndroidScheduleMode.alarmClock,
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
           uiLocalNotificationDateInterpretation:
               UILocalNotificationDateInterpretation.absoluteTime,
         );
