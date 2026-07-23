@@ -62,13 +62,14 @@ class NotificationService {
           sound: _getSoundResource(sKey),
           enableVibration: true,
           vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
-          audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
+          audioAttributesUsage: AudioAttributesUsage.alarm,
         );
         await androidImplementation.createNotificationChannel(channel);
       }
 
       try {
         await androidImplementation.requestNotificationsPermission();
+        await androidImplementation.requestExactAlarmsPermission();
       } catch (_) {}
     }
   }
@@ -87,6 +88,7 @@ class NotificationService {
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
     if (androidImplementation != null) {
       try {
+        await androidImplementation.requestNotificationsPermission();
         await androidImplementation.requestExactAlarmsPermission();
       } catch (_) {}
     }
@@ -116,21 +118,21 @@ class NotificationService {
   String _getChannelId(String soundKey) {
     switch (soundKey) {
       case 'adhan_madinah':
-        return 'ezan_channel_adhan_madinah_v5';
+        return 'ezan_channel_adhan_madinah_v6';
       case 'adhan_istanbul':
-        return 'ezan_channel_adhan_istanbul_v5';
+        return 'ezan_channel_adhan_istanbul_v6';
       case 'adhan_cairo':
-        return 'ezan_channel_adhan_cairo_v5';
+        return 'ezan_channel_adhan_cairo_v6';
       case 'adhan_aqsa':
-        return 'ezan_channel_adhan_aqsa_v5';
+        return 'ezan_channel_adhan_aqsa_v6';
       case 'ney':
-        return 'ezan_channel_ney_v5';
+        return 'ezan_channel_ney_v6';
       case 'beep':
-        return 'ezan_channel_beep_v5';
+        return 'ezan_channel_beep_v6';
       case 'adhan_makkah':
       case 'adhan':
       default:
-        return 'ezan_channel_adhan_makkah_v5';
+        return 'ezan_channel_adhan_makkah_v6';
     }
   }
 
@@ -167,6 +169,7 @@ class NotificationService {
       if (androidImplementation != null) {
         try {
           await androidImplementation.requestNotificationsPermission();
+          await androidImplementation.requestExactAlarmsPermission();
         } catch (_) {}
 
         final channelId = _getChannelId(soundKey);
@@ -179,7 +182,7 @@ class NotificationService {
           sound: soundEnabled ? _getSoundResource(soundKey) : null,
           enableVibration: vibrationEnabled,
           vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
-          audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
+          audioAttributesUsage: AudioAttributesUsage.alarm,
         );
         await androidImplementation.createNotificationChannel(channel);
       }
@@ -187,7 +190,7 @@ class NotificationService {
       await _notificationsPlugin.show(
         999999,
         'Ezan Hatırlatıcı Test Bildirimi 🔔',
-        'Bildirim sisteminiz ve ayarlarınız başarıyla çalışıyor!',
+        'Bildirim sisteminiz ve ses ayarlarınız başarıyla çalışıyor!',
         NotificationDetails(
           android: AndroidNotificationDetails(
             _getChannelId(soundKey),
@@ -199,8 +202,9 @@ class NotificationService {
             enableVibration: vibrationEnabled,
             playSound: soundEnabled,
             sound: soundEnabled ? _getSoundResource(soundKey) : null,
-            audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
+            audioAttributesUsage: AudioAttributesUsage.alarm,
             category: AndroidNotificationCategory.alarm,
+            fullScreenIntent: true,
           ),
           iOS: DarwinNotificationDetails(
             presentAlert: true,
@@ -237,8 +241,9 @@ class NotificationService {
         enableVibration: vibrationEnabled,
         playSound: soundEnabled,
         sound: soundEnabled ? _getSoundResource(soundKey) : null,
-        audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
+        audioAttributesUsage: AudioAttributesUsage.alarm,
         category: AndroidNotificationCategory.alarm,
+        fullScreenIntent: true,
       ),
       iOS: DarwinNotificationDetails(
         presentAlert: true,
@@ -248,30 +253,45 @@ class NotificationService {
     );
 
     try {
+      // Primary: Android System AlarmClock (bypasses Doze mode & battery saver with 100% exact timing)
       await _notificationsPlugin.zonedSchedule(
         id,
         title,
         body,
         scheduledTzDateTime,
         notificationDetails,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        androidScheduleMode: AndroidScheduleMode.alarmClock,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
       );
     } catch (e) {
-      // In case exact alarm fails or is disallowed by OS policy, fallback to inexact scheduling
       try {
+        // Secondary fallback: exactAllowWhileIdle
         await _notificationsPlugin.zonedSchedule(
           id,
           title,
           body,
           scheduledTzDateTime,
           notificationDetails,
-          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
           uiLocalNotificationDateInterpretation:
               UILocalNotificationDateInterpretation.absoluteTime,
         );
-      } catch (_) {}
+      } catch (_) {
+        try {
+          // Tertiary fallback: inexactAllowWhileIdle
+          await _notificationsPlugin.zonedSchedule(
+            id,
+            title,
+            body,
+            scheduledTzDateTime,
+            notificationDetails,
+            androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+            uiLocalNotificationDateInterpretation:
+                UILocalNotificationDateInterpretation.absoluteTime,
+          );
+        } catch (_) {}
+      }
     }
   }
 
