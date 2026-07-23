@@ -16,6 +16,8 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
+  FlutterLocalNotificationsPlugin get notificationsPlugin => _notificationsPlugin;
+
   Future<void> initialize() async {
     tzdata.initializeTimeZones();
     try {
@@ -47,11 +49,11 @@ class NotificationService {
     final androidImplementation = _notificationsPlugin
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
     if (androidImplementation != null) {
-      // Clear previous channels to apply fresh v100 alarm clock settings
+      // Clear previous channels to apply fresh v120 alarm clock settings
       try {
         final existingChannels = await androidImplementation.getNotificationChannels() ?? [];
         for (final ch in existingChannels) {
-          if (ch.id.startsWith('ezan_channel_') && !ch.id.contains('_v100')) {
+          if (ch.id.startsWith('ezan_channel_') && !ch.id.contains('_v120')) {
             await androidImplementation.deleteNotificationChannel(ch.id);
           }
         }
@@ -76,7 +78,7 @@ class NotificationService {
           sound: _getSoundResource(sKey),
           enableVibration: true,
           vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
-          audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
+          audioAttributesUsage: AudioAttributesUsage.alarm,
         );
         await androidImplementation.createNotificationChannel(channel);
       }
@@ -132,21 +134,21 @@ class NotificationService {
   String _getChannelId(String soundKey) {
     switch (soundKey) {
       case 'adhan_madinah':
-        return 'ezan_channel_adhan_madinah_v100';
+        return 'ezan_channel_adhan_madinah_v120';
       case 'adhan_istanbul':
-        return 'ezan_channel_adhan_istanbul_v100';
+        return 'ezan_channel_adhan_istanbul_v120';
       case 'adhan_cairo':
-        return 'ezan_channel_adhan_cairo_v100';
+        return 'ezan_channel_adhan_cairo_v120';
       case 'adhan_aqsa':
-        return 'ezan_channel_adhan_aqsa_v100';
+        return 'ezan_channel_adhan_aqsa_v120';
       case 'ney':
-        return 'ezan_channel_ney_v100';
+        return 'ezan_channel_ney_v120';
       case 'beep':
-        return 'ezan_channel_beep_v100';
+        return 'ezan_channel_beep_v120';
       case 'adhan_makkah':
       case 'adhan':
       default:
-        return 'ezan_channel_adhan_makkah_v100';
+        return 'ezan_channel_adhan_makkah_v120';
     }
   }
 
@@ -186,7 +188,7 @@ class NotificationService {
           sound: soundEnabled ? _getSoundResource(soundKey) : null,
           enableVibration: vibrationEnabled,
           vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
-          audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
+          audioAttributesUsage: AudioAttributesUsage.alarm,
         );
         await androidImplementation.createNotificationChannel(channel);
       } catch (_) {}
@@ -208,8 +210,8 @@ class NotificationService {
             enableVibration: vibrationEnabled,
             playSound: soundEnabled,
             sound: soundEnabled ? _getSoundResource(soundKey) : null,
-            audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
-            category: AndroidNotificationCategory.reminder,
+            audioAttributesUsage: AudioAttributesUsage.alarm,
+            category: AndroidNotificationCategory.alarm,
           ),
           iOS: DarwinNotificationDetails(
             presentAlert: true,
@@ -268,7 +270,7 @@ class NotificationService {
           sound: soundEnabled ? _getSoundResource(soundKey) : null,
           enableVibration: vibrationEnabled,
           vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
-          audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
+          audioAttributesUsage: AudioAttributesUsage.alarm,
         );
         await androidImplementation.createNotificationChannel(channel);
       } catch (_) {}
@@ -285,8 +287,8 @@ class NotificationService {
         enableVibration: vibrationEnabled,
         playSound: soundEnabled,
         sound: soundEnabled ? _getSoundResource(soundKey) : null,
-        audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
-        category: AndroidNotificationCategory.reminder,
+        audioAttributesUsage: AudioAttributesUsage.alarm,
+        category: AndroidNotificationCategory.alarm,
       ),
       iOS: DarwinNotificationDetails(
         presentAlert: true,
