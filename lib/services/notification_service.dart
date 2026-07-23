@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tzdata;
@@ -66,7 +67,7 @@ class NotificationService {
           playSound: true,
           sound: _getSoundResource(sKey),
           enableVibration: true,
-          vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
+          vibrationPattern: Int64List.fromList([0, 500, 500, 500, 500, 500, 500, 500]),
           audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
         );
         await androidImplementation.createNotificationChannel(channel);
@@ -123,21 +124,21 @@ class NotificationService {
   String _getChannelId(String soundKey) {
     switch (soundKey) {
       case 'adhan_madinah':
-        return 'ezan_channel_adhan_madinah_v10';
+        return 'ezan_channel_adhan_madinah_v11';
       case 'adhan_istanbul':
-        return 'ezan_channel_adhan_istanbul_v10';
+        return 'ezan_channel_adhan_istanbul_v11';
       case 'adhan_cairo':
-        return 'ezan_channel_adhan_cairo_v10';
+        return 'ezan_channel_adhan_cairo_v11';
       case 'adhan_aqsa':
-        return 'ezan_channel_adhan_aqsa_v10';
+        return 'ezan_channel_adhan_aqsa_v11';
       case 'ney':
-        return 'ezan_channel_ney_v10';
+        return 'ezan_channel_ney_v11';
       case 'beep':
-        return 'ezan_channel_beep_v10';
+        return 'ezan_channel_beep_v11';
       case 'adhan_makkah':
       case 'adhan':
       default:
-        return 'ezan_channel_adhan_makkah_v10';
+        return 'ezan_channel_adhan_makkah_v11';
     }
   }
 
@@ -176,10 +177,17 @@ class NotificationService {
           playSound: soundEnabled,
           sound: soundEnabled ? _getSoundResource(soundKey) : null,
           enableVibration: vibrationEnabled,
-          vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
+          vibrationPattern: Int64List.fromList([0, 500, 500, 500, 500, 500, 500, 500]),
           audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
         );
         await androidImplementation.createNotificationChannel(channel);
+      } catch (_) {}
+    }
+
+    if (vibrationEnabled) {
+      try {
+        await HapticFeedback.vibrate();
+        await HapticFeedback.heavyImpact();
       } catch (_) {}
     }
 
@@ -197,7 +205,7 @@ class NotificationService {
             priority: Priority.max,
             visibility: NotificationVisibility.public,
             enableVibration: vibrationEnabled,
-            vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
+            vibrationPattern: Int64List.fromList([0, 500, 500, 500, 500, 500, 500, 500]),
             playSound: soundEnabled,
             sound: soundEnabled ? _getSoundResource(soundKey) : null,
             audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
@@ -265,7 +273,7 @@ class NotificationService {
           playSound: soundEnabled,
           sound: soundEnabled ? _getSoundResource(soundKey) : null,
           enableVibration: vibrationEnabled,
-          vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
+          vibrationPattern: Int64List.fromList([0, 500, 500, 500, 500, 500, 500, 500]),
           audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
         );
         await androidImplementation.createNotificationChannel(channel);
@@ -281,7 +289,7 @@ class NotificationService {
         priority: Priority.max,
         visibility: NotificationVisibility.public,
         enableVibration: vibrationEnabled,
-        vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
+        vibrationPattern: Int64List.fromList([0, 500, 500, 500, 500, 500, 500, 500]),
         playSound: soundEnabled,
         sound: soundEnabled ? _getSoundResource(soundKey) : null,
         audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
