@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tzdata;
+import 'package:vibration/vibration.dart';
 import '../constants/reminders.dart';
 import 'audio_service.dart';
 
@@ -124,21 +125,21 @@ class NotificationService {
   String _getChannelId(String soundKey) {
     switch (soundKey) {
       case 'adhan_madinah':
-        return 'ezan_channel_adhan_madinah_v11';
+        return 'ezan_channel_adhan_madinah_v12';
       case 'adhan_istanbul':
-        return 'ezan_channel_adhan_istanbul_v11';
+        return 'ezan_channel_adhan_istanbul_v12';
       case 'adhan_cairo':
-        return 'ezan_channel_adhan_cairo_v11';
+        return 'ezan_channel_adhan_cairo_v12';
       case 'adhan_aqsa':
-        return 'ezan_channel_adhan_aqsa_v11';
+        return 'ezan_channel_adhan_aqsa_v12';
       case 'ney':
-        return 'ezan_channel_ney_v11';
+        return 'ezan_channel_ney_v12';
       case 'beep':
-        return 'ezan_channel_beep_v11';
+        return 'ezan_channel_beep_v12';
       case 'adhan_makkah':
       case 'adhan':
       default:
-        return 'ezan_channel_adhan_makkah_v11';
+        return 'ezan_channel_adhan_makkah_v12';
     }
   }
 
@@ -186,9 +187,15 @@ class NotificationService {
 
     if (vibrationEnabled) {
       try {
-        await HapticFeedback.vibrate();
-        await HapticFeedback.heavyImpact();
-      } catch (_) {}
+        if ((await Vibration.hasVibrator()) == true) {
+          Vibration.vibrate(pattern: [0, 500, 300, 500, 300, 500]);
+        }
+      } catch (_) {
+        try {
+          await HapticFeedback.vibrate();
+          await HapticFeedback.heavyImpact();
+        } catch (_) {}
+      }
     }
 
     try {

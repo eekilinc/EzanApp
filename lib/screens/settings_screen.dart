@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:vibration/vibration.dart';
 import '../providers/settings_provider.dart';
 import '../providers/prayer_provider.dart';
 import '../services/audio_service.dart';
@@ -604,18 +605,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           width: double.infinity,
                           child: OutlinedButton.icon(
                             onPressed: () async {
-                              for (int i = 0; i < 5; i++) {
-                                await HapticFeedback.vibrate();
-                                await HapticFeedback.heavyImpact();
-                                await Future.delayed(const Duration(milliseconds: 300));
+                              try {
+                                if ((await Vibration.hasVibrator()) == true) {
+                                  Vibration.vibrate(pattern: [0, 500, 200, 500, 200, 500, 200, 500]);
+                                } else {
+                                  for (int i = 0; i < 5; i++) {
+                                    await HapticFeedback.vibrate();
+                                    await Future.delayed(const Duration(milliseconds: 300));
+                                  }
+                                }
+                              } catch (_) {
+                                for (int i = 0; i < 5; i++) {
+                                  await HapticFeedback.vibrate();
+                                  await Future.delayed(const Duration(milliseconds: 300));
+                                }
                               }
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
                                       settingsProvider.appLanguage == 'en'
-                                          ? 'Vibration motor test executed 5 times! 📳'
-                                          : 'Donanımsal titreşim motoru 5 kez tetiklendi! 📳',
+                                          ? 'Vibration motor test executed! 📳'
+                                          : 'Donanımsal titreşim motoru tetiklendi! 📳',
                                     ),
                                     duration: const Duration(seconds: 2),
                                   ),
@@ -843,7 +854,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ListTile(
                     leading: Icon(Icons.info_outline, color: primaryColor),
                     title: Text(settingsProvider.tr('about'), style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
-                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 2.2.4', style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
+                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 2.2.5', style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       Navigator.pushNamed(context, '/about');
