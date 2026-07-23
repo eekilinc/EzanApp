@@ -51,12 +51,6 @@
         </receiver>
         <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"
             android:exported="true" />
-        <receiver android:name=".VibrationReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.example.ezan_app.ACTION_VIBRATE"/>
-            </intent-filter>
-        </receiver>
         <receiver android:name=".PrayerWidgetReceiver"
             android:exported="true">
             <intent-filter>

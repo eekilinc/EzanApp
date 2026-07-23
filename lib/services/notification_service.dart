@@ -18,9 +18,6 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  // Native Android MethodChannel for direct hardware vibration alarm scheduling
-  static const _vibrationChannel = MethodChannel('com.example.ezan_app/vibration_alarm');
-
   FlutterLocalNotificationsPlugin get notificationsPlugin => _notificationsPlugin;
 
   Future<void> initialize() async {
@@ -54,11 +51,11 @@ class NotificationService {
     final androidImplementation = _notificationsPlugin
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
     if (androidImplementation != null) {
-      // Clear previous channels to apply fresh v120 settings
+      // Clear previous channels to apply fresh v200 settings
       try {
         final existingChannels = await androidImplementation.getNotificationChannels() ?? [];
         for (final ch in existingChannels) {
-          if (ch.id.startsWith('ezan_channel_') && !ch.id.contains('_v120')) {
+          if (ch.id.startsWith('ezan_channel_') && !ch.id.contains('_v200')) {
             await androidImplementation.deleteNotificationChannel(ch.id);
           }
         }
@@ -115,40 +112,6 @@ class NotificationService {
     }
   }
 
-  /// Schedule a native Android vibration alarm via AlarmManager + Vibrator service.
-  /// This completely bypasses flutter_local_notifications channel vibration.
-  Future<void> _scheduleNativeVibration({
-    required int requestCode,
-    required int delayMs,
-  }) async {
-    try {
-      await _vibrationChannel.invokeMethod('scheduleVibration', {
-        'delayMs': delayMs,
-        'requestCode': requestCode,
-      });
-    } catch (_) {
-      // Fallback: direct vibration if MethodChannel unavailable
-      try {
-        if ((await Vibration.hasVibrator()) == true) {
-          Vibration.vibrate(pattern: [0, 800, 400, 800, 400, 800]);
-        }
-      } catch (_) {
-        try {
-          await HapticFeedback.vibrate();
-        } catch (_) {}
-      }
-    }
-  }
-
-  /// Cancel a previously scheduled native vibration alarm.
-  Future<void> _cancelNativeVibration(int requestCode) async {
-    try {
-      await _vibrationChannel.invokeMethod('cancelVibration', {
-        'requestCode': requestCode,
-      });
-    } catch (_) {}
-  }
-
   RawResourceAndroidNotificationSound _getSoundResource(String soundKey) {
     switch (soundKey) {
       case 'adhan_madinah':
@@ -173,32 +136,35 @@ class NotificationService {
   String _getChannelId(String soundKey) {
     switch (soundKey) {
       case 'adhan_madinah':
-        return 'ezan_channel_adhan_madinah_v120';
+        return 'ezan_channel_adhan_madinah_v200';
       case 'adhan_istanbul':
-        return 'ezan_channel_adhan_istanbul_v120';
+        return 'ezan_channel_adhan_istanbul_v200';
       case 'adhan_cairo':
-        return 'ezan_channel_adhan_cairo_v120';
+        return 'ezan_channel_adhan_cairo_v200';
       case 'adhan_aqsa':
-        return 'ezan_channel_adhan_aqsa_v120';
+        return 'ezan_channel_adhan_aqsa_v200';
       case 'ney':
-        return 'ezan_channel_ney_v120';
+        return 'ezan_channel_ney_v200';
       case 'beep':
-        return 'ezan_channel_beep_v120';
+        return 'ezan_channel_beep_v200';
       case 'adhan_makkah':
       case 'adhan':
       default:
-        return 'ezan_channel_adhan_makkah_v120';
+        return 'ezan_channel_adhan_makkah_v200';
     }
   }
 
-  tz.TZDateTime _toTZDateTime(DateTime dateTime) {
+  tz.TZDateTime _toTZDateTime(DateTime scheduledTime) {
     try {
       final now = DateTime.now();
+      final difference = scheduledTime.difference(now);
       final tzNow = tz.TZDateTime.now(tz.local);
-      final difference = dateTime.difference(now);
+      if (difference.isNegative) {
+        return tzNow.add(const Duration(seconds: 1));
+      }
       return tzNow.add(difference);
     } catch (_) {
-      return tz.TZDateTime.from(dateTime, tz.local);
+      return tz.TZDateTime.from(scheduledTime, tz.local);
     }
   }
 
@@ -233,7 +199,7 @@ class NotificationService {
       } catch (_) {}
     }
 
-    // Direct vibration for instant test (app is in foreground)
+    // Direct vibration feedback when test button is tapped
     if (vibrationEnabled) {
       try {
         if ((await Vibration.hasVibrator()) == true) {
@@ -260,6 +226,7 @@ class NotificationService {
             priority: Priority.max,
             visibility: NotificationVisibility.public,
             enableVibration: vibrationEnabled,
+            vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
             playSound: soundEnabled,
             sound: soundEnabled ? _getSoundResource(soundKey) : null,
             audioAttributesUsage: AudioAttributesUsage.alarm,
@@ -284,7 +251,7 @@ class NotificationService {
     bool vibrationEnabled = true,
     String soundKey = 'adhan_makkah',
   }) async {
-    // Cancel any previous test notification and vibration alarm first
+    // Cancel any previous test notification
     await cancelNotification(888888);
 
     final testTime = DateTime.now().add(const Duration(seconds: 10));
@@ -309,6 +276,11 @@ class NotificationService {
     bool vibrationEnabled = true,
     String soundKey = 'adhan_makkah',
   }) async {
+    // Do not schedule if time has already passed
+    if (scheduledTime.isBefore(DateTime.now())) {
+      return;
+    }
+
     final scheduledTzDateTime = _toTZDateTime(scheduledTime);
     final channelId = _getChannelId(soundKey);
 
@@ -340,6 +312,7 @@ class NotificationService {
         priority: Priority.max,
         visibility: NotificationVisibility.public,
         enableVibration: vibrationEnabled,
+        vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
         playSound: soundEnabled,
         sound: soundEnabled ? _getSoundResource(soundKey) : null,
         audioAttributesUsage: AudioAttributesUsage.alarm,
@@ -359,7 +332,7 @@ class NotificationService {
         body,
         scheduledTzDateTime,
         notificationDetails,
-        androidScheduleMode: AndroidScheduleMode.alarmClock,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
       );
@@ -371,45 +344,16 @@ class NotificationService {
           body,
           scheduledTzDateTime,
           notificationDetails,
-          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
           uiLocalNotificationDateInterpretation:
               UILocalNotificationDateInterpretation.absoluteTime,
         );
-      } catch (e2) {
-        try {
-          await _notificationsPlugin.zonedSchedule(
-            id,
-            title,
-            body,
-            scheduledTzDateTime,
-            notificationDetails,
-            androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-            uiLocalNotificationDateInterpretation:
-                UILocalNotificationDateInterpretation.absoluteTime,
-          );
-        } catch (_) {}
-      }
-    }
-
-    // Schedule a SEPARATE native Android AlarmManager vibration alarm
-    // that directly calls android.os.Vibrator.vibrate() on the hardware,
-    // completely independent of the notification channel vibration system.
-    if (vibrationEnabled) {
-      final delayMs = scheduledTime.difference(DateTime.now()).inMilliseconds;
-      if (delayMs > 0) {
-        // Use notification id + 100000 as vibration request code to avoid collision
-        await _scheduleNativeVibration(
-          requestCode: id + 100000,
-          delayMs: delayMs,
-        );
-      }
+      } catch (_) {}
     }
   }
 
   Future<void> cancelNotification(int id) async {
     await _notificationsPlugin.cancel(id);
-    // Also cancel the corresponding native vibration alarm
-    await _cancelNativeVibration(id + 100000);
   }
 
   Future<void> cancelAllNotifications() async {
