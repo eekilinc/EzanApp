@@ -50,14 +50,6 @@ class NotificationService {
     final androidImplementation = _notificationsPlugin
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
     if (androidImplementation != null) {
-      // Delete previous cached notification channels to force Android OS to apply fresh vibration settings
-      try {
-        final existingChannels = await androidImplementation.getNotificationChannels() ?? [];
-        for (final ch in existingChannels) {
-          await androidImplementation.deleteNotificationChannel(ch.id);
-        }
-      } catch (_) {}
-
       final sounds = [
         'adhan_makkah',
         'adhan_madinah',
@@ -76,8 +68,8 @@ class NotificationService {
           playSound: true,
           sound: _getSoundResource(sKey),
           enableVibration: true,
-          vibrationPattern: Int64List.fromList([0, 1000, 1000, 1000, 1000, 1000]),
-          audioAttributesUsage: AudioAttributesUsage.alarm,
+          vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
+          audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
         );
         await androidImplementation.createNotificationChannel(channel);
       }
@@ -133,21 +125,21 @@ class NotificationService {
   String _getChannelId(String soundKey) {
     switch (soundKey) {
       case 'adhan_madinah':
-        return 'ezan_channel_adhan_madinah_v20';
+        return 'ezan_channel_adhan_madinah_v21';
       case 'adhan_istanbul':
-        return 'ezan_channel_adhan_istanbul_v20';
+        return 'ezan_channel_adhan_istanbul_v21';
       case 'adhan_cairo':
-        return 'ezan_channel_adhan_cairo_v20';
+        return 'ezan_channel_adhan_cairo_v21';
       case 'adhan_aqsa':
-        return 'ezan_channel_adhan_aqsa_v20';
+        return 'ezan_channel_adhan_aqsa_v21';
       case 'ney':
-        return 'ezan_channel_ney_v20';
+        return 'ezan_channel_ney_v21';
       case 'beep':
-        return 'ezan_channel_beep_v20';
+        return 'ezan_channel_beep_v21';
       case 'adhan_makkah':
       case 'adhan':
       default:
-        return 'ezan_channel_adhan_makkah_v20';
+        return 'ezan_channel_adhan_makkah_v21';
     }
   }
 
@@ -186,8 +178,8 @@ class NotificationService {
           playSound: soundEnabled,
           sound: soundEnabled ? _getSoundResource(soundKey) : null,
           enableVibration: vibrationEnabled,
-          vibrationPattern: Int64List.fromList([0, 1000, 1000, 1000, 1000, 1000]),
-          audioAttributesUsage: AudioAttributesUsage.alarm,
+          vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
+          audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
         );
         await androidImplementation.createNotificationChannel(channel);
       } catch (_) {}
@@ -220,12 +212,11 @@ class NotificationService {
             priority: Priority.max,
             visibility: NotificationVisibility.public,
             enableVibration: vibrationEnabled,
-            vibrationPattern: Int64List.fromList([0, 1000, 1000, 1000, 1000, 1000]),
+            vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
             playSound: soundEnabled,
             sound: soundEnabled ? _getSoundResource(soundKey) : null,
-            audioAttributesUsage: AudioAttributesUsage.alarm,
-            category: AndroidNotificationCategory.alarm,
-            fullScreenIntent: true,
+            audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
+            category: AndroidNotificationCategory.reminder,
           ),
           iOS: DarwinNotificationDetails(
             presentAlert: true,
@@ -289,8 +280,8 @@ class NotificationService {
           playSound: soundEnabled,
           sound: soundEnabled ? _getSoundResource(soundKey) : null,
           enableVibration: vibrationEnabled,
-          vibrationPattern: Int64List.fromList([0, 1000, 1000, 1000, 1000, 1000]),
-          audioAttributesUsage: AudioAttributesUsage.alarm,
+          vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
+          audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
         );
         await androidImplementation.createNotificationChannel(channel);
       } catch (_) {}
@@ -305,12 +296,11 @@ class NotificationService {
         priority: Priority.max,
         visibility: NotificationVisibility.public,
         enableVibration: vibrationEnabled,
-        vibrationPattern: Int64List.fromList([0, 1000, 1000, 1000, 1000, 1000]),
+        vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
         playSound: soundEnabled,
         sound: soundEnabled ? _getSoundResource(soundKey) : null,
-        audioAttributesUsage: AudioAttributesUsage.alarm,
-        category: AndroidNotificationCategory.alarm,
-        fullScreenIntent: true,
+        audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
+        category: AndroidNotificationCategory.reminder,
       ),
       iOS: DarwinNotificationDetails(
         presentAlert: true,
