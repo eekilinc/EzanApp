@@ -123,35 +123,30 @@ class NotificationService {
   String _getChannelId(String soundKey) {
     switch (soundKey) {
       case 'adhan_madinah':
-        return 'ezan_channel_adhan_madinah_v7';
+        return 'ezan_channel_adhan_madinah_v8';
       case 'adhan_istanbul':
-        return 'ezan_channel_adhan_istanbul_v7';
+        return 'ezan_channel_adhan_istanbul_v8';
       case 'adhan_cairo':
-        return 'ezan_channel_adhan_cairo_v7';
+        return 'ezan_channel_adhan_cairo_v8';
       case 'adhan_aqsa':
-        return 'ezan_channel_adhan_aqsa_v7';
+        return 'ezan_channel_adhan_aqsa_v8';
       case 'ney':
-        return 'ezan_channel_ney_v7';
+        return 'ezan_channel_ney_v8';
       case 'beep':
-        return 'ezan_channel_beep_v7';
+        return 'ezan_channel_beep_v8';
       case 'adhan_makkah':
       case 'adhan':
       default:
-        return 'ezan_channel_adhan_makkah_v7';
+        return 'ezan_channel_adhan_makkah_v8';
     }
   }
 
   tz.TZDateTime _toTZDateTime(DateTime dateTime) {
     try {
-      return tz.TZDateTime(
-        tz.local,
-        dateTime.year,
-        dateTime.month,
-        dateTime.day,
-        dateTime.hour,
-        dateTime.minute,
-        dateTime.second,
-      );
+      final now = DateTime.now();
+      final tzNow = tz.TZDateTime.now(tz.local);
+      final difference = dateTime.difference(now);
+      return tzNow.add(difference);
     } catch (_) {
       return tz.TZDateTime.from(dateTime, tz.local);
     }
@@ -252,10 +247,30 @@ class NotificationService {
     String soundKey = 'adhan_makkah',
   }) async {
     final scheduledTzDateTime = _toTZDateTime(scheduledTime);
+    final channelId = _getChannelId(soundKey);
+
+    final androidImplementation = _notificationsPlugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    if (androidImplementation != null) {
+      try {
+        final channel = AndroidNotificationChannel(
+          channelId,
+          'Ezan Hatırlatıcı ($soundKey)',
+          description: 'Namaz vakitleri hatırlatma bildirimleri',
+          importance: Importance.max,
+          playSound: soundEnabled,
+          sound: soundEnabled ? _getSoundResource(soundKey) : null,
+          enableVibration: vibrationEnabled,
+          vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
+          audioAttributesUsage: AudioAttributesUsage.alarm,
+        );
+        await androidImplementation.createNotificationChannel(channel);
+      } catch (_) {}
+    }
 
     final notificationDetails = NotificationDetails(
       android: AndroidNotificationDetails(
-        _getChannelId(soundKey),
+        channelId,
         'Ezan Hatırlatıcı Bildirimleri',
         channelDescription: 'Namaz vakitleri hatırlatma bildirimleri',
         importance: Importance.max,
@@ -276,18 +291,17 @@ class NotificationService {
     );
 
     try {
-      // Primary: AlarmClock Mode (highest priority system alarm)
       await _notificationsPlugin.zonedSchedule(
         id,
         title,
         body,
         scheduledTzDateTime,
         notificationDetails,
-        androidScheduleMode: AndroidScheduleMode.alarmClock,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
       );
-    } catch (e) {
+    } catch (e1) {
       try {
         await _notificationsPlugin.zonedSchedule(
           id,
@@ -295,11 +309,11 @@ class NotificationService {
           body,
           scheduledTzDateTime,
           notificationDetails,
-          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          androidScheduleMode: AndroidScheduleMode.alarmClock,
           uiLocalNotificationDateInterpretation:
               UILocalNotificationDateInterpretation.absoluteTime,
         );
-      } catch (_) {
+      } catch (e2) {
         try {
           await _notificationsPlugin.zonedSchedule(
             id,
