@@ -123,21 +123,21 @@ class NotificationService {
   String _getChannelId(String soundKey) {
     switch (soundKey) {
       case 'adhan_madinah':
-        return 'ezan_channel_adhan_madinah_v9';
+        return 'ezan_channel_adhan_madinah_v10';
       case 'adhan_istanbul':
-        return 'ezan_channel_adhan_istanbul_v9';
+        return 'ezan_channel_adhan_istanbul_v10';
       case 'adhan_cairo':
-        return 'ezan_channel_adhan_cairo_v9';
+        return 'ezan_channel_adhan_cairo_v10';
       case 'adhan_aqsa':
-        return 'ezan_channel_adhan_aqsa_v9';
+        return 'ezan_channel_adhan_aqsa_v10';
       case 'ney':
-        return 'ezan_channel_ney_v9';
+        return 'ezan_channel_ney_v10';
       case 'beep':
-        return 'ezan_channel_beep_v9';
+        return 'ezan_channel_beep_v10';
       case 'adhan_makkah':
       case 'adhan':
       default:
-        return 'ezan_channel_adhan_makkah_v9';
+        return 'ezan_channel_adhan_makkah_v10';
     }
   }
 
@@ -157,22 +157,17 @@ class NotificationService {
     bool vibrationEnabled = true,
     String soundKey = 'adhan_makkah',
   }) async {
-    if (soundEnabled) {
+    final channelId = _getChannelId(soundKey);
+    final androidImplementation = _notificationsPlugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+
+    if (androidImplementation != null) {
       try {
-        await AudioService().playNotificationSound(soundKey);
+        await androidImplementation.requestNotificationsPermission();
+        await androidImplementation.requestExactAlarmsPermission();
       } catch (_) {}
-    }
 
-    try {
-      final androidImplementation = _notificationsPlugin
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
-      if (androidImplementation != null) {
-        try {
-          await androidImplementation.requestNotificationsPermission();
-          await androidImplementation.requestExactAlarmsPermission();
-        } catch (_) {}
-
-        final channelId = _getChannelId(soundKey);
+      try {
         final channel = AndroidNotificationChannel(
           channelId,
           'Ezan Hatırlatıcı ($soundKey)',
@@ -185,15 +180,17 @@ class NotificationService {
           audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
         );
         await androidImplementation.createNotificationChannel(channel);
-      }
+      } catch (_) {}
+    }
 
+    try {
       await _notificationsPlugin.show(
         999999,
         'Ezan Hatırlatıcı Test Bildirimi 🔔',
-        'Anlık bildirim, titreşim ve ses sisteminiz çalışıyor!',
+        'Anlık bildirim, titreşim ve ses sisteminiz başarıyla çalışıyor!',
         NotificationDetails(
           android: AndroidNotificationDetails(
-            _getChannelId(soundKey),
+            channelId,
             'Ezan Hatırlatıcı Bildirimleri',
             channelDescription: 'Namaz vakitleri hatırlatma bildirimleri',
             importance: Importance.max,
@@ -213,9 +210,16 @@ class NotificationService {
           ),
         ),
       );
+
+      if (soundEnabled) {
+        try {
+          await AudioService().playNotificationSound(soundKey);
+        } catch (_) {}
+      }
+
       return true;
     } catch (e) {
-      return true;
+      return false;
     }
   }
 
