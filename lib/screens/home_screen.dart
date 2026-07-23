@@ -9,6 +9,7 @@ import '../models/daily_content.dart';
 import '../models/islamic_event.dart';
 import '../widgets/prayer_card.dart';
 import '../widgets/location_picker.dart';
+import '../widgets/islamic_pattern_painter.dart';
 import '../services/hijri_service.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -365,9 +366,19 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: isDark ? const Color(0xFF0F1A11) : primaryColor,
         foregroundColor: Colors.white,
       ),
-      body: FutureBuilder(
-        future: _initializationFuture,
-        builder: (context, snapshot) {
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: CustomPaint(
+              painter: IslamicPatternPainter(
+                color: primaryColor,
+                isDark: isDark,
+              ),
+            ),
+          ),
+          FutureBuilder(
+            future: _initializationFuture,
+            builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -790,6 +801,8 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       ),
+    ],
+  ),
       floatingActionButton: ListenableBuilder(
         listenable: AudioService(),
         builder: (context, _) {
