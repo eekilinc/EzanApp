@@ -121,7 +121,7 @@ class _DhikrScreenState extends State<DhikrScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Card(
-                  color: Colors.white.withValues(alpha: 0.12),
+                  color: Colors.white.withValues(alpha: 0.15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                     side: BorderSide(color: Colors.teal.shade300.withValues(alpha: 0.3)),
@@ -170,7 +170,7 @@ class _DhikrScreenState extends State<DhikrScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.3),
+                  color: Colors.black.withValues(alpha: 0.35),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
                 ),
@@ -198,7 +198,7 @@ class _DhikrScreenState extends State<DhikrScreen> {
 
               const Spacer(),
 
-              // Target Selector Chips
+              // Target Selector Chips (Fixed contrast for light and dark theme)
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [33, 99, 100, 0].map((targetVal) {
@@ -209,10 +209,14 @@ class _DhikrScreenState extends State<DhikrScreen> {
                     child: ChoiceChip(
                       label: Text(label),
                       selected: isSelected,
+                      backgroundColor: Colors.white.withValues(alpha: 0.15),
                       selectedColor: Colors.amber.shade700,
+                      side: BorderSide(
+                        color: isSelected ? Colors.amber.shade300 : Colors.white.withValues(alpha: 0.2),
+                      ),
                       labelStyle: TextStyle(
                         color: isSelected ? Colors.black : Colors.white,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                       ),
                       onSelected: (_) {
                         setState(() {

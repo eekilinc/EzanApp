@@ -8,7 +8,6 @@ import '../services/audio_service.dart';
 import '../models/daily_content.dart';
 import '../widgets/prayer_card.dart';
 import '../widgets/location_picker.dart';
-
 import '../services/hijri_service.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -85,39 +84,68 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final todayContent = DailyContent.getTodayContent();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final settingsProvider = context.watch<SettingsProvider>();
 
     return Scaffold(
       appBar: AppBar(
+        titleSpacing: 16,
+        centerTitle: false,
         title: Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                'assets/images/app_logo.png',
-                width: 32,
-                height: 32,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => const Icon(Icons.mosque, color: Colors.white),
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.18),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.amber.shade300, width: 1.5),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.15),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
+              child: const Icon(Icons.mosque_rounded, color: Colors.amber, size: 22),
             ),
             const SizedBox(width: 10),
-            const Text(
-              'Ezan Hatırlatıcı',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  settingsProvider.tr('app_title'),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Colors.white,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+                Text(
+                  'Namaz Vakitleri & İslami Yardımcı 🕌',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Colors.green.shade100,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.explore),
-            tooltip: 'Kıble Pusulası',
-            onPressed: () => Navigator.pushNamed(context, '/qibla'),
+            icon: const Icon(Icons.settings_outlined, color: Colors.white),
+            tooltip: settingsProvider.tr('settings'),
+            onPressed: () => Navigator.pushNamed(context, '/settings'),
           ),
+          const SizedBox(width: 4),
         ],
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.green.shade700,
+        elevation: 2,
+        shadowColor: Colors.black38,
+        backgroundColor: isDark ? const Color(0xFF0F1A11) : Colors.green.shade800,
         foregroundColor: Colors.white,
       ),
       body: FutureBuilder(
@@ -140,10 +168,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                        const SizedBox(height: 16),
+                        const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                        const SizedBox(height: 12),
                         Text(
-                          'Hata: ${prayerProvider.error}',
+                          prayerProvider.error!,
                           textAlign: TextAlign.center,
                           style: const TextStyle(fontSize: 16),
                         ),
@@ -172,8 +200,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ? settingsProvider.tr(nextPrayer.name.toLowerCase())
                   : settingsProvider.tr('on_time');
 
-              final isDark = Theme.of(context).brightness == Brightness.dark;
-
               return RefreshIndicator(
                 onRefresh: () => prayerProvider.loadPrayerTimes(settingsProvider),
                 child: SingleChildScrollView(
@@ -185,7 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         decoration: BoxDecoration(
-                          color: Colors.green.shade900,
+                          color: isDark ? const Color(0xFF142217) : Colors.green.shade900,
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -222,14 +248,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           ],
                         ),
                       ),
+
                       // Location Bar (Overflow-safe & Responsive)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                         decoration: BoxDecoration(
                           color: Theme.of(context).cardColor,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
+                              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),
@@ -247,9 +274,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                     : (prayerProvider.location?.city ?? settingsProvider.tr('unknown')),
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 15,
+                                  color: isDark ? Colors.white : Colors.black87,
                                 ),
                               ),
                             ),
@@ -259,20 +287,23 @@ class _HomeScreenState extends State<HomeScreen> {
                               borderRadius: BorderRadius.circular(20),
                               onTap: _showLocationPicker,
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: Colors.green.withValues(alpha: 0.12),
+                                  color: isDark ? Colors.green.shade900.withValues(alpha: 0.4) : Colors.green.shade50,
                                   borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: isDark ? Colors.green.shade700 : Colors.green.shade300,
+                                  ),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Icon(Icons.edit_location_alt, size: 16, color: Colors.green),
+                                    Icon(Icons.edit_location_alt, size: 16, color: isDark ? Colors.green.shade300 : Colors.green.shade800),
                                     const SizedBox(width: 4),
                                     Text(
                                       settingsProvider.tr('change'),
                                       style: TextStyle(
-                                        color: Colors.green.shade800,
+                                        color: isDark ? Colors.green.shade200 : Colors.green.shade900,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 12,
                                       ),
@@ -345,21 +376,23 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
 
-                      // Next prayer countdown card
+                      // Next Prayer Live Countdown Banner
                       Container(
                         width: double.infinity,
                         margin: const EdgeInsets.all(16),
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [Colors.green.shade900, Colors.green.shade700],
+                            colors: isDark
+                                ? [const Color(0xFF0F2617), const Color(0xFF143B22)]
+                                : [Colors.green.shade900, Colors.green.shade700],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
                           borderRadius: BorderRadius.circular(22),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.green.withValues(alpha: 0.35),
+                              color: Colors.green.withValues(alpha: isDark ? 0.2 : 0.35),
                               blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),
@@ -409,24 +442,26 @@ class _HomeScreenState extends State<HomeScreen> {
                                     color: Colors.white,
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
-                                    fontFeatures: [FontFeature.tabularFigures()],
+                                    letterSpacing: 1.1,
                                   ),
                                 ),
                               ),
-                            ]
+                            ],
                           ],
                         ),
                       ),
 
-                      // Daily Verse / Hadith Card
+                      // Daily Verse / Hadith Card (Theme Adaptive)
                       Container(
                         width: double.infinity,
                         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.amber.shade50,
+                          color: isDark ? const Color(0xFF262014) : Colors.amber.shade50,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.amber.shade200),
+                          border: Border.all(
+                            color: isDark ? Colors.amber.shade700.withValues(alpha: 0.5) : Colors.amber.shade200,
+                          ),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -436,20 +471,20 @@ class _HomeScreenState extends State<HomeScreen> {
                               children: [
                                 Row(
                                   children: [
-                                    Icon(Icons.format_quote, color: Colors.amber.shade900, size: 20),
+                                    Icon(Icons.format_quote, color: isDark ? Colors.amber.shade300 : Colors.amber.shade900, size: 20),
                                     const SizedBox(width: 6),
                                     Text(
                                       todayContent.type,
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.amber.shade900,
+                                        color: isDark ? Colors.amber.shade300 : Colors.amber.shade900,
                                         fontSize: 13,
                                       ),
                                     ),
                                   ],
                                 ),
                                 IconButton(
-                                  icon: Icon(Icons.copy, size: 18, color: Colors.amber.shade900),
+                                  icon: Icon(Icons.copy, size: 18, color: isDark ? Colors.amber.shade300 : Colors.amber.shade900),
                                   tooltip: settingsProvider.appLanguage == 'en' ? 'Copy Text' : 'Metni Kopyala',
                                   onPressed: () {
                                     final shareText = '"${todayContent.text}" — ${todayContent.source}';
@@ -471,7 +506,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               '"${todayContent.text}"',
                               style: TextStyle(
                                 fontStyle: FontStyle.italic,
-                                color: Colors.grey.shade900,
+                                color: isDark ? Colors.amber.shade50 : Colors.grey.shade900,
                                 fontSize: 14,
                                 height: 1.3,
                               ),
@@ -484,7 +519,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.grey.shade700,
+                                  color: isDark ? Colors.amber.shade200 : Colors.grey.shade700,
                                 ),
                               ),
                             ),

@@ -22,6 +22,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           soundEnabled: settingsProvider.soundEnabled,
           vibrationEnabled: settingsProvider.vibrationEnabled,
           soundKey: settingsProvider.notificationSound,
+          asrSchool: settingsProvider.asrSchool,
         );
   }
 
@@ -46,14 +47,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.dispose();
   }
 
+  Widget _buildChoiceChip({
+    required String label,
+    required bool selected,
+    required ValueChanged<bool> onSelected,
+    required bool isDark,
+  }) {
+    return ChoiceChip(
+      label: Center(child: Text(label)),
+      selected: selected,
+      selectedColor: isDark ? Colors.green.shade900 : Colors.green.shade100,
+      backgroundColor: isDark ? Colors.grey.shade900 : Colors.grey.shade100,
+      side: BorderSide(
+        color: selected
+            ? (isDark ? Colors.green.shade400 : Colors.green.shade600)
+            : (isDark ? Colors.white10 : Colors.black12),
+      ),
+      labelStyle: TextStyle(
+        fontWeight: selected ? FontWeight.bold : FontWeight.w600,
+        color: selected
+            ? (isDark ? Colors.green.shade200 : Colors.green.shade900)
+            : (isDark ? Colors.grey.shade300 : Colors.black87),
+      ),
+      onSelected: onSelected,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final settingsProvider = context.watch<SettingsProvider>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final cardBgColor = isDark ? const Color(0xFF18241B) : Colors.white;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(settingsProvider.tr('settings')),
-        backgroundColor: Colors.green.shade700,
+        backgroundColor: isDark ? const Color(0xFF0F1A11) : Colors.green.shade700,
         foregroundColor: Colors.white,
         centerTitle: true,
       ),
@@ -76,6 +106,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(height: 8),
                   Card(
                     elevation: 2,
+                    color: cardBgColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -84,18 +115,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       child: Row(
                         children: [
                           Expanded(
-                            child: ChoiceChip(
-                              label: Center(child: Text(settingsProvider.tr('turkish'))),
+                            child: _buildChoiceChip(
+                              label: settingsProvider.tr('turkish'),
                               selected: settingsProvider.appLanguage == 'tr',
-                              selectedColor: Colors.green.shade100,
-                              labelStyle: TextStyle(
-                                fontWeight: settingsProvider.appLanguage == 'tr'
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                                color: settingsProvider.appLanguage == 'tr'
-                                    ? Colors.green.shade900
-                                    : Colors.black87,
-                              ),
+                              isDark: isDark,
                               onSelected: (selected) {
                                 if (selected) {
                                   settingsProvider.setAppLanguage('tr');
@@ -105,18 +128,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           const SizedBox(width: 12),
                           Expanded(
-                            child: ChoiceChip(
-                              label: Center(child: Text(settingsProvider.tr('english'))),
+                            child: _buildChoiceChip(
+                              label: settingsProvider.tr('english'),
                               selected: settingsProvider.appLanguage == 'en',
-                              selectedColor: Colors.green.shade100,
-                              labelStyle: TextStyle(
-                                fontWeight: settingsProvider.appLanguage == 'en'
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                                color: settingsProvider.appLanguage == 'en'
-                                    ? Colors.green.shade900
-                                    : Colors.black87,
-                              ),
+                              isDark: isDark,
                               onSelected: (selected) {
                                 if (selected) {
                                   settingsProvider.setAppLanguage('en');
@@ -142,6 +157,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(height: 8),
                   Card(
                     elevation: 2,
+                    color: cardBgColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -150,10 +166,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       child: Row(
                         children: [
                           Expanded(
-                            child: ChoiceChip(
-                              label: Center(child: Text(settingsProvider.tr('theme_system'))),
+                            child: _buildChoiceChip(
+                              label: settingsProvider.tr('theme_system'),
                               selected: settingsProvider.themeMode == ThemeMode.system,
-                              selectedColor: Colors.green.shade100,
+                              isDark: isDark,
                               onSelected: (selected) {
                                 if (selected) {
                                   settingsProvider.setThemeMode(ThemeMode.system);
@@ -163,10 +179,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           const SizedBox(width: 8),
                           Expanded(
-                            child: ChoiceChip(
-                              label: Center(child: Text(settingsProvider.tr('theme_light'))),
+                            child: _buildChoiceChip(
+                              label: settingsProvider.tr('theme_light'),
                               selected: settingsProvider.themeMode == ThemeMode.light,
-                              selectedColor: Colors.green.shade100,
+                              isDark: isDark,
                               onSelected: (selected) {
                                 if (selected) {
                                   settingsProvider.setThemeMode(ThemeMode.light);
@@ -176,10 +192,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           const SizedBox(width: 8),
                           Expanded(
-                            child: ChoiceChip(
-                              label: Center(child: Text(settingsProvider.tr('theme_dark'))),
+                            child: _buildChoiceChip(
+                              label: settingsProvider.tr('theme_dark'),
                               selected: settingsProvider.themeMode == ThemeMode.dark,
-                              selectedColor: Colors.green.shade100,
+                              isDark: isDark,
                               onSelected: (selected) {
                                 if (selected) {
                                   settingsProvider.setThemeMode(ThemeMode.dark);
@@ -314,22 +330,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 width: isSelected ? 2 : 0,
                               ),
                             ),
-                            color: isSelected ? Colors.green.shade50 : Colors.white,
+                            color: isSelected
+                                ? (isDark ? Colors.green.shade900.withValues(alpha: 0.4) : Colors.green.shade50)
+                                : cardBgColor,
                             child: ListTile(
                               leading: CircleAvatar(
-                                backgroundColor: iconColor.shade100,
-                                child: Icon(soundIcon, color: iconColor.shade800),
+                                backgroundColor: isDark ? iconColor.shade900.withValues(alpha: 0.5) : iconColor.shade100,
+                                child: Icon(soundIcon, color: isDark ? iconColor.shade300 : iconColor.shade800),
                               ),
                               title: Text(
                                 settingsProvider.tr(sound['titleKey'] as String),
                                 style: TextStyle(
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                  color: isSelected ? Colors.green.shade900 : Colors.black87,
+                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                                  color: isSelected
+                                      ? (isDark ? Colors.green.shade200 : Colors.green.shade900)
+                                      : (isDark ? Colors.white : Colors.black87),
                                 ),
                               ),
                               subtitle: Text(
                                 settingsProvider.tr(sound['subKey'] as String),
-                                style: const TextStyle(fontSize: 12),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                                ),
                               ),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -425,7 +448,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             icon: const Icon(Icons.alarm_on, size: 18),
                             label: Text(settingsProvider.tr('request_exact_alarm')),
                             style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.green.shade800,
+                              foregroundColor: isDark ? Colors.green.shade300 : Colors.green.shade800,
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               side: BorderSide(color: Colors.green.shade700),
                               shape: RoundedRectangleBorder(
@@ -455,6 +478,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(height: 8),
                   Card(
                     elevation: 2,
+                    color: cardBgColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -463,10 +487,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       child: Row(
                         children: [
                           Expanded(
-                            child: ChoiceChip(
-                              label: Center(child: Text(settingsProvider.tr('asr_standard'))),
+                            child: _buildChoiceChip(
+                              label: settingsProvider.tr('asr_standard'),
                               selected: settingsProvider.asrSchool == 'standard',
-                              selectedColor: Colors.green.shade100,
+                              isDark: isDark,
                               onSelected: (selected) {
                                 if (selected) {
                                   settingsProvider.setAsrSchool('standard');
@@ -477,10 +501,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           const SizedBox(width: 8),
                           Expanded(
-                            child: ChoiceChip(
-                              label: Center(child: Text(settingsProvider.tr('asr_hanafi'))),
+                            child: _buildChoiceChip(
+                              label: settingsProvider.tr('asr_hanafi'),
                               selected: settingsProvider.asrSchool == 'hanafi',
-                              selectedColor: Colors.green.shade100,
+                              isDark: isDark,
                               onSelected: (selected) {
                                 if (selected) {
                                   settingsProvider.setAsrSchool('hanafi');
@@ -521,6 +545,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     return Card(
                       margin: const EdgeInsets.symmetric(vertical: 6),
                       elevation: 1,
+                      color: cardBgColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -534,16 +559,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               children: [
                                 Text(
                                   displayName,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
+                                    color: isDark ? Colors.white : Colors.black87,
                                   ),
                                 ),
                                 Container(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 10, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: Colors.green.shade50,
+                                    color: isDark ? Colors.green.shade900.withValues(alpha: 0.5) : Colors.green.shade50,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
@@ -552,7 +578,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         : '$currentMinutes ${settingsProvider.tr("min_before")}',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.green.shade800,
+                                      color: isDark ? Colors.green.shade200 : Colors.green.shade800,
                                     ),
                                   ),
                                 ),
@@ -588,8 +614,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   // About Section Button
                   ListTile(
                     leading: const Icon(Icons.info_outline, color: Colors.green),
-                    title: Text(settingsProvider.tr('about')),
-                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 2.1.3'),
+                    title: Text(settingsProvider.tr('about'), style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
+                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 2.1.4', style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       Navigator.pushNamed(context, '/about');
