@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -67,7 +68,8 @@ class NotificationService {
           playSound: true,
           sound: _getSoundResource(sKey),
           enableVibration: true,
-          audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
+          vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
+          audioAttributesUsage: AudioAttributesUsage.alarm,
         );
         await androidImplementation.createNotificationChannel(channel);
       }
@@ -123,21 +125,21 @@ class NotificationService {
   String _getChannelId(String soundKey) {
     switch (soundKey) {
       case 'adhan_madinah':
-        return 'ezan_channel_adhan_madinah_v15';
+        return 'ezan_channel_adhan_madinah_v16';
       case 'adhan_istanbul':
-        return 'ezan_channel_adhan_istanbul_v15';
+        return 'ezan_channel_adhan_istanbul_v16';
       case 'adhan_cairo':
-        return 'ezan_channel_adhan_cairo_v15';
+        return 'ezan_channel_adhan_cairo_v16';
       case 'adhan_aqsa':
-        return 'ezan_channel_adhan_aqsa_v15';
+        return 'ezan_channel_adhan_aqsa_v16';
       case 'ney':
-        return 'ezan_channel_ney_v15';
+        return 'ezan_channel_ney_v16';
       case 'beep':
-        return 'ezan_channel_beep_v15';
+        return 'ezan_channel_beep_v16';
       case 'adhan_makkah':
       case 'adhan':
       default:
-        return 'ezan_channel_adhan_makkah_v15';
+        return 'ezan_channel_adhan_makkah_v16';
     }
   }
 
@@ -176,7 +178,8 @@ class NotificationService {
           playSound: soundEnabled,
           sound: soundEnabled ? _getSoundResource(soundKey) : null,
           enableVibration: vibrationEnabled,
-          audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
+          vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
+          audioAttributesUsage: AudioAttributesUsage.alarm,
         );
         await androidImplementation.createNotificationChannel(channel);
       } catch (_) {}
@@ -209,10 +212,11 @@ class NotificationService {
             priority: Priority.max,
             visibility: NotificationVisibility.public,
             enableVibration: vibrationEnabled,
+            vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
             playSound: soundEnabled,
             sound: soundEnabled ? _getSoundResource(soundKey) : null,
-            audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
-            category: AndroidNotificationCategory.reminder,
+            audioAttributesUsage: AudioAttributesUsage.alarm,
+            category: AndroidNotificationCategory.alarm,
           ),
           iOS: DarwinNotificationDetails(
             presentAlert: true,
@@ -276,7 +280,8 @@ class NotificationService {
           playSound: soundEnabled,
           sound: soundEnabled ? _getSoundResource(soundKey) : null,
           enableVibration: vibrationEnabled,
-          audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
+          vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
+          audioAttributesUsage: AudioAttributesUsage.alarm,
         );
         await androidImplementation.createNotificationChannel(channel);
       } catch (_) {}
@@ -291,10 +296,11 @@ class NotificationService {
         priority: Priority.max,
         visibility: NotificationVisibility.public,
         enableVibration: vibrationEnabled,
+        vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
         playSound: soundEnabled,
         sound: soundEnabled ? _getSoundResource(soundKey) : null,
-        audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
-        category: AndroidNotificationCategory.reminder,
+        audioAttributesUsage: AudioAttributesUsage.alarm,
+        category: AndroidNotificationCategory.alarm,
       ),
       iOS: DarwinNotificationDetails(
         presentAlert: true,
