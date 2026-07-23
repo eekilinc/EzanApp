@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -67,6 +68,7 @@ class NotificationService {
           playSound: true,
           sound: _getSoundResource(sKey),
           enableVibration: true,
+          vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
           audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
         );
         await androidImplementation.createNotificationChannel(channel);
@@ -123,21 +125,21 @@ class NotificationService {
   String _getChannelId(String soundKey) {
     switch (soundKey) {
       case 'adhan_madinah':
-        return 'ezan_channel_adhan_madinah_v13';
+        return 'ezan_channel_adhan_madinah_v14';
       case 'adhan_istanbul':
-        return 'ezan_channel_adhan_istanbul_v13';
+        return 'ezan_channel_adhan_istanbul_v14';
       case 'adhan_cairo':
-        return 'ezan_channel_adhan_cairo_v13';
+        return 'ezan_channel_adhan_cairo_v14';
       case 'adhan_aqsa':
-        return 'ezan_channel_adhan_aqsa_v13';
+        return 'ezan_channel_adhan_aqsa_v14';
       case 'ney':
-        return 'ezan_channel_ney_v13';
+        return 'ezan_channel_ney_v14';
       case 'beep':
-        return 'ezan_channel_beep_v13';
+        return 'ezan_channel_beep_v14';
       case 'adhan_makkah':
       case 'adhan':
       default:
-        return 'ezan_channel_adhan_makkah_v13';
+        return 'ezan_channel_adhan_makkah_v14';
     }
   }
 
@@ -176,6 +178,7 @@ class NotificationService {
           playSound: soundEnabled,
           sound: soundEnabled ? _getSoundResource(soundKey) : null,
           enableVibration: vibrationEnabled,
+          vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
           audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
         );
         await androidImplementation.createNotificationChannel(channel);
@@ -209,6 +212,7 @@ class NotificationService {
             priority: Priority.max,
             visibility: NotificationVisibility.public,
             enableVibration: vibrationEnabled,
+            vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
             playSound: soundEnabled,
             sound: soundEnabled ? _getSoundResource(soundKey) : null,
             audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
@@ -276,6 +280,7 @@ class NotificationService {
           playSound: soundEnabled,
           sound: soundEnabled ? _getSoundResource(soundKey) : null,
           enableVibration: vibrationEnabled,
+          vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
           audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
         );
         await androidImplementation.createNotificationChannel(channel);
@@ -291,6 +296,7 @@ class NotificationService {
         priority: Priority.max,
         visibility: NotificationVisibility.public,
         enableVibration: vibrationEnabled,
+        vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
         playSound: soundEnabled,
         sound: soundEnabled ? _getSoundResource(soundKey) : null,
         audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
@@ -351,8 +357,8 @@ class NotificationService {
     await _notificationsPlugin.cancelAll();
   }
 
-  int _generateNotificationId(String prayer, DateTime date) {
-    return '${date.year}${date.month.toString().padLeft(2, '0')}${date.day.toString().padLeft(2, '0')}$prayer'.hashCode & 0x7FFFFFFF;
+  int _generateNotificationId(String prayer, DateTime date, String type) {
+    return '${date.year}${date.month.toString().padLeft(2, '0')}${date.day.toString().padLeft(2, '0')}${prayer}_$type'.hashCode & 0x7FFFFFFF;
   }
 
   Future<void> schedulePrayerNotification({
@@ -363,38 +369,47 @@ class NotificationService {
     bool vibrationEnabled = true,
     String soundKey = 'adhan_makkah',
   }) async {
-    final DateTime notificationTime;
-    if (minutesBefore >= 0) {
-      notificationTime = prayerTime.subtract(Duration(minutes: minutesBefore));
-    } else {
-      notificationTime = prayerTime.add(Duration(minutes: minutesBefore.abs()));
-    }
-
-    if (notificationTime.isBefore(DateTime.now())) {
-      return;
-    }
-
-    final id = _generateNotificationId(prayerName, prayerTime);
     final displayName = prayerDisplayNames[prayerName] ?? prayerName;
 
-    final String message;
-    if (minutesBefore == 0) {
-      message = '$displayName vakti girdi!';
-    } else if (minutesBefore > 0) {
-      message = '$displayName vakit girmesine $minutesBefore dakika kaldı.';
-    } else {
-      final afterMins = minutesBefore.abs();
-      message = '$displayName vakti gireli $afterMins dakika oldu.';
+    // 1. ALWAYS Schedule Exact Prayer Time (0 min offset - Exact Adhan)
+    if (!prayerTime.isBefore(DateTime.now())) {
+      final exactId = _generateNotificationId(prayerName, prayerTime, 'exact');
+      await scheduleNotification(
+        id: exactId,
+        title: '$displayName Vakti Girdi 🕌',
+        body: '$displayName ezanı okunuyor. Haydi namaza! 🕌',
+        scheduledTime: prayerTime,
+        soundEnabled: soundEnabled,
+        vibrationEnabled: vibrationEnabled,
+        soundKey: soundKey,
+      );
     }
 
-    await scheduleNotification(
-      id: id,
-      title: '$displayName Hatırlatması 🕌',
-      body: message,
-      scheduledTime: notificationTime,
-      soundEnabled: soundEnabled,
-      vibrationEnabled: vibrationEnabled,
-      soundKey: soundKey,
-    );
+    // 2. ALSO Schedule Custom Offset Reminder (if minutesBefore != 0)
+    if (minutesBefore != 0) {
+      final DateTime reminderTime;
+      if (minutesBefore > 0) {
+        reminderTime = prayerTime.subtract(Duration(minutes: minutesBefore));
+      } else {
+        reminderTime = prayerTime.add(Duration(minutes: minutesBefore.abs()));
+      }
+
+      if (!reminderTime.isBefore(DateTime.now())) {
+        final reminderId = _generateNotificationId(prayerName, prayerTime, 'reminder');
+        final String message = minutesBefore > 0
+            ? '$displayName vakit girmesine $minutesBefore dakika kaldı.'
+            : '$displayName vakti gireli ${minutesBefore.abs()} dakika oldu.';
+
+        await scheduleNotification(
+          id: reminderId,
+          title: '$displayName Hatırlatması ⏰',
+          body: message,
+          scheduledTime: reminderTime,
+          soundEnabled: soundEnabled,
+          vibrationEnabled: vibrationEnabled,
+          soundKey: soundKey,
+        );
+      }
+    }
   }
 }
