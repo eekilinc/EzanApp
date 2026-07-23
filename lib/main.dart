@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'providers/prayer_provider.dart';
 import 'providers/settings_provider.dart';
 import 'services/notification_service.dart';
+import 'screens/splash_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/about_screen.dart';
@@ -10,6 +11,7 @@ import 'screens/qibla_screen.dart';
 import 'screens/dhikr_screen.dart';
 import 'screens/islamic_events_screen.dart';
 import 'screens/monthly_screen.dart';
+import 'screens/duas_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -92,14 +94,16 @@ class MyApp extends StatelessWidget {
                 color: Colors.white.withValues(alpha: 0.1),
               ),
             ),
-            home: const HomeScreen(),
+            home: const SplashScreen(),
             routes: {
+              '/home': (context) => const HomeScreen(),
               '/settings': (context) => const SettingsScreen(),
               '/about': (context) => const AboutScreen(),
               '/qibla': (context) => const QiblaScreen(),
               '/dhikr': (context) => const DhikrScreen(),
               '/calendar': (context) => const IslamicEventsScreen(),
               '/monthly': (context) => const MonthlyScreen(),
+              '/duas': (context) => const DuasScreen(),
             },
           );
         },

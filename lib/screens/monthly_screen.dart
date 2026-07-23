@@ -75,7 +75,7 @@ class _MonthlyScreenState extends State<MonthlyScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(settingsProvider.tr('monthly_title')),
-        backgroundColor: Colors.green.shade800,
+        backgroundColor: settingsProvider.primaryColor,
         foregroundColor: Colors.white,
         centerTitle: true,
       ),
@@ -85,8 +85,8 @@ class _MonthlyScreenState extends State<MonthlyScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Colors.green.shade900,
-              Colors.teal.shade900,
+              HSLColor.fromColor(settingsProvider.primaryColor).withLightness(0.12).toColor(),
+              HSLColor.fromColor(settingsProvider.secondaryColor).withLightness(0.10).toColor(),
               const Color(0xFF0F1210),
             ],
           ),
@@ -147,7 +147,7 @@ class _MonthlyScreenState extends State<MonthlyScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               margin: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: Colors.teal.shade800,
+                color: settingsProvider.secondaryColor,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -219,7 +219,7 @@ class _MonthlyScreenState extends State<MonthlyScreen> {
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(vertical: 4),
                                       decoration: BoxDecoration(
-                                        color: isToday ? Colors.amber : Colors.green.shade800.withValues(alpha: 0.5),
+                                        color: isToday ? Colors.amber : settingsProvider.primaryColor.withValues(alpha: 0.5),
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                       child: Text(

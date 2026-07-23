@@ -11,6 +11,8 @@ import '../widgets/prayer_card.dart';
 import '../widgets/location_picker.dart';
 import '../widgets/islamic_pattern_painter.dart';
 import '../services/hijri_service.dart';
+import '../widgets/animated_countdown.dart';
+import '../services/widget_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,6 +24,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late Future<void> _initializationFuture;
   Timer? _countdownTimer;
+  int _widgetUpdateCounter = 0;
 
   @override
   void initState() {
@@ -35,8 +38,33 @@ class _HomeScreenState extends State<HomeScreen> {
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
         setState(() {});
+        // Update home widget every 30 seconds
+        _widgetUpdateCounter++;
+        if (_widgetUpdateCounter >= 30) {
+          _widgetUpdateCounter = 0;
+          _updateHomeWidget();
+        }
       }
     });
+  }
+
+  void _updateHomeWidget() {
+    try {
+      final prayerProvider = context.read<PrayerProvider>();
+      final settingsProvider = context.read<SettingsProvider>();
+      final nextPrayer = prayerProvider.getNextPrayer();
+      final timeUntilNext = prayerProvider.getTimeUntilNextPrayer();
+
+      if (nextPrayer != null) {
+        final displayName = settingsProvider.tr(nextPrayer.name.toLowerCase());
+        WidgetService.updateWidget(
+          prayerName: displayName,
+          prayerTime: nextPrayer.getDisplayTime(),
+          countdown: timeUntilNext != null ? _formatDuration(timeUntilNext) : '--:--:--',
+          appTitle: settingsProvider.tr('app_title'),
+        );
+      }
+    } catch (_) {}
   }
 
   @override
@@ -609,6 +637,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ],
                             ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildQuickTile(
+                                    context: context,
+                                    icon: Icons.menu_book_rounded,
+                                    label: settingsProvider.appLanguage == 'en' ? 'Duas 📖' : 'Dualar 📖',
+                                    color: Colors.deepPurple,
+                                    route: '/duas',
+                                    isDark: isDark,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                const Expanded(child: SizedBox()),
+                              ],
+                            ),
                           ],
                         ),
                       ),
@@ -671,17 +716,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                   borderRadius: BorderRadius.circular(30),
                                   border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
                                 ),
-                                child: Text(
-                                  timeUntilNext != null
-                                      ? '${settingsProvider.tr("time_remaining")}: ${_formatDuration(timeUntilNext)}'
-                                      : '--:--:--',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 1.1,
-                                  ),
-                                ),
+                                child: timeUntilNext != null
+                                    ? AnimatedCountdown(
+                                        timeString: _formatDuration(timeUntilNext),
+                                      )
+                                    : const Text(
+                                        '--:--:--',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                               ),
                             ],
                           ],
