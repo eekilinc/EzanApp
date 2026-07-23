@@ -558,6 +558,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                           ),
                         ),
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () async {
+                              await NotificationService().scheduleTestNotificationIn10Seconds(
+                                soundEnabled: settingsProvider.soundEnabled,
+                                vibrationEnabled: settingsProvider.vibrationEnabled,
+                                soundKey: settingsProvider.notificationSound,
+                              );
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      settingsProvider.appLanguage == 'en'
+                                          ? 'Scheduled test alarm set for 10 seconds from now! Lock screen to test. ⏱️'
+                                          : '10 saniyelik test ezanı kuruldu! Lütfen ekranı kapatıp 10 saniye bekleyin. ⏱️',
+                                    ),
+                                    duration: const Duration(seconds: 4),
+                                    backgroundColor: Colors.amber.shade900,
+                                  ),
+                                );
+                              }
+                            },
+                            icon: const Icon(Icons.timer_outlined, size: 18),
+                            label: Text(
+                              settingsProvider.appLanguage == 'en'
+                                  ? 'Test Scheduled Alarm (10s) ⏱️'
+                                  : '10 Saniye Sonra Zamanlanmış Ezanı Test Et ⏱️',
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.amber.shade800,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ),
                         const SizedBox(height: 12),
                         SizedBox(
                           width: double.infinity,
@@ -763,7 +803,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ListTile(
                     leading: Icon(Icons.info_outline, color: primaryColor),
                     title: Text(settingsProvider.tr('about'), style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
-                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 2.1.7', style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
+                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 2.1.8', style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       Navigator.pushNamed(context, '/about');

@@ -20,7 +20,12 @@ class NotificationService {
   Future<void> initialize() async {
     tzdata.initializeTimeZones();
     try {
-      tz.setLocalLocation(tz.getLocation('Europe/Istanbul'));
+      final String timeZoneName = DateTime.now().timeZoneName;
+      try {
+        tz.setLocalLocation(tz.getLocation(timeZoneName));
+      } catch (_) {
+        tz.setLocalLocation(tz.getLocation('Europe/Istanbul'));
+      }
     } catch (_) {
       // Fallback
     }
@@ -118,21 +123,21 @@ class NotificationService {
   String _getChannelId(String soundKey) {
     switch (soundKey) {
       case 'adhan_madinah':
-        return 'ezan_channel_adhan_madinah_v6';
+        return 'ezan_channel_adhan_madinah_v7';
       case 'adhan_istanbul':
-        return 'ezan_channel_adhan_istanbul_v6';
+        return 'ezan_channel_adhan_istanbul_v7';
       case 'adhan_cairo':
-        return 'ezan_channel_adhan_cairo_v6';
+        return 'ezan_channel_adhan_cairo_v7';
       case 'adhan_aqsa':
-        return 'ezan_channel_adhan_aqsa_v6';
+        return 'ezan_channel_adhan_aqsa_v7';
       case 'ney':
-        return 'ezan_channel_ney_v6';
+        return 'ezan_channel_ney_v7';
       case 'beep':
-        return 'ezan_channel_beep_v6';
+        return 'ezan_channel_beep_v7';
       case 'adhan_makkah':
       case 'adhan':
       default:
-        return 'ezan_channel_adhan_makkah_v6';
+        return 'ezan_channel_adhan_makkah_v7';
     }
   }
 
@@ -190,7 +195,7 @@ class NotificationService {
       await _notificationsPlugin.show(
         999999,
         'Ezan Hatırlatıcı Test Bildirimi 🔔',
-        'Bildirim sisteminiz ve ses ayarlarınız başarıyla çalışıyor!',
+        'Anlık bildirim ve ses sisteminiz başarıyla çalışıyor!',
         NotificationDetails(
           android: AndroidNotificationDetails(
             _getChannelId(soundKey),
@@ -217,6 +222,24 @@ class NotificationService {
     } catch (e) {
       return true;
     }
+  }
+
+  Future<bool> scheduleTestNotificationIn10Seconds({
+    bool soundEnabled = true,
+    bool vibrationEnabled = true,
+    String soundKey = 'adhan_makkah',
+  }) async {
+    final testTime = DateTime.now().add(const Duration(seconds: 10));
+    await scheduleNotification(
+      id: 888888,
+      title: 'Zamanlanmış Ezan Testi (10s) 🕌',
+      body: '10 saniyelik zamanlanmış ezan bildirimi başarıyla çaldı!',
+      scheduledTime: testTime,
+      soundEnabled: soundEnabled,
+      vibrationEnabled: vibrationEnabled,
+      soundKey: soundKey,
+    );
+    return true;
   }
 
   Future<void> scheduleNotification({
@@ -253,7 +276,7 @@ class NotificationService {
     );
 
     try {
-      // Primary: Android System AlarmClock (bypasses Doze mode & battery saver with 100% exact timing)
+      // Primary: AlarmClock Mode (highest priority system alarm)
       await _notificationsPlugin.zonedSchedule(
         id,
         title,
@@ -266,7 +289,6 @@ class NotificationService {
       );
     } catch (e) {
       try {
-        // Secondary fallback: exactAllowWhileIdle
         await _notificationsPlugin.zonedSchedule(
           id,
           title,
@@ -279,7 +301,6 @@ class NotificationService {
         );
       } catch (_) {
         try {
-          // Tertiary fallback: inexactAllowWhileIdle
           await _notificationsPlugin.zonedSchedule(
             id,
             title,
