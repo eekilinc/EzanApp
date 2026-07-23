@@ -6,6 +6,7 @@ import '../providers/prayer_provider.dart';
 import '../providers/settings_provider.dart';
 import '../services/audio_service.dart';
 import '../models/daily_content.dart';
+import '../models/islamic_event.dart';
 import '../widgets/prayer_card.dart';
 import '../widgets/location_picker.dart';
 import '../services/hijri_service.dart';
@@ -73,6 +74,221 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _showCalendarModal(BuildContext context, SettingsProvider settingsProvider) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = settingsProvider.primaryColor;
+    final isEn = settingsProvider.appLanguage == 'en';
+    final now = DateTime.now();
+
+    final upcomingEvents = IslamicEventService.getUpcomingEvents().take(3).toList();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF162218) : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade400,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: primaryColor.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.calendar_month_rounded, color: primaryColor, size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        settingsProvider.tr('calendar_dialog_title'),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                      ),
+                      Text(
+                        settingsProvider.tr('calendar_dialog_desc'),
+                        style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // Date Cards Row
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: primaryColor.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: primaryColor.withValues(alpha: 0.3)),
+                      ),
+                      child: Column(
+                        children: [
+                          const Icon(Icons.today, color: Colors.blue, size: 20),
+                          const SizedBox(height: 4),
+                          Text(
+                            isEn ? 'Gregorian Date' : 'Miladi Tarih',
+                            style: const TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            HijriService.getGregorianDate(now, settingsProvider.appLanguage),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              color: isDark ? Colors.white : Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Colors.amber.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.amber.shade400),
+                      ),
+                      child: Column(
+                        children: [
+                          const Icon(Icons.brightness_3, color: Colors.amber, size: 20),
+                          const SizedBox(height: 4),
+                          Text(
+                            isEn ? 'Hijri Date' : 'Hicri Tarih',
+                            style: const TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            HijriService.getHijriDate(now, settingsProvider.appLanguage),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              color: isDark ? Colors.amber.shade200 : Colors.amber.shade900,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+
+              // Upcoming Islamic Events Preview
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  isEn ? 'Upcoming Islamic Holidays 🕌' : 'Yaklaşan Dini Günler & Kandiller 🕌',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              ...upcomingEvents.map((event) {
+                final daysLeft = event.daysRemaining;
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  elevation: 1,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  color: isDark ? const Color(0xFF1F2B21) : Colors.green.shade50.withValues(alpha: 0.5),
+                  child: ListTile(
+                    dense: true,
+                    leading: Icon(event.icon, color: event.color, size: 20),
+                    title: Text(event.getTitle(isEn), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                    subtitle: Text(event.getDate(isEn), style: const TextStyle(fontSize: 11)),
+                    trailing: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: daysLeft <= 10 ? Colors.red.shade700 : primaryColor,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        daysLeft == 0
+                            ? (isEn ? 'TODAY' : 'BUGÜN')
+                            : (isEn ? '$daysLeft days left' : '$daysLeft gün kaldı'),
+                        style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+
+              const SizedBox(height: 16),
+
+              // Action Buttons Row
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.pushNamed(context, '/monthly');
+                      },
+                      icon: const Icon(Icons.calendar_month, size: 16),
+                      label: Text(settingsProvider.tr('monthly_times')),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        side: BorderSide(color: primaryColor),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.pushNamed(context, '/calendar');
+                      },
+                      icon: const Icon(Icons.event, size: 16),
+                      label: Text(isEn ? 'Events' : 'Dini Günler'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   String _formatDuration(Duration duration) {
     if (duration.isNegative) return '00:00:00';
     final hours = duration.inHours.toString().padLeft(2, '0');
@@ -86,6 +302,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final todayContent = DailyContent.getTodayContent();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final settingsProvider = context.watch<SettingsProvider>();
+    final primaryColor = settingsProvider.primaryColor;
 
     return Scaffold(
       appBar: AppBar(
@@ -127,7 +344,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   'Namaz Vakitleri & İslami Yardımcı 🕌',
                   style: TextStyle(
                     fontSize: 10,
-                    color: Colors.green.shade100,
+                    color: Colors.white.withValues(alpha: 0.8),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -145,7 +362,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
         elevation: 2,
         shadowColor: Colors.black38,
-        backgroundColor: isDark ? const Color(0xFF0F1A11) : Colors.green.shade800,
+        backgroundColor: isDark ? const Color(0xFF0F1A11) : primaryColor,
         foregroundColor: Colors.white,
       ),
       body: FutureBuilder(
@@ -206,46 +423,55 @@ class _HomeScreenState extends State<HomeScreen> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   child: Column(
                     children: [
-                      // Date Banner (Gregorian & Hijri Calendar)
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF142217) : Colors.green.shade900,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(Icons.calendar_month, color: Colors.amber, size: 16),
-                                const SizedBox(width: 6),
-                                Text(
-                                  HijriService.getGregorianDate(DateTime.now(), settingsProvider.appLanguage),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
+                      // Date Banner (Gregorian & Hijri Calendar - Interactive Button)
+                      InkWell(
+                        onTap: () => _showCalendarModal(context, settingsProvider),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF142217) : primaryColor.withValues(alpha: 0.95),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.calendar_month, color: Colors.amber, size: 18),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    HijriService.getGregorianDate(DateTime.now(), settingsProvider.appLanguage),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: Colors.amber.shade700,
-                                borderRadius: BorderRadius.circular(10),
+                                ],
                               ),
-                              child: Text(
-                                HijriService.getHijriDate(DateTime.now(), settingsProvider.appLanguage),
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: Colors.amber.shade700,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Text(
+                                      HijriService.getHijriDate(DateTime.now(), settingsProvider.appLanguage),
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  const Icon(Icons.touch_app, color: Colors.amber, size: 14),
+                                ],
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
 
@@ -264,7 +490,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.location_on, color: Colors.green, size: 22),
+                            Icon(Icons.location_on, color: primaryColor, size: 22),
                             const SizedBox(width: 6),
                             Expanded(
                               child: Text(
@@ -289,21 +515,21 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: isDark ? Colors.green.shade900.withValues(alpha: 0.4) : Colors.green.shade50,
+                                  color: isDark ? primaryColor.withValues(alpha: 0.3) : primaryColor.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(20),
                                   border: Border.all(
-                                    color: isDark ? Colors.green.shade700 : Colors.green.shade300,
+                                    color: primaryColor.withValues(alpha: 0.4),
                                   ),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(Icons.edit_location_alt, size: 16, color: isDark ? Colors.green.shade300 : Colors.green.shade800),
+                                    Icon(Icons.edit_location_alt, size: 16, color: isDark ? Colors.white : primaryColor),
                                     const SizedBox(width: 4),
                                     Text(
                                       settingsProvider.tr('change'),
                                       style: TextStyle(
-                                        color: isDark ? Colors.green.shade200 : Colors.green.shade900,
+                                        color: isDark ? Colors.white : primaryColor,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 12,
                                       ),
@@ -385,14 +611,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           gradient: LinearGradient(
                             colors: isDark
                                 ? [const Color(0xFF0F2617), const Color(0xFF143B22)]
-                                : [Colors.green.shade900, Colors.green.shade700],
+                                : [primaryColor, settingsProvider.secondaryColor],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
                           borderRadius: BorderRadius.circular(22),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.green.withValues(alpha: isDark ? 0.2 : 0.35),
+                              color: primaryColor.withValues(alpha: isDark ? 0.2 : 0.35),
                               blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),
@@ -564,22 +790,18 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          if (AudioService().isPlaying) {
-            AudioService().stop();
-            setState(() {});
-          } else {
-            Navigator.pushNamed(context, '/settings');
-          }
-        },
-        backgroundColor: AudioService().isPlaying ? Colors.red.shade700 : Colors.green.shade700,
-        foregroundColor: Colors.white,
-        icon: Icon(AudioService().isPlaying ? Icons.stop_circle : Icons.settings),
-        label: Text(AudioService().isPlaying
-            ? context.watch<SettingsProvider>().tr('stop_audio')
-            : context.watch<SettingsProvider>().tr('settings')),
-      ),
+      floatingActionButton: AudioService().isPlaying
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                AudioService().stop();
+                setState(() {});
+              },
+              backgroundColor: Colors.red.shade700,
+              foregroundColor: Colors.white,
+              icon: const Icon(Icons.stop_circle),
+              label: Text(context.watch<SettingsProvider>().tr('stop_audio')),
+            )
+          : null,
     );
   }
 

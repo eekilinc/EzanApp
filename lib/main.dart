@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
             themeMode: settingsProvider.themeMode,
             theme: ThemeData(
               colorScheme: ColorScheme.fromSeed(
-                seedColor: Colors.green.shade800,
+                seedColor: settingsProvider.primaryColor,
                 brightness: Brightness.light,
               ),
               useMaterial3: true,
@@ -51,19 +51,19 @@ class MyApp extends StatelessWidget {
               ),
               chipTheme: ChipThemeData(
                 backgroundColor: Colors.grey.shade200,
-                selectedColor: Colors.green.shade100,
+                selectedColor: settingsProvider.primaryColor.withValues(alpha: 0.2),
                 labelStyle: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
-                secondaryLabelStyle: TextStyle(color: Colors.green.shade900, fontWeight: FontWeight.bold),
+                secondaryLabelStyle: TextStyle(color: settingsProvider.primaryColor, fontWeight: FontWeight.bold),
               ),
               appBarTheme: AppBarTheme(
-                backgroundColor: Colors.green.shade800,
+                backgroundColor: settingsProvider.primaryColor,
                 foregroundColor: Colors.white,
                 elevation: 0,
               ),
             ),
             darkTheme: ThemeData(
               colorScheme: ColorScheme.fromSeed(
-                seedColor: const Color(0xFF10B981),
+                seedColor: settingsProvider.primaryColor,
                 brightness: Brightness.dark,
                 surface: const Color(0xFF162018),
               ),
@@ -79,9 +79,9 @@ class MyApp extends StatelessWidget {
               ),
               chipTheme: ChipThemeData(
                 backgroundColor: const Color(0xFF1A261D),
-                selectedColor: Colors.green.shade900,
+                selectedColor: settingsProvider.primaryColor,
                 labelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                secondaryLabelStyle: TextStyle(color: Colors.green.shade200, fontWeight: FontWeight.bold),
+                secondaryLabelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
               appBarTheme: const AppBarTheme(
                 backgroundColor: Color(0xFF0F1A11),

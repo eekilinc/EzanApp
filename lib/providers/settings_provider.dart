@@ -10,10 +10,11 @@ class SettingsProvider extends ChangeNotifier {
   Map<String, int> _reminderMinutes = Map<String, int>.from(defaultReminderMinutes);
   bool _soundEnabled = true;
   bool _vibrationEnabled = true;
-  String _notificationSound = 'adhan_makkah'; // 'adhan_makkah', 'adhan_madinah', 'ney', 'beep'
-  String _appLanguage = 'tr'; // 'tr' or 'en'
+  String _notificationSound = 'adhan_makkah';
+  String _appLanguage = 'tr';
   ThemeMode _themeMode = ThemeMode.system;
-  String _asrSchool = 'standard'; // 'standard' or 'hanafi'
+  String _asrSchool = 'standard';
+  String _colorTheme = 'green'; // 'green', 'blue', 'teal', 'crimson', 'amber'
 
   Map<String, int> get reminderMinutes => _reminderMinutes;
   bool get soundEnabled => _soundEnabled;
@@ -22,8 +23,57 @@ class SettingsProvider extends ChangeNotifier {
   String get appLanguage => _appLanguage;
   ThemeMode get themeMode => _themeMode;
   String get asrSchool => _asrSchool;
+  String get colorTheme => _colorTheme;
 
   String tr(String key) => AppStrings.get(key, _appLanguage);
+
+  MaterialColor get primaryMaterialColor {
+    switch (_colorTheme) {
+      case 'blue':
+        return Colors.indigo;
+      case 'teal':
+        return Colors.teal;
+      case 'crimson':
+        return Colors.red;
+      case 'amber':
+        return Colors.amber;
+      case 'green':
+      default:
+        return Colors.green;
+    }
+  }
+
+  Color get primaryColor {
+    switch (_colorTheme) {
+      case 'blue':
+        return Colors.indigo.shade800;
+      case 'teal':
+        return Colors.teal.shade800;
+      case 'crimson':
+        return Colors.red.shade900;
+      case 'amber':
+        return const Color(0xFFB78103);
+      case 'green':
+      default:
+        return Colors.green.shade800;
+    }
+  }
+
+  Color get secondaryColor {
+    switch (_colorTheme) {
+      case 'blue':
+        return Colors.indigo.shade600;
+      case 'teal':
+        return Colors.teal.shade600;
+      case 'crimson':
+        return Colors.red.shade700;
+      case 'amber':
+        return Colors.amber.shade700;
+      case 'green':
+      default:
+        return Colors.green.shade700;
+    }
+  }
 
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -44,6 +94,7 @@ class SettingsProvider extends ChangeNotifier {
     _notificationSound = _prefs.getString('notification_sound') ?? 'adhan_makkah';
     _appLanguage = _prefs.getString('app_language') ?? 'tr';
     _asrSchool = _prefs.getString('asr_school') ?? 'standard';
+    _colorTheme = _prefs.getString('color_theme') ?? 'green';
 
     final themeStr = _prefs.getString('theme_mode') ?? 'system';
     if (themeStr == 'light') {
@@ -103,6 +154,12 @@ class SettingsProvider extends ChangeNotifier {
   Future<void> setAsrSchool(String school) async {
     _asrSchool = school;
     await _prefs.setString('asr_school', school);
+    notifyListeners();
+  }
+
+  Future<void> setColorTheme(String theme) async {
+    _colorTheme = theme;
+    await _prefs.setString('color_theme', theme);
     notifyListeners();
   }
 

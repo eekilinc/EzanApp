@@ -53,23 +53,85 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required ValueChanged<bool> onSelected,
     required bool isDark,
   }) {
+    final themeColor = context.watch<SettingsProvider>().primaryColor;
+
     return ChoiceChip(
       label: Center(child: Text(label)),
       selected: selected,
-      selectedColor: isDark ? Colors.green.shade900 : Colors.green.shade100,
+      selectedColor: isDark ? themeColor.withValues(alpha: 0.4) : themeColor.withValues(alpha: 0.15),
       backgroundColor: isDark ? Colors.grey.shade900 : Colors.grey.shade100,
       side: BorderSide(
         color: selected
-            ? (isDark ? Colors.green.shade400 : Colors.green.shade600)
+            ? (isDark ? themeColor : themeColor)
             : (isDark ? Colors.white10 : Colors.black12),
       ),
       labelStyle: TextStyle(
         fontWeight: selected ? FontWeight.bold : FontWeight.w600,
         color: selected
-            ? (isDark ? Colors.green.shade200 : Colors.green.shade900)
+            ? (isDark ? Colors.white : themeColor)
             : (isDark ? Colors.grey.shade300 : Colors.black87),
       ),
       onSelected: onSelected,
+    );
+  }
+
+  Widget _buildColorChip({
+    required String label,
+    required Color color,
+    required bool selected,
+    required VoidCallback onSelected,
+    required bool isDark,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: onSelected,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected
+              ? color
+              : (isDark ? Colors.grey.shade900 : Colors.grey.shade100),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: selected ? Colors.white : (isDark ? Colors.white24 : Colors.black12),
+            width: selected ? 2 : 1,
+          ),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: color.withValues(alpha: 0.4),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 1.5),
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+                fontSize: 13,
+                color: selected
+                    ? Colors.white
+                    : (isDark ? Colors.grey.shade300 : Colors.black87),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -77,13 +139,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final settingsProvider = context.watch<SettingsProvider>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = settingsProvider.primaryColor;
 
     final cardBgColor = isDark ? const Color(0xFF18241B) : Colors.white;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(settingsProvider.tr('settings')),
-        backgroundColor: isDark ? const Color(0xFF0F1A11) : Colors.green.shade700,
+        backgroundColor: isDark ? const Color(0xFF0F1A11) : primaryColor,
         foregroundColor: Colors.white,
         centerTitle: true,
       ),
@@ -146,7 +209,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                   const SizedBox(height: 16),
 
-                  // Theme Selection Card
+                  // Theme Selection Card (Light/Dark Mode)
                   Text(
                     settingsProvider.tr('theme_selection'),
                     style: Theme.of(context)
@@ -208,6 +271,79 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
 
+                  const SizedBox(height: 16),
+
+                  // Color Theme Selection Card (PRO Palettes)
+                  Text(
+                    settingsProvider.tr('color_theme'),
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    settingsProvider.tr('color_theme_desc'),
+                    style: const TextStyle(color: Colors.grey, fontSize: 13),
+                  ),
+                  const SizedBox(height: 8),
+                  Card(
+                    elevation: 2,
+                    color: cardBgColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _buildColorChip(
+                              label: settingsProvider.tr('theme_green'),
+                              color: Colors.green.shade800,
+                              selected: settingsProvider.colorTheme == 'green',
+                              isDark: isDark,
+                              onSelected: () => settingsProvider.setColorTheme('green'),
+                            ),
+                            const SizedBox(width: 8),
+                            _buildColorChip(
+                              label: settingsProvider.tr('theme_blue'),
+                              color: Colors.indigo.shade800,
+                              selected: settingsProvider.colorTheme == 'blue',
+                              isDark: isDark,
+                              onSelected: () => settingsProvider.setColorTheme('blue'),
+                            ),
+                            const SizedBox(width: 8),
+                            _buildColorChip(
+                              label: settingsProvider.tr('theme_teal'),
+                              color: Colors.teal.shade800,
+                              selected: settingsProvider.colorTheme == 'teal',
+                              isDark: isDark,
+                              onSelected: () => settingsProvider.setColorTheme('teal'),
+                            ),
+                            const SizedBox(width: 8),
+                            _buildColorChip(
+                              label: settingsProvider.tr('theme_crimson'),
+                              color: Colors.red.shade900,
+                              selected: settingsProvider.colorTheme == 'crimson',
+                              isDark: isDark,
+                              onSelected: () => settingsProvider.setColorTheme('crimson'),
+                            ),
+                            const SizedBox(width: 8),
+                            _buildColorChip(
+                              label: settingsProvider.tr('theme_amber'),
+                              color: const Color(0xFFB78103),
+                              selected: settingsProvider.colorTheme == 'amber',
+                              isDark: isDark,
+                              onSelected: () => settingsProvider.setColorTheme('amber'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
                   const Divider(height: 28),
 
                   // Section Header: Notification Settings
@@ -225,7 +361,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     title: Text(settingsProvider.tr('notification_sound')),
                     subtitle: Text(settingsProvider.tr('notification_sound_desc')),
                     value: settingsProvider.soundEnabled,
-                    activeTrackColor: Colors.green.shade400,
+                    activeTrackColor: primaryColor,
                     onChanged: (value) async {
                       await settingsProvider.setSoundEnabled(value);
                       _updateNotifications(settingsProvider);
@@ -238,7 +374,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     title: Text(settingsProvider.tr('vibration')),
                     subtitle: Text(settingsProvider.tr('vibration_desc')),
                     value: settingsProvider.vibrationEnabled,
-                    activeTrackColor: Colors.green.shade400,
+                    activeTrackColor: primaryColor,
                     onChanged: (value) async {
                       await settingsProvider.setVibrationEnabled(value);
                       _updateNotifications(settingsProvider);
@@ -326,12 +462,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),
                               side: BorderSide(
-                                color: isSelected ? Colors.green.shade600 : Colors.transparent,
+                                color: isSelected ? primaryColor : Colors.transparent,
                                 width: isSelected ? 2 : 0,
                               ),
                             ),
                             color: isSelected
-                                ? (isDark ? Colors.green.shade900.withValues(alpha: 0.4) : Colors.green.shade50)
+                                ? (isDark ? primaryColor.withValues(alpha: 0.3) : primaryColor.withValues(alpha: 0.1))
                                 : cardBgColor,
                             child: ListTile(
                               leading: CircleAvatar(
@@ -343,7 +479,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 style: TextStyle(
                                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                                   color: isSelected
-                                      ? (isDark ? Colors.green.shade200 : Colors.green.shade900)
+                                      ? (isDark ? Colors.white : primaryColor)
                                       : (isDark ? Colors.white : Colors.black87),
                                 ),
                               ),
@@ -362,7 +498,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       (_isPlayingAudio && settingsProvider.notificationSound == soundKey)
                                           ? Icons.stop_circle
                                           : Icons.play_circle_fill,
-                                      color: Colors.green.shade700,
+                                      color: primaryColor,
                                       size: 32,
                                     ),
                                     onPressed: () => _toggleAudioPreview(soundKey),
@@ -372,7 +508,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         ? Icons.check_circle
                                         : Icons.radio_button_off,
                                     color: isSelected
-                                        ? Colors.green.shade700
+                                        ? primaryColor
                                         : Colors.grey.shade400,
                                   ),
                                 ],
@@ -413,7 +549,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             icon: const Icon(Icons.send, size: 18),
                             label: Text(settingsProvider.tr('test_notification')),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green.shade700,
+                              backgroundColor: primaryColor,
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               shape: RoundedRectangleBorder(
@@ -448,9 +584,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             icon: const Icon(Icons.alarm_on, size: 18),
                             label: Text(settingsProvider.tr('request_exact_alarm')),
                             style: OutlinedButton.styleFrom(
-                              foregroundColor: isDark ? Colors.green.shade300 : Colors.green.shade800,
+                              foregroundColor: isDark ? primaryColor : primaryColor,
                               padding: const EdgeInsets.symmetric(vertical: 12),
-                              side: BorderSide(color: Colors.green.shade700),
+                              side: BorderSide(color: primaryColor),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -569,7 +705,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 10, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: isDark ? Colors.green.shade900.withValues(alpha: 0.5) : Colors.green.shade50,
+                                    color: isDark ? primaryColor.withValues(alpha: 0.4) : primaryColor.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
@@ -578,7 +714,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         : '$currentMinutes ${settingsProvider.tr("min_before")}',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      color: isDark ? Colors.green.shade200 : Colors.green.shade800,
+                                      color: isDark ? Colors.white : primaryColor,
                                     ),
                                   ),
                                 ),
@@ -589,7 +725,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               min: 0,
                               max: 60,
                               divisions: 12,
-                              activeColor: Colors.green.shade700,
+                              activeColor: primaryColor,
                               label: currentMinutes == 0
                                   ? settingsProvider.tr('exact_time')
                                   : '$currentMinutes min',
@@ -613,9 +749,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                   // About Section Button
                   ListTile(
-                    leading: const Icon(Icons.info_outline, color: Colors.green),
+                    leading: Icon(Icons.info_outline, color: primaryColor),
                     title: Text(settingsProvider.tr('about'), style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
-                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 2.1.4', style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
+                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 2.1.5', style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       Navigator.pushNamed(context, '/about');
