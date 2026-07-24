@@ -18,7 +18,13 @@ class NotificationService {
 
   FlutterLocalNotificationsPlugin get notificationsPlugin => _notificationsPlugin;
 
-  Future<void> initialize() async {
+  Function(String? payload)? onNotificationClick;
+
+  Future<void> initialize({Function(String? payload)? onSelectNotification}) async {
+    if (onSelectNotification != null) {
+      onNotificationClick = onSelectNotification;
+    }
+
     tzdata.initializeTimeZones();
     try {
       final String timeZoneName = DateTime.now().timeZoneName;
@@ -44,16 +50,21 @@ class NotificationService {
       iOS: iosSettings,
     );
 
-    await _notificationsPlugin.initialize(initSettings);
+    await _notificationsPlugin.initialize(
+      initSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        onNotificationClick?.call(response.payload);
+      },
+    );
 
     final androidImplementation = _notificationsPlugin
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
     if (androidImplementation != null) {
-      // Clear previous channels to apply fresh v200 settings
+      // Clear previous channels to apply fresh v300 settings
       try {
         final existingChannels = await androidImplementation.getNotificationChannels() ?? [];
         for (final ch in existingChannels) {
-          if (ch.id.startsWith('ezan_channel_') && !ch.id.contains('_v200')) {
+          if (ch.id.startsWith('ezan_channel_') && !ch.id.contains('_v300')) {
             await androidImplementation.deleteNotificationChannel(ch.id);
           }
         }
@@ -140,25 +151,25 @@ class NotificationService {
   String _getChannelId(String soundKey) {
     switch (soundKey) {
       case 'adhan_madinah':
-        return 'ezan_channel_adhan_madinah_v200';
+        return 'ezan_channel_adhan_madinah_v300';
       case 'adhan_istanbul':
-        return 'ezan_channel_adhan_istanbul_v200';
+        return 'ezan_channel_adhan_istanbul_v300';
       case 'adhan_cairo':
-        return 'ezan_channel_adhan_cairo_v200';
+        return 'ezan_channel_adhan_cairo_v300';
       case 'adhan_aqsa':
-        return 'ezan_channel_adhan_aqsa_v200';
+        return 'ezan_channel_adhan_aqsa_v300';
       case 'cagri':
-        return 'ezan_channel_cagri_v200';
+        return 'ezan_channel_cagri_v300';
       case 'chime':
-        return 'ezan_channel_chime_v200';
+        return 'ezan_channel_chime_v300';
       case 'ney':
-        return 'ezan_channel_ney_v200';
+        return 'ezan_channel_ney_v300';
       case 'beep':
-        return 'ezan_channel_beep_v200';
+        return 'ezan_channel_beep_v300';
       case 'adhan_makkah':
       case 'adhan':
       default:
-        return 'ezan_channel_adhan_makkah_v200';
+        return 'ezan_channel_adhan_makkah_v300';
     }
   }
 
@@ -236,6 +247,7 @@ class NotificationService {
             presentSound: soundEnabled,
           ),
         ),
+        payload: 'alarm',
       );
 
       return true;
@@ -336,6 +348,7 @@ class NotificationService {
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
+        payload: 'alarm',
       );
     } catch (e1) {
       try {
@@ -348,6 +361,7 @@ class NotificationService {
           androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
           uiLocalNotificationDateInterpretation:
               UILocalNotificationDateInterpretation.absoluteTime,
+          payload: 'alarm',
         );
       } catch (_) {}
     }

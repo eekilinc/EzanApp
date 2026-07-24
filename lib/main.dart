@@ -14,10 +14,16 @@ import 'screens/monthly_screen.dart';
 import 'screens/duas_screen.dart';
 import 'screens/alarm_screen.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final notificationService = NotificationService();
-  await notificationService.initialize();
+  await notificationService.initialize(
+    onSelectNotification: (payload) {
+      navigatorKey.currentState?.pushNamed('/alarm');
+    },
+  );
   runApp(const MyApp());
 }
 
@@ -34,6 +40,7 @@ class MyApp extends StatelessWidget {
       child: Consumer<SettingsProvider>(
         builder: (context, settingsProvider, _) {
           return MaterialApp(
+            navigatorKey: navigatorKey,
             title: 'Ezan Hatırlatıcı',
             debugShowCheckedModeBanner: false,
             themeMode: settingsProvider.themeMode,
