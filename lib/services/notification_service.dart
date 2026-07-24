@@ -228,6 +228,7 @@ class NotificationService {
             sound: soundEnabled ? _getSoundResource(soundKey) : null,
             audioAttributesUsage: AudioAttributesUsage.alarm,
             category: AndroidNotificationCategory.alarm,
+            fullScreenIntent: true,
           ),
           iOS: DarwinNotificationDetails(
             presentAlert: true,
@@ -316,6 +317,7 @@ class NotificationService {
         sound: soundEnabled ? _getSoundResource(soundKey) : null,
         audioAttributesUsage: AudioAttributesUsage.alarm,
         category: AndroidNotificationCategory.alarm,
+        fullScreenIntent: true,
       ),
       iOS: DarwinNotificationDetails(
         presentAlert: true,

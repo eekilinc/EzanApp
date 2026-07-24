@@ -12,6 +12,7 @@ import 'screens/dhikr_screen.dart';
 import 'screens/islamic_events_screen.dart';
 import 'screens/monthly_screen.dart';
 import 'screens/duas_screen.dart';
+import 'screens/alarm_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -104,6 +105,7 @@ class MyApp extends StatelessWidget {
               '/calendar': (context) => const IslamicEventsScreen(),
               '/monthly': (context) => const MonthlyScreen(),
               '/duas': (context) => const DuasScreen(),
+              '/alarm': (context) => const AlarmScreen(),
             },
           );
         },
