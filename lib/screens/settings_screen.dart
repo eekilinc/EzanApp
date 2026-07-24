@@ -616,11 +616,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         // List of available Reminder audio sounds
                         ...[
                           {
-                            'key': 'beep',
-                            'titleKey': 'sound_beep',
-                            'subKey': 'sound_beep_sub',
-                            'icon': Icons.volume_up,
-                            'color': Colors.amber,
+                            'key': 'cagri',
+                            'titleKey': 'sound_cagri',
+                            'subKey': 'sound_cagri_sub',
+                            'icon': Icons.movie,
+                            'color': Colors.deepOrange,
+                          },
+                          {
+                            'key': 'chime',
+                            'titleKey': 'sound_chime',
+                            'subKey': 'sound_chime_sub',
+                            'icon': Icons.notifications_active,
+                            'color': Colors.indigo,
                           },
                           {
                             'key': 'ney',
@@ -628,6 +635,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             'subKey': 'sound_ney_sub',
                             'icon': Icons.music_note,
                             'color': Colors.teal,
+                          },
+                          {
+                            'key': 'beep',
+                            'titleKey': 'sound_beep',
+                            'subKey': 'sound_beep_sub',
+                            'icon': Icons.volume_up,
+                            'color': Colors.amber,
                           },
                           {
                             'key': 'adhan_makkah',
@@ -957,7 +971,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ListTile(
                     leading: Icon(Icons.info_outline, color: primaryColor),
                     title: Text(settingsProvider.tr('about'), style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
-                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 2.7.2', style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
+                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 2.8.0', style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       Navigator.pushNamed(context, '/about');

@@ -65,6 +65,8 @@ class NotificationService {
         'adhan_istanbul',
         'adhan_cairo',
         'adhan_aqsa',
+        'cagri',
+        'chime',
         'ney',
         'beep'
       ];
@@ -120,6 +122,10 @@ class NotificationService {
         return const RawResourceAndroidNotificationSound('adhan_cairo');
       case 'adhan_aqsa':
         return const RawResourceAndroidNotificationSound('adhan_aqsa');
+      case 'cagri':
+        return const RawResourceAndroidNotificationSound('cagri_theme');
+      case 'chime':
+        return const RawResourceAndroidNotificationSound('salavat_chime');
       case 'ney':
         return const RawResourceAndroidNotificationSound('ney_tone');
       case 'beep':
@@ -141,6 +147,10 @@ class NotificationService {
         return 'ezan_channel_adhan_cairo_v200';
       case 'adhan_aqsa':
         return 'ezan_channel_adhan_aqsa_v200';
+      case 'cagri':
+        return 'ezan_channel_cagri_v200';
+      case 'chime':
+        return 'ezan_channel_chime_v200';
       case 'ney':
         return 'ezan_channel_ney_v200';
       case 'beep':

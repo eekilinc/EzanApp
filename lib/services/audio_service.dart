@@ -47,6 +47,12 @@ class AudioService extends ChangeNotifier {
         case 'adhan_aqsa':
           assetPath = 'sounds/adhan_aqsa.mp3';
           break;
+        case 'cagri':
+          assetPath = 'sounds/cagri_theme.wav';
+          break;
+        case 'chime':
+          assetPath = 'sounds/salavat_chime.wav';
+          break;
         case 'ney':
           assetPath = 'sounds/ney_tone.mp3';
           break;
