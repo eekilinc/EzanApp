@@ -27,13 +27,20 @@ class _QiblaScreenState extends State<QiblaScreen> {
     _initCompass();
   }
 
+  double _smoothHeading(double oldHeading, double newHeading) {
+    double diff = newHeading - oldHeading;
+    if (diff < -180) diff += 360;
+    if (diff > 180) diff -= 360;
+    return (oldHeading + diff * 0.25 + 360) % 360;
+  }
+
   void _initCompass() {
     try {
       _compassSubscription = FlutterCompass.events?.listen((event) {
         if (event.heading != null && mounted) {
-          final newHeading = (event.heading! + 360) % 360;
+          final targetHeading = (event.heading! + 360) % 360;
           setState(() {
-            _deviceHeading = newHeading;
+            _deviceHeading = _smoothHeading(_deviceHeading, targetHeading);
             _hasCompassSensor = true;
           });
         }
