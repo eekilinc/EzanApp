@@ -54,6 +54,10 @@ class PrayerProvider extends ChangeNotifier {
         vibrationEnabled: settingsProvider?.vibrationEnabled ?? true,
         soundKey: settingsProvider?.notificationSound ?? 'adhan_makkah',
         asrSchool: settingsProvider?.asrSchool ?? 'standard',
+        adhanSoundKey: settingsProvider?.adhanSound,
+        adhanSoundEnabled: settingsProvider?.adhanSoundEnabled,
+        reminderSoundKey: settingsProvider?.reminderSound,
+        reminderSoundEnabled: settingsProvider?.reminderSoundEnabled,
       );
 
       _isLoading = false;
@@ -71,6 +75,10 @@ class PrayerProvider extends ChangeNotifier {
     bool vibrationEnabled = true,
     String soundKey = 'adhan_makkah',
     String asrSchool = 'standard',
+    String? adhanSoundKey,
+    bool? adhanSoundEnabled,
+    String? reminderSoundKey,
+    bool? reminderSoundEnabled,
   }) async {
     if (_prayerTimes == null || _location == null) return;
 
@@ -79,6 +87,11 @@ class PrayerProvider extends ChangeNotifier {
     final reminders = customReminderMinutes ?? defaultReminderMinutes;
     final now = DateTime.now();
     final todayMidnight = DateTime(now.year, now.month, now.day);
+
+    final String finalAdhanSound = adhanSoundKey ?? soundKey;
+    final bool finalAdhanEnabled = adhanSoundEnabled ?? soundEnabled;
+    final String finalReminderSound = reminderSoundKey ?? 'beep';
+    final bool finalReminderEnabled = reminderSoundEnabled ?? soundEnabled;
 
     try {
       final monthlyList = await _apiService.getMonthlyPrayerTimes(
@@ -117,10 +130,10 @@ class PrayerProvider extends ChangeNotifier {
             prayerTime: prayer.time,
             minutesBefore: reminderMinutes,
             vibrationEnabled: vibrationEnabled,
-            adhanSoundKey: settingsProvider?.adhanSound ?? soundKey,
-            adhanSoundEnabled: settingsProvider?.adhanSoundEnabled ?? soundEnabled,
-            reminderSoundKey: settingsProvider?.reminderSound ?? 'beep',
-            reminderSoundEnabled: settingsProvider?.reminderSoundEnabled ?? soundEnabled,
+            adhanSoundKey: finalAdhanSound,
+            adhanSoundEnabled: finalAdhanEnabled,
+            reminderSoundKey: finalReminderSound,
+            reminderSoundEnabled: finalReminderEnabled,
           );
         }
       }
@@ -134,10 +147,10 @@ class PrayerProvider extends ChangeNotifier {
           prayerTime: prayer.time,
           minutesBefore: reminderMinutes,
           vibrationEnabled: vibrationEnabled,
-          adhanSoundKey: settingsProvider?.adhanSound ?? soundKey,
-          adhanSoundEnabled: settingsProvider?.adhanSoundEnabled ?? soundEnabled,
-          reminderSoundKey: settingsProvider?.reminderSound ?? 'beep',
-          reminderSoundEnabled: settingsProvider?.reminderSoundEnabled ?? soundEnabled,
+          adhanSoundKey: finalAdhanSound,
+          adhanSoundEnabled: finalAdhanEnabled,
+          reminderSoundKey: finalReminderSound,
+          reminderSoundEnabled: finalReminderEnabled,
         );
       }
     }
