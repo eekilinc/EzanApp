@@ -57,6 +57,17 @@ class NotificationService {
       },
     );
 
+    // Check if app was cold launched from notification / full screen alarm intent
+    try {
+      final launchDetails = await _notificationsPlugin.getNotificationAppLaunchDetails();
+      if (launchDetails != null && launchDetails.didNotificationLaunchApp) {
+        final payload = launchDetails.notificationResponse?.payload;
+        Future.delayed(const Duration(milliseconds: 600), () {
+          onNotificationClick?.call(payload);
+        });
+      }
+    } catch (_) {}
+
     final androidImplementation = _notificationsPlugin
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
     if (androidImplementation != null) {

@@ -639,13 +639,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         // List of available Reminder audio sounds
                         ...[
                           {
-                            'key': 'cagri',
-                            'titleKey': 'sound_cagri',
-                            'subKey': 'sound_cagri_sub',
-                            'icon': Icons.movie,
-                            'color': Colors.deepOrange,
-                          },
-                          {
                             'key': 'chime',
                             'titleKey': 'sound_chime',
                             'subKey': 'sound_chime_sub',
@@ -994,7 +987,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ListTile(
                     leading: Icon(Icons.info_outline, color: primaryColor),
                     title: Text(settingsProvider.tr('about'), style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
-                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 3.0.2', style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
+                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 3.1.0', style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       Navigator.pushNamed(context, '/about');
