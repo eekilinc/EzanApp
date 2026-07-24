@@ -138,8 +138,20 @@ class _AlarmScreenState extends State<AlarmScreen>
   Widget build(BuildContext context) {
     final settingsProvider = context.watch<SettingsProvider>();
     final prayerProvider = context.watch<PrayerProvider>();
-    final timeStr = DateFormat('HH:mm:ss').format(_currentTime);
-    final dateStr = DateFormat('d MMMM yyyy, EEEE', settingsProvider.appLanguage).format(_currentTime);
+    
+    String timeStr;
+    try {
+      timeStr = DateFormat('HH:mm:ss').format(_currentTime);
+    } catch (_) {
+      timeStr = '${_currentTime.hour.toString().padLeft(2, '0')}:${_currentTime.minute.toString().padLeft(2, '0')}:${_currentTime.second.toString().padLeft(2, '0')}';
+    }
+
+    String dateStr;
+    try {
+      dateStr = DateFormat('d MMMM yyyy, EEEE', settingsProvider.appLanguage).format(_currentTime);
+    } catch (_) {
+      dateStr = '${_currentTime.day}/${_currentTime.month}/${_currentTime.year}';
+    }
 
     final nextPrayer = prayerProvider.getNextPrayer();
     final prayerDisplayName = widget.prayerName.isNotEmpty

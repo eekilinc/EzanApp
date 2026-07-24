@@ -11,6 +11,7 @@ import 'screens/qibla_screen.dart';
 import 'screens/dhikr_screen.dart';
 import 'screens/islamic_events_screen.dart';
 import 'screens/monthly_screen.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'screens/duas_screen.dart';
 import 'screens/alarm_screen.dart';
 
@@ -18,6 +19,10 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await initializeDateFormatting('tr', null);
+    await initializeDateFormatting('en', null);
+  } catch (_) {}
   final notificationService = NotificationService();
   await notificationService.initialize(
     onSelectNotification: (payload) {
