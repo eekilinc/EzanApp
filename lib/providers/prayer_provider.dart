@@ -116,9 +116,11 @@ class PrayerProvider extends ChangeNotifier {
             prayerName: prayer.name,
             prayerTime: prayer.time,
             minutesBefore: reminderMinutes,
-            soundEnabled: soundEnabled,
             vibrationEnabled: vibrationEnabled,
-            soundKey: soundKey,
+            adhanSoundKey: settingsProvider?.adhanSound ?? soundKey,
+            adhanSoundEnabled: settingsProvider?.adhanSoundEnabled ?? soundEnabled,
+            reminderSoundKey: settingsProvider?.reminderSound ?? 'beep',
+            reminderSoundEnabled: settingsProvider?.reminderSoundEnabled ?? soundEnabled,
           );
         }
       }
@@ -131,9 +133,11 @@ class PrayerProvider extends ChangeNotifier {
           prayerName: prayer.name,
           prayerTime: prayer.time,
           minutesBefore: reminderMinutes,
-          soundEnabled: soundEnabled,
           vibrationEnabled: vibrationEnabled,
-          soundKey: soundKey,
+          adhanSoundKey: settingsProvider?.adhanSound ?? soundKey,
+          adhanSoundEnabled: settingsProvider?.adhanSoundEnabled ?? soundEnabled,
+          reminderSoundKey: settingsProvider?.reminderSound ?? 'beep',
+          reminderSoundEnabled: settingsProvider?.reminderSoundEnabled ?? soundEnabled,
         );
       }
     }

@@ -368,7 +368,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     },
                   ),
                   const Divider(),
-
                   // Vibration settings
                   SwitchListTile(
                     title: Text(settingsProvider.tr('vibration')),
@@ -380,26 +379,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _updateNotifications(settingsProvider);
                     },
                   ),
-                  const Divider(),
+                  const Divider(height: 24),
 
-                  // Notification Sound Selection Cards
+                  // ==================== SECTION 1: ADHAN SOUND (EXACT TIME) ====================
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          settingsProvider.tr('select_notification_sound'),
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        Row(
+                          children: [
+                            Icon(Icons.mosque, color: primaryColor, size: 22),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                settingsProvider.tr('adhan_sound_settings'),
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          settingsProvider.tr('select_sound_sub'),
+                          settingsProvider.tr('adhan_sound_desc'),
                           style: const TextStyle(color: Colors.grey, fontSize: 13),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 8),
 
-                        // List of available audio sounds
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(
+                            settingsProvider.tr('adhan_sound_toggle'),
+                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                          ),
+                          value: settingsProvider.adhanSoundEnabled,
+                          activeTrackColor: primaryColor,
+                          onChanged: (value) async {
+                            await settingsProvider.setAdhanSoundEnabled(value);
+                            _updateNotifications(settingsProvider);
+                          },
+                        ),
+                        const SizedBox(height: 8),
+
+                        // List of available Adhan audio sounds
                         ...[
                           {
                             'key': 'adhan_makkah',
@@ -436,23 +458,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             'icon': Icons.location_city,
                             'color': Colors.cyan,
                           },
-                          {
-                            'key': 'ney',
-                            'titleKey': 'sound_ney',
-                            'subKey': 'sound_ney_sub',
-                            'icon': Icons.music_note,
-                            'color': Colors.teal,
-                          },
-                          {
-                            'key': 'beep',
-                            'titleKey': 'sound_beep',
-                            'subKey': 'sound_beep_sub',
-                            'icon': Icons.volume_up,
-                            'color': Colors.amber,
-                          },
                         ].map((sound) {
                           final soundKey = sound['key'] as String;
-                          final isSelected = settingsProvider.notificationSound == soundKey;
+                          final isSelected = settingsProvider.adhanSound == soundKey;
                           final soundIcon = sound['icon'] as IconData;
                           final iconColor = sound['color'] as MaterialColor;
 
@@ -495,7 +503,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 children: [
                                   IconButton(
                                     icon: Icon(
-                                      (_isPlayingAudio && settingsProvider.notificationSound == soundKey)
+                                      (_isPlayingAudio && settingsProvider.adhanSound == soundKey)
                                           ? Icons.stop_circle
                                           : Icons.play_circle_fill,
                                       color: primaryColor,
@@ -514,40 +522,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ],
                               ),
                               onTap: () async {
-                                await settingsProvider.setNotificationSound(soundKey);
+                                await settingsProvider.setAdhanSound(soundKey);
                                 _updateNotifications(settingsProvider);
                               },
                             ),
                           );
                         }),
 
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 10),
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton.icon(
                             onPressed: () async {
-                              final success = await NotificationService().showTestNotification(
-                                soundEnabled: settingsProvider.soundEnabled,
+                              await NotificationService().scheduleTestNotificationIn10Seconds(
+                                soundEnabled: settingsProvider.adhanSoundEnabled,
                                 vibrationEnabled: settingsProvider.vibrationEnabled,
-                                soundKey: settingsProvider.notificationSound,
+                                soundKey: settingsProvider.adhanSound,
+                                title: 'Zamanlanmış Ezan Vakti Testi (10s) 🕌',
+                                body: 'Ezan vakti girdiğinde çalacak olan ezan sesi başarıyla zamanlandı ve çalışıyor!',
                               );
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                      success
-                                          ? settingsProvider.tr('test_notification_sent')
-                                          : (settingsProvider.appLanguage == 'en'
-                                              ? 'Notification permission denied. Please enable notifications in Android Settings.'
-                                              : 'Bildirim izni kapalı. Lütfen cihaz ayarlarınızdan izin verin.'),
+                                      settingsProvider.appLanguage == 'en'
+                                          ? 'Scheduled Adhan sound test set for 10 seconds from now! 🕌'
+                                          : '10 saniyelik Ezan Vakti testi kuruldu! Lütfen ekranı kapatıp 10 saniye bekleyin. 🕌',
                                     ),
-                                    duration: const Duration(seconds: 3),
+                                    duration: const Duration(seconds: 4),
+                                    backgroundColor: primaryColor,
                                   ),
                                 );
                               }
                             },
-                            icon: const Icon(Icons.send, size: 18),
-                            label: Text(settingsProvider.tr('test_notification')),
+                            icon: const Icon(Icons.mosque_outlined, size: 18),
+                            label: Text(settingsProvider.tr('test_adhan_sound')),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: primaryColor,
                               foregroundColor: Colors.white,
@@ -558,23 +567,172 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                           ),
                         ),
+                      ],
+                    ),
+                  ),
+
+                  const Divider(height: 32),
+
+                  // ==================== SECTION 2: REMINDER WARNING SOUND ====================
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.alarm, color: Colors.amber.shade800, size: 22),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                settingsProvider.tr('reminder_sound_settings'),
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          settingsProvider.tr('reminder_sound_desc'),
+                          style: const TextStyle(color: Colors.grey, fontSize: 13),
+                        ),
+                        const SizedBox(height: 8),
+
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(
+                            settingsProvider.tr('reminder_sound_toggle'),
+                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                          ),
+                          value: settingsProvider.reminderSoundEnabled,
+                          activeTrackColor: Colors.amber.shade800,
+                          onChanged: (value) async {
+                            await settingsProvider.setReminderSoundEnabled(value);
+                            _updateNotifications(settingsProvider);
+                          },
+                        ),
+                        const SizedBox(height: 8),
+
+                        // List of available Reminder audio sounds
+                        ...[
+                          {
+                            'key': 'beep',
+                            'titleKey': 'sound_beep',
+                            'subKey': 'sound_beep_sub',
+                            'icon': Icons.volume_up,
+                            'color': Colors.amber,
+                          },
+                          {
+                            'key': 'ney',
+                            'titleKey': 'sound_ney',
+                            'subKey': 'sound_ney_sub',
+                            'icon': Icons.music_note,
+                            'color': Colors.teal,
+                          },
+                          {
+                            'key': 'adhan_makkah',
+                            'titleKey': 'sound_makkah',
+                            'subKey': 'sound_makkah_sub',
+                            'icon': Icons.mosque,
+                            'color': Colors.green,
+                          },
+                          {
+                            'key': 'adhan_istanbul',
+                            'titleKey': 'sound_istanbul',
+                            'subKey': 'sound_istanbul_sub',
+                            'icon': Icons.account_balance,
+                            'color': Colors.red,
+                          },
+                        ].map((sound) {
+                          final soundKey = sound['key'] as String;
+                          final isSelected = settingsProvider.reminderSound == soundKey;
+                          final soundIcon = sound['icon'] as IconData;
+                          final iconColor = sound['color'] as MaterialColor;
+
+                          return Card(
+                            margin: const EdgeInsets.symmetric(vertical: 4),
+                            elevation: isSelected ? 3 : 1,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              side: BorderSide(
+                                color: isSelected ? Colors.amber.shade800 : Colors.transparent,
+                                width: isSelected ? 2 : 0,
+                              ),
+                            ),
+                            color: isSelected
+                                ? (isDark ? Colors.amber.shade900.withValues(alpha: 0.3) : Colors.amber.shade50)
+                                : cardBgColor,
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: isDark ? iconColor.shade900.withValues(alpha: 0.5) : iconColor.shade100,
+                                child: Icon(soundIcon, color: isDark ? iconColor.shade300 : iconColor.shade800),
+                              ),
+                              title: Text(
+                                settingsProvider.tr(sound['titleKey'] as String),
+                                style: TextStyle(
+                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                                  color: isSelected
+                                      ? (isDark ? Colors.amber.shade200 : Colors.amber.shade900)
+                                      : (isDark ? Colors.white : Colors.black87),
+                                ),
+                              ),
+                              subtitle: Text(
+                                settingsProvider.tr(sound['subKey'] as String),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                                ),
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(
+                                      (_isPlayingAudio && settingsProvider.reminderSound == soundKey)
+                                          ? Icons.stop_circle
+                                          : Icons.play_circle_fill,
+                                      color: Colors.amber.shade800,
+                                      size: 32,
+                                    ),
+                                    onPressed: () => _toggleAudioPreview(soundKey),
+                                  ),
+                                  Icon(
+                                    isSelected
+                                        ? Icons.check_circle
+                                        : Icons.radio_button_off,
+                                    color: isSelected
+                                        ? Colors.amber.shade800
+                                        : Colors.grey.shade400,
+                                  ),
+                                ],
+                              ),
+                              onTap: () async {
+                                await settingsProvider.setReminderSound(soundKey);
+                                _updateNotifications(settingsProvider);
+                              },
+                            ),
+                          );
+                        }),
+
                         const SizedBox(height: 10),
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton.icon(
                             onPressed: () async {
                               await NotificationService().scheduleTestNotificationIn10Seconds(
-                                soundEnabled: settingsProvider.soundEnabled,
+                                soundEnabled: settingsProvider.reminderSoundEnabled,
                                 vibrationEnabled: settingsProvider.vibrationEnabled,
-                                soundKey: settingsProvider.notificationSound,
+                                soundKey: settingsProvider.reminderSound,
+                                title: 'Zamanlanmış Hatırlatıcı Uyarısı (10s) ⏰',
+                                body: 'Vakit öncesi/sonrası uyarısında çalacak olan hatırlatma tonu başarıyla zamanlandı ve çalışıyor!',
                               );
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
                                       settingsProvider.appLanguage == 'en'
-                                          ? 'Scheduled test alarm set for 10 seconds from now! Lock screen to test. ⏱️'
-                                          : '10 saniyelik test ezanı kuruldu! Lütfen ekranı kapatıp 10 saniye bekleyin. ⏱️',
+                                          ? 'Scheduled Reminder warning test set for 10 seconds from now! ⏰'
+                                          : '10 saniyelik Hatırlatıcı Uyarısı kuruldu! Lütfen ekranı kapatıp 10 saniye bekleyin. ⏰',
                                     ),
                                     duration: const Duration(seconds: 4),
                                     backgroundColor: Colors.amber.shade900,
@@ -583,11 +741,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               }
                             },
                             icon: const Icon(Icons.timer_outlined, size: 18),
-                            label: Text(
-                              settingsProvider.appLanguage == 'en'
-                                  ? 'Test Scheduled Alarm (10s) ⏱️'
-                                  : '10 Saniye Sonra Zamanlanmış Ezanı Test Et ⏱️',
-                            ),
+                            label: Text(settingsProvider.tr('test_reminder_sound')),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.amber.shade800,
                               foregroundColor: Colors.white,
@@ -598,8 +752,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                           ),
                         ),
+                      ],
+                    ),
+                  ),
 
-                        const SizedBox(height: 12),
+                  const SizedBox(height: 12),
                         SizedBox(
                           width: double.infinity,
                           child: OutlinedButton.icon(
@@ -804,7 +961,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ListTile(
                     leading: Icon(Icons.info_outline, color: primaryColor),
                     title: Text(settingsProvider.tr('about'), style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
-                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 2.6.0', style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
+                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 2.7.0', style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       Navigator.pushNamed(context, '/about');

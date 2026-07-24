@@ -172,6 +172,8 @@ class NotificationService {
     bool soundEnabled = true,
     bool vibrationEnabled = true,
     String soundKey = 'adhan_makkah',
+    String title = 'Ezan Hatırlatıcı Test Bildirimi 🔔',
+    String body = 'Anlık bildirim ve ses sisteminiz başarıyla çalışıyor!',
   }) async {
     final channelId = _getChannelId(soundKey);
     final androidImplementation = _notificationsPlugin
@@ -199,24 +201,11 @@ class NotificationService {
       } catch (_) {}
     }
 
-    // Direct vibration feedback when test button is tapped
-    if (vibrationEnabled) {
-      try {
-        if ((await Vibration.hasVibrator()) == true) {
-          Vibration.vibrate(pattern: [0, 800, 400, 800, 400, 800]);
-        }
-      } catch (_) {
-        try {
-          await HapticFeedback.vibrate();
-        } catch (_) {}
-      }
-    }
-
     try {
       await _notificationsPlugin.show(
         999999,
-        'Ezan Hatırlatıcı Test Bildirimi 🔔',
-        'Anlık bildirim, titreşim ve ses sisteminiz başarıyla çalışıyor!',
+        title,
+        body,
         NotificationDetails(
           android: AndroidNotificationDetails(
             channelId,
@@ -250,6 +239,8 @@ class NotificationService {
     bool soundEnabled = true,
     bool vibrationEnabled = true,
     String soundKey = 'adhan_makkah',
+    String title = 'Zamanlanmış Test Bildirimi (10s) 🕌',
+    String body = '10 saniyelik zamanlanmış bildirim ve ses uyarısı başarıyla çaldı!',
   }) async {
     // Cancel any previous test notification
     await cancelNotification(888888);
@@ -257,8 +248,8 @@ class NotificationService {
     final testTime = DateTime.now().add(const Duration(seconds: 10));
     await scheduleNotification(
       id: 888888,
-      title: 'Zamanlanmış Ezan Testi (10s) 🕌',
-      body: '10 saniyelik zamanlanmış ezan bildirimi ve uyarısı başarıyla çaldı!',
+      title: title,
+      body: body,
       scheduledTime: testTime,
       soundEnabled: soundEnabled,
       vibrationEnabled: vibrationEnabled,
@@ -371,8 +362,17 @@ class NotificationService {
     bool soundEnabled = true,
     bool vibrationEnabled = true,
     String soundKey = 'adhan_makkah',
+    String? adhanSoundKey,
+    bool? adhanSoundEnabled,
+    String? reminderSoundKey,
+    bool? reminderSoundEnabled,
   }) async {
     final displayName = prayerDisplayNames[prayerName] ?? prayerName;
+
+    final String finalAdhanSound = adhanSoundKey ?? soundKey;
+    final bool finalAdhanEnabled = adhanSoundEnabled ?? soundEnabled;
+    final String finalReminderSound = reminderSoundKey ?? 'beep';
+    final bool finalReminderEnabled = reminderSoundEnabled ?? soundEnabled;
 
     // 1. ALWAYS Schedule Exact Prayer Time (0 min offset - Exact Adhan)
     if (!prayerTime.isBefore(DateTime.now())) {
@@ -382,9 +382,9 @@ class NotificationService {
         title: '$displayName Vakti Girdi 🕌',
         body: '$displayName ezanı okunuyor. Haydi namaza! 🕌',
         scheduledTime: prayerTime,
-        soundEnabled: soundEnabled,
+        soundEnabled: finalAdhanEnabled,
         vibrationEnabled: vibrationEnabled,
-        soundKey: soundKey,
+        soundKey: finalAdhanSound,
       );
     }
 
@@ -408,9 +408,9 @@ class NotificationService {
           title: '$displayName Hatırlatması ⏰',
           body: message,
           scheduledTime: reminderTime,
-          soundEnabled: soundEnabled,
+          soundEnabled: finalReminderEnabled,
           vibrationEnabled: vibrationEnabled,
-          soundKey: soundKey,
+          soundKey: finalReminderSound,
         );
       }
     }

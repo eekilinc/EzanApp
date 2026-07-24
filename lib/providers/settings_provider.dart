@@ -9,8 +9,11 @@ class SettingsProvider extends ChangeNotifier {
 
   Map<String, int> _reminderMinutes = Map<String, int>.from(defaultReminderMinutes);
   bool _soundEnabled = true;
+  bool _adhanSoundEnabled = true;
+  bool _reminderSoundEnabled = true;
   bool _vibrationEnabled = true;
-  String _notificationSound = 'adhan_makkah';
+  String _adhanSound = 'adhan_makkah';
+  String _reminderSound = 'beep';
   String _appLanguage = 'tr';
   ThemeMode _themeMode = ThemeMode.system;
   String _asrSchool = 'standard';
@@ -18,8 +21,12 @@ class SettingsProvider extends ChangeNotifier {
 
   Map<String, int> get reminderMinutes => _reminderMinutes;
   bool get soundEnabled => _soundEnabled;
+  bool get adhanSoundEnabled => _adhanSoundEnabled;
+  bool get reminderSoundEnabled => _reminderSoundEnabled;
   bool get vibrationEnabled => _vibrationEnabled;
-  String get notificationSound => _notificationSound;
+  String get notificationSound => _adhanSound;
+  String get adhanSound => _adhanSound;
+  String get reminderSound => _reminderSound;
   String get appLanguage => _appLanguage;
   ThemeMode get themeMode => _themeMode;
   String get asrSchool => _asrSchool;
@@ -90,8 +97,14 @@ class SettingsProvider extends ChangeNotifier {
     }
 
     _soundEnabled = _prefs.getBool('sound_enabled') ?? true;
+    _adhanSoundEnabled = _prefs.getBool('adhan_sound_enabled') ?? _soundEnabled;
+    _reminderSoundEnabled = _prefs.getBool('reminder_sound_enabled') ?? _soundEnabled;
     _vibrationEnabled = _prefs.getBool('vibration_enabled') ?? true;
-    _notificationSound = _prefs.getString('notification_sound') ?? 'adhan_makkah';
+    
+    // Load separate sounds with fallbacks
+    _adhanSound = _prefs.getString('adhan_sound') ?? _prefs.getString('notification_sound') ?? 'adhan_makkah';
+    _reminderSound = _prefs.getString('reminder_sound') ?? 'beep';
+    
     _appLanguage = _prefs.getString('app_language') ?? 'tr';
     _asrSchool = _prefs.getString('asr_school') ?? 'standard';
     _colorTheme = _prefs.getString('color_theme') ?? 'green';
@@ -120,7 +133,23 @@ class SettingsProvider extends ChangeNotifier {
 
   Future<void> setSoundEnabled(bool enabled) async {
     _soundEnabled = enabled;
+    _adhanSoundEnabled = enabled;
+    _reminderSoundEnabled = enabled;
     await _prefs.setBool('sound_enabled', enabled);
+    await _prefs.setBool('adhan_sound_enabled', enabled);
+    await _prefs.setBool('reminder_sound_enabled', enabled);
+    notifyListeners();
+  }
+
+  Future<void> setAdhanSoundEnabled(bool enabled) async {
+    _adhanSoundEnabled = enabled;
+    await _prefs.setBool('adhan_sound_enabled', enabled);
+    notifyListeners();
+  }
+
+  Future<void> setReminderSoundEnabled(bool enabled) async {
+    _reminderSoundEnabled = enabled;
+    await _prefs.setBool('reminder_sound_enabled', enabled);
     notifyListeners();
   }
 
@@ -131,8 +160,22 @@ class SettingsProvider extends ChangeNotifier {
   }
 
   Future<void> setNotificationSound(String soundKey) async {
-    _notificationSound = soundKey;
+    _adhanSound = soundKey;
     await _prefs.setString('notification_sound', soundKey);
+    await _prefs.setString('adhan_sound', soundKey);
+    notifyListeners();
+  }
+
+  Future<void> setAdhanSound(String soundKey) async {
+    _adhanSound = soundKey;
+    await _prefs.setString('adhan_sound', soundKey);
+    await _prefs.setString('notification_sound', soundKey);
+    notifyListeners();
+  }
+
+  Future<void> setReminderSound(String soundKey) async {
+    _reminderSound = soundKey;
+    await _prefs.setString('reminder_sound', soundKey);
     notifyListeners();
   }
 
