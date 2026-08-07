@@ -19,6 +19,9 @@ class SettingsProvider extends ChangeNotifier {
   String _asrSchool = 'standard';
   int _calcMethod = 13; // Default: 13 (Diyanet İşleri Başkanlığı)
   String _colorTheme = 'green'; // 'green', 'blue', 'teal', 'crimson', 'amber'
+  bool _ongoingNotificationEnabled = false;
+  bool _fridayReminderEnabled = true;
+  bool _sahurReminderEnabled = false;
 
   Map<String, int> get reminderMinutes => _reminderMinutes;
   bool get soundEnabled => _soundEnabled;
@@ -33,6 +36,9 @@ class SettingsProvider extends ChangeNotifier {
   String get asrSchool => _asrSchool;
   int get calcMethod => _calcMethod;
   String get colorTheme => _colorTheme;
+  bool get ongoingNotificationEnabled => _ongoingNotificationEnabled;
+  bool get fridayReminderEnabled => _fridayReminderEnabled;
+  bool get sahurReminderEnabled => _sahurReminderEnabled;
 
   String tr(String key) => AppStrings.get(key, _appLanguage);
 
@@ -111,6 +117,9 @@ class SettingsProvider extends ChangeNotifier {
     _asrSchool = _prefs.getString('asr_school') ?? 'standard';
     _calcMethod = _prefs.getInt('calc_method') ?? 13;
     _colorTheme = _prefs.getString('color_theme') ?? 'green';
+    _ongoingNotificationEnabled = _prefs.getBool('ongoing_notification_enabled') ?? false;
+    _fridayReminderEnabled = _prefs.getBool('friday_reminder_enabled') ?? true;
+    _sahurReminderEnabled = _prefs.getBool('sahur_reminder_enabled') ?? false;
 
     final themeStr = _prefs.getString('theme_mode') ?? 'system';
     if (themeStr == 'light') {
@@ -212,6 +221,24 @@ class SettingsProvider extends ChangeNotifier {
   Future<void> setCalcMethod(int method) async {
     _calcMethod = method;
     await _prefs.setInt('calc_method', method);
+    notifyListeners();
+  }
+
+  Future<void> setOngoingNotificationEnabled(bool enabled) async {
+    _ongoingNotificationEnabled = enabled;
+    await _prefs.setBool('ongoing_notification_enabled', enabled);
+    notifyListeners();
+  }
+
+  Future<void> setFridayReminderEnabled(bool enabled) async {
+    _fridayReminderEnabled = enabled;
+    await _prefs.setBool('friday_reminder_enabled', enabled);
+    notifyListeners();
+  }
+
+  Future<void> setSahurReminderEnabled(bool enabled) async {
+    _sahurReminderEnabled = enabled;
+    await _prefs.setBool('sahur_reminder_enabled', enabled);
     notifyListeners();
   }
 

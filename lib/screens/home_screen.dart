@@ -13,6 +13,7 @@ import '../widgets/islamic_pattern_painter.dart';
 import '../services/hijri_service.dart';
 import '../widgets/animated_countdown.dart';
 import '../services/widget_service.dart';
+import '../services/notification_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -38,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
         setState(() {});
-        // Update home widget every 30 seconds
+        // Update home widget & ongoing status notification every 30 seconds
         _widgetUpdateCounter++;
         if (_widgetUpdateCounter >= 30) {
           _widgetUpdateCounter = 0;
@@ -57,12 +58,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (nextPrayer != null) {
         final displayName = settingsProvider.tr(nextPrayer.name.toLowerCase());
+        final countdownStr = timeUntilNext != null ? _formatDuration(timeUntilNext) : '--:--:--';
+
         WidgetService.updateWidget(
           prayerName: displayName,
           prayerTime: nextPrayer.getDisplayTime(),
-          countdown: timeUntilNext != null ? _formatDuration(timeUntilNext) : '--:--:--',
+          countdown: countdownStr,
           appTitle: settingsProvider.tr('app_title'),
         );
+
+        if (settingsProvider.ongoingNotificationEnabled) {
+          NotificationService().showOngoingNotification(
+            title: '🕌 $displayName: ${nextPrayer.getDisplayTime()}',
+            body: '$displayName vakit girmesine $countdownStr kaldı',
+          );
+        } else {
+          NotificationService().cancelOngoingNotification();
+        }
       }
     } catch (_) {}
   }

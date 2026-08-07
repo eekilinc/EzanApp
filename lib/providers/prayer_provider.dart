@@ -60,6 +60,8 @@ class PrayerProvider extends ChangeNotifier {
         adhanSoundEnabled: settingsProvider?.adhanSoundEnabled,
         reminderSoundKey: settingsProvider?.reminderSound,
         reminderSoundEnabled: settingsProvider?.reminderSoundEnabled,
+        fridayReminderEnabled: settingsProvider?.fridayReminderEnabled ?? true,
+        sahurReminderEnabled: settingsProvider?.sahurReminderEnabled ?? false,
       );
 
       _isLoading = false;
@@ -82,6 +84,8 @@ class PrayerProvider extends ChangeNotifier {
     bool? adhanSoundEnabled,
     String? reminderSoundKey,
     bool? reminderSoundEnabled,
+    bool fridayReminderEnabled = true,
+    bool sahurReminderEnabled = false,
   }) async {
     if (_prayerTimes == null || _location == null) return;
 
@@ -140,6 +144,38 @@ class PrayerProvider extends ChangeNotifier {
             reminderSoundKey: finalReminderSound,
             reminderSoundEnabled: finalReminderEnabled,
           );
+
+          // Special Friday Alert (1 hour before Friday Dhuhr)
+          if (fridayReminderEnabled && prayer.name == 'Dhuhr' && prayer.time.weekday == DateTime.friday) {
+            final fridayTime = prayer.time.subtract(const Duration(minutes: 60));
+            if (!fridayTime.isBefore(now)) {
+              await _notificationService.scheduleNotification(
+                id: 666000 + dayDiff,
+                title: '🕌 Cuma Gününüz Mübarek Olsun!',
+                body: 'Cuma Namazı vaktine 1 saat kaldı. Dualarınız kabul olsun. 🤲',
+                scheduledTime: fridayTime,
+                soundEnabled: finalReminderEnabled,
+                vibrationEnabled: vibrationEnabled,
+                soundKey: finalReminderSound,
+              );
+            }
+          }
+
+          // Special Sahur & Tahajjud Alert (45 min before Fajr)
+          if (sahurReminderEnabled && prayer.name == 'Fajr') {
+            final sahurTime = prayer.time.subtract(const Duration(minutes: 45));
+            if (!sahurTime.isBefore(now)) {
+              await _notificationService.scheduleNotification(
+                id: 555000 + dayDiff,
+                title: '🌙 Sahur & Teheccüd Uyarısı',
+                body: 'İmsak vaktine 45 dakika kaldı. Hayırlı Sahurlar! 🌙',
+                scheduledTime: sahurTime,
+                soundEnabled: finalReminderEnabled,
+                vibrationEnabled: vibrationEnabled,
+                soundKey: finalReminderSound,
+              );
+            }
+          }
         }
       }
     } catch (_) {

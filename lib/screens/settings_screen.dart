@@ -782,6 +782,90 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                           ),
                         ),
+
+                        // Special Notifications & Extra Reminders Card
+                        const SizedBox(height: 16),
+                        Card(
+                          elevation: 2,
+                          color: cardBgColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(Icons.stars, color: Colors.amber.shade800, size: 20),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      settingsProvider.appLanguage == 'en' ? 'Special Extra Notifications 🌟' : 'Özel Ekstra Bildirimler 🌟',
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                SwitchListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  secondary: const Icon(Icons.push_pin_outlined, color: Colors.blue),
+                                  title: Text(
+                                    settingsProvider.tr('ongoing_notification'),
+                                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                                  ),
+                                  subtitle: Text(
+                                    settingsProvider.tr('ongoing_notification_desc'),
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                  value: settingsProvider.ongoingNotificationEnabled,
+                                  activeTrackColor: primaryColor,
+                                  onChanged: (value) async {
+                                    await settingsProvider.setOngoingNotificationEnabled(value);
+                                  },
+                                ),
+                                const Divider(height: 1),
+                                SwitchListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  secondary: const Icon(Icons.mosque, color: Colors.green),
+                                  title: Text(
+                                    settingsProvider.tr('friday_reminder'),
+                                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                                  ),
+                                  subtitle: Text(
+                                    settingsProvider.tr('friday_reminder_desc'),
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                  value: settingsProvider.fridayReminderEnabled,
+                                  activeTrackColor: primaryColor,
+                                  onChanged: (value) async {
+                                    await settingsProvider.setFridayReminderEnabled(value);
+                                    _updateNotifications(settingsProvider);
+                                  },
+                                ),
+                                const Divider(height: 1),
+                                SwitchListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  secondary: const Icon(Icons.nightlight_round, color: Colors.amber),
+                                  title: Text(
+                                    settingsProvider.tr('sahur_reminder'),
+                                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                                  ),
+                                  subtitle: Text(
+                                    settingsProvider.tr('sahur_reminder_desc'),
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                  value: settingsProvider.sahurReminderEnabled,
+                                  activeTrackColor: primaryColor,
+                                  onChanged: (value) async {
+                                    await settingsProvider.setSahurReminderEnabled(value);
+                                    _updateNotifications(settingsProvider);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                         const SizedBox(height: 12),
                         SizedBox(
                           width: double.infinity,
@@ -1076,7 +1160,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ListTile(
                     leading: Icon(Icons.info_outline, color: primaryColor),
                     title: Text(settingsProvider.tr('about'), style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
-                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 3.4.0', style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
+                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 3.5.0', style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       Navigator.pushNamed(context, '/about');

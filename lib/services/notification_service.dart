@@ -450,4 +450,47 @@ class NotificationService {
       }
     }
   }
+
+  Future<void> showOngoingNotification({
+    required String title,
+    required String body,
+  }) async {
+    const androidDetails = AndroidNotificationDetails(
+      'ezan_ongoing_channel_v1',
+      'Kalıcı Vakit Bildirimi',
+      channelDescription: 'Bildirim çubuğunda canlı namaz vakti ve geri sayım gösterimi',
+      importance: Importance.low,
+      priority: Priority.low,
+      ongoing: true,
+      autoCancel: false,
+      onlyAlertOnce: true,
+      showWhen: true,
+      playSound: false,
+      enableVibration: false,
+    );
+
+    const notificationDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: DarwinNotificationDetails(
+        presentAlert: false,
+        presentBadge: false,
+        presentSound: false,
+      ),
+    );
+
+    try {
+      await _notificationsPlugin.show(
+        777777,
+        title,
+        body,
+        notificationDetails,
+      );
+    } catch (_) {}
+  }
+
+  Future<void> cancelOngoingNotification() async {
+    try {
+      await _notificationsPlugin.cancel(777777);
+    } catch (_) {}
+  }
 }
