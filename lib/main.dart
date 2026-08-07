@@ -26,7 +26,12 @@ void main() async {
   final notificationService = NotificationService();
   await notificationService.initialize(
     onSelectNotification: (payload) {
-      navigatorKey.currentState?.pushNamed('/alarm');
+      if (payload == 'alarm') {
+        navigatorKey.currentState?.pushNamed('/alarm');
+      } else {
+        // Persistent status bar notification or home payload -> open main app screen
+        navigatorKey.currentState?.popUntil((route) => route.isFirst);
+      }
     },
   );
   runApp(const MyApp());

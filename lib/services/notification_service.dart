@@ -484,6 +484,7 @@ class NotificationService {
         title,
         body,
         notificationDetails,
+        payload: 'home',
       );
     } catch (_) {}
   }

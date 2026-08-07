@@ -68,9 +68,11 @@ class _HomeScreenState extends State<HomeScreen> {
         );
 
         if (settingsProvider.ongoingNotificationEnabled) {
+          final cityName = prayerProvider.location?.city ?? '';
+          final citySuffix = cityName.isNotEmpty ? ' | 📍 $cityName' : '';
           NotificationService().showOngoingNotification(
-            title: '🕌 $displayName: ${nextPrayer.getDisplayTime()}',
-            body: '$displayName vakit girmesine $countdownStr kaldı',
+            title: '🕌 $displayName Vakti: ${nextPrayer.getDisplayTime()}',
+            body: '⏳ Geri Sayım: $countdownStr$citySuffix',
           );
         } else {
           NotificationService().cancelOngoingNotification();
