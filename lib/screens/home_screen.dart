@@ -68,8 +68,11 @@ class _HomeScreenState extends State<HomeScreen> {
         );
 
         if (settingsProvider.ongoingNotificationEnabled) {
-          final cityName = prayerProvider.location?.city ?? '';
-          final citySuffix = cityName.isNotEmpty ? ' | 📍 $cityName' : '';
+          String rawCity = prayerProvider.location?.city ?? '';
+          if (rawCity == 'Current Location' || rawCity == 'current_location' || rawCity == 'Mevcut Konum') {
+            rawCity = settingsProvider.tr('current_location');
+          }
+          final citySuffix = rawCity.isNotEmpty ? ' | 📍 $rawCity' : '';
           final timeLabel = settingsProvider.tr('prayer_time_label');
           final countdownLabel = settingsProvider.tr('countdown_label');
           NotificationService().showOngoingNotification(

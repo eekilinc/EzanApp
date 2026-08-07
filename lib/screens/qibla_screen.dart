@@ -146,7 +146,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
                       Text(
                         isAligned
                             ? settingsProvider.tr('qibla_aligned')
-                            : '${location?.city ?? settingsProvider.tr("location")}: ${qiblaAngle.toStringAsFixed(1)}°',
+                            : '${(location?.city == "Current Location" || location?.city == "current_location") ? settingsProvider.tr("current_location") : (location?.city ?? settingsProvider.tr("location"))}: ${qiblaAngle.toStringAsFixed(1)}°',
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
