@@ -70,9 +70,11 @@ class _HomeScreenState extends State<HomeScreen> {
         if (settingsProvider.ongoingNotificationEnabled) {
           final cityName = prayerProvider.location?.city ?? '';
           final citySuffix = cityName.isNotEmpty ? ' | 📍 $cityName' : '';
+          final timeLabel = settingsProvider.tr('prayer_time_label');
+          final countdownLabel = settingsProvider.tr('countdown_label');
           NotificationService().showOngoingNotification(
-            title: '🕌 $displayName Vakti: ${nextPrayer.getDisplayTime()}',
-            body: '⏳ Geri Sayım: $countdownStr$citySuffix',
+            title: '🕌 $displayName $timeLabel: ${nextPrayer.getDisplayTime()}',
+            body: '⏳ $countdownLabel: $countdownStr$citySuffix',
           );
         } else {
           NotificationService().cancelOngoingNotification();
