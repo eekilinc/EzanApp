@@ -17,6 +17,7 @@ class SettingsProvider extends ChangeNotifier {
   String _appLanguage = 'tr';
   ThemeMode _themeMode = ThemeMode.system;
   String _asrSchool = 'standard';
+  int _calcMethod = 13; // Default: 13 (Diyanet İşleri Başkanlığı)
   String _colorTheme = 'green'; // 'green', 'blue', 'teal', 'crimson', 'amber'
 
   Map<String, int> get reminderMinutes => _reminderMinutes;
@@ -30,6 +31,7 @@ class SettingsProvider extends ChangeNotifier {
   String get appLanguage => _appLanguage;
   ThemeMode get themeMode => _themeMode;
   String get asrSchool => _asrSchool;
+  int get calcMethod => _calcMethod;
   String get colorTheme => _colorTheme;
 
   String tr(String key) => AppStrings.get(key, _appLanguage);
@@ -107,6 +109,7 @@ class SettingsProvider extends ChangeNotifier {
     
     _appLanguage = _prefs.getString('app_language') ?? 'tr';
     _asrSchool = _prefs.getString('asr_school') ?? 'standard';
+    _calcMethod = _prefs.getInt('calc_method') ?? 13;
     _colorTheme = _prefs.getString('color_theme') ?? 'green';
 
     final themeStr = _prefs.getString('theme_mode') ?? 'system';
@@ -203,6 +206,12 @@ class SettingsProvider extends ChangeNotifier {
   Future<void> setColorTheme(String theme) async {
     _colorTheme = theme;
     await _prefs.setString('color_theme', theme);
+    notifyListeners();
+  }
+
+  Future<void> setCalcMethod(int method) async {
+    _calcMethod = method;
+    await _prefs.setInt('calc_method', method);
     notifyListeners();
   }
 

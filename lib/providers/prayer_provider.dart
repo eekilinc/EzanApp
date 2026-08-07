@@ -45,6 +45,7 @@ class PrayerProvider extends ChangeNotifier {
         latitude: _location!.latitude,
         longitude: _location!.longitude,
         school: settingsProvider?.asrSchool ?? 'standard',
+        calcMethod: settingsProvider?.calcMethod ?? 13,
       );
 
       // Schedule multi-day notifications for upcoming prayers using settings
@@ -54,6 +55,7 @@ class PrayerProvider extends ChangeNotifier {
         vibrationEnabled: settingsProvider?.vibrationEnabled ?? true,
         soundKey: settingsProvider?.notificationSound ?? 'adhan_makkah',
         asrSchool: settingsProvider?.asrSchool ?? 'standard',
+        calcMethod: settingsProvider?.calcMethod ?? 13,
         adhanSoundKey: settingsProvider?.adhanSound,
         adhanSoundEnabled: settingsProvider?.adhanSoundEnabled,
         reminderSoundKey: settingsProvider?.reminderSound,
@@ -75,6 +77,7 @@ class PrayerProvider extends ChangeNotifier {
     bool vibrationEnabled = true,
     String soundKey = 'adhan_makkah',
     String asrSchool = 'standard',
+    int calcMethod = 13,
     String? adhanSoundKey,
     bool? adhanSoundEnabled,
     String? reminderSoundKey,
@@ -100,6 +103,7 @@ class PrayerProvider extends ChangeNotifier {
         year: now.year,
         month: now.month,
         school: asrSchool,
+        calcMethod: calcMethod,
       );
 
       List<PrayerTimes> allDays = List.from(monthlyList);
@@ -112,6 +116,7 @@ class PrayerProvider extends ChangeNotifier {
             year: nextMonthDate.year,
             month: nextMonthDate.month,
             school: asrSchool,
+            calcMethod: calcMethod,
           );
           allDays.addAll(nextMonthList);
         } catch (_) {}

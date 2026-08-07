@@ -20,10 +20,11 @@ class ApiService {
     required double latitude,
     required double longitude,
     String school = 'standard',
+    int calcMethod = 13,
   }) async {
     final now = DateTime.now();
     final dateStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-    final cacheKey = '$_cacheKeyPrefix${dateStr}_${latitude.toStringAsFixed(2)}_${longitude.toStringAsFixed(2)}_$school';
+    final cacheKey = '$_cacheKeyPrefix${dateStr}_${latitude.toStringAsFixed(2)}_${longitude.toStringAsFixed(2)}_${school}_$calcMethod';
 
     // 1. Check in-memory cache (0ms instant return)
     if (_memoryCache.containsKey(cacheKey)) {
@@ -41,20 +42,21 @@ class ApiService {
         _memoryCache[cacheKey] = prayerTimes;
 
         // Background refresh in background without blocking UI
-        _fetchAndCacheToday(latitude, longitude, school, cacheKey, prefs).ignore();
+        _fetchAndCacheToday(latitude, longitude, school, calcMethod, cacheKey, prefs).ignore();
 
         return prayerTimes;
       } catch (_) {}
     }
 
     // 3. Network fetch if no cache available
-    return await _fetchAndCacheToday(latitude, longitude, school, cacheKey, prefs);
+    return await _fetchAndCacheToday(latitude, longitude, school, calcMethod, cacheKey, prefs);
   }
 
   Future<PrayerTimes> _fetchAndCacheToday(
     double latitude,
     double longitude,
     String school,
+    int calcMethod,
     String cacheKey,
     SharedPreferences prefs,
   ) async {
@@ -65,7 +67,7 @@ class ApiService {
       queryParameters: {
         'latitude': latitude,
         'longitude': longitude,
-        'method': 13, // Diyanet / Turkey Method
+        'method': calcMethod,
         'school': school == 'hanafi' ? 1 : 0,
       },
     );
@@ -90,8 +92,9 @@ class ApiService {
     required int year,
     required int month,
     String school = 'standard',
+    int calcMethod = 13,
   }) async {
-    final cacheKey = 'cached_monthly_${year}_${month}_${latitude.toStringAsFixed(2)}_${longitude.toStringAsFixed(2)}_$school';
+    final cacheKey = 'cached_monthly_${year}_${month}_${latitude.toStringAsFixed(2)}_${longitude.toStringAsFixed(2)}_${school}_$calcMethod';
 
     if (_monthlyMemoryCache.containsKey(cacheKey)) {
       return _monthlyMemoryCache[cacheKey]!;
@@ -114,7 +117,7 @@ class ApiService {
         queryParameters: {
           'latitude': latitude,
           'longitude': longitude,
-          'method': 13,
+          'method': calcMethod,
           'school': school == 'hanafi' ? 1 : 0,
         },
       );

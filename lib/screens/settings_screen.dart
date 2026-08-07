@@ -878,6 +878,95 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
 
+                  // Calculation Method Selection Card (Diyanet / MWL / ISNA / Umm Al-Qura / UOIF etc.)
+                  const SizedBox(height: 16),
+                  Text(
+                    settingsProvider.tr('calc_method_title'),
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    settingsProvider.tr('calc_method_desc'),
+                    style: const TextStyle(color: Colors.grey, fontSize: 13),
+                  ),
+                  const SizedBox(height: 8),
+                  Card(
+                    elevation: 2,
+                    color: cardBgColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Column(
+                        children: [
+                          _buildCalcMethodRadioTile(
+                            context: context,
+                            settingsProvider: settingsProvider,
+                            methodCode: 13,
+                            titleKey: 'method_13',
+                            descKey: 'method_13_desc',
+                            isDark: isDark,
+                            primaryColor: primaryColor,
+                          ),
+                          const Divider(height: 1),
+                          _buildCalcMethodRadioTile(
+                            context: context,
+                            settingsProvider: settingsProvider,
+                            methodCode: 3,
+                            titleKey: 'method_3',
+                            descKey: 'method_3_desc',
+                            isDark: isDark,
+                            primaryColor: primaryColor,
+                          ),
+                          const Divider(height: 1),
+                          _buildCalcMethodRadioTile(
+                            context: context,
+                            settingsProvider: settingsProvider,
+                            methodCode: 4,
+                            titleKey: 'method_4',
+                            descKey: 'method_4_desc',
+                            isDark: isDark,
+                            primaryColor: primaryColor,
+                          ),
+                          const Divider(height: 1),
+                          _buildCalcMethodRadioTile(
+                            context: context,
+                            settingsProvider: settingsProvider,
+                            methodCode: 5,
+                            titleKey: 'method_5',
+                            descKey: 'method_5_desc',
+                            isDark: isDark,
+                            primaryColor: primaryColor,
+                          ),
+                          const Divider(height: 1),
+                          _buildCalcMethodRadioTile(
+                            context: context,
+                            settingsProvider: settingsProvider,
+                            methodCode: 2,
+                            titleKey: 'method_2',
+                            descKey: 'method_2_desc',
+                            isDark: isDark,
+                            primaryColor: primaryColor,
+                          ),
+                          const Divider(height: 1),
+                          _buildCalcMethodRadioTile(
+                            context: context,
+                            settingsProvider: settingsProvider,
+                            methodCode: 12,
+                            titleKey: 'method_12',
+                            descKey: 'method_12_desc',
+                            isDark: isDark,
+                            primaryColor: primaryColor,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
                   const Divider(height: 32, thickness: 1.5),
 
                   // Reminder times section
@@ -987,7 +1076,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ListTile(
                     leading: Icon(Icons.info_outline, color: primaryColor),
                     title: Text(settingsProvider.tr('about'), style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
-                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 3.3.0', style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
+                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 3.4.0', style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       Navigator.pushNamed(context, '/about');
@@ -1000,6 +1089,80 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildCalcMethodRadioTile({
+    required BuildContext context,
+    required SettingsProvider settingsProvider,
+    required int methodCode,
+    required String titleKey,
+    required String descKey,
+    required bool isDark,
+    required Color primaryColor,
+  }) {
+    final isSelected = settingsProvider.calcMethod == methodCode;
+    return InkWell(
+      onTap: () {
+        if (!isSelected) {
+          settingsProvider.setCalcMethod(methodCode);
+          context.read<PrayerProvider>().loadPrayerTimes(settingsProvider);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${settingsProvider.tr(titleKey)} seçildi. Vakitler güncelleniyor... 🕌'),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+        child: Row(
+          children: [
+            Radio<int>(
+              value: methodCode,
+              groupValue: settingsProvider.calcMethod,
+              activeColor: primaryColor,
+              onChanged: (value) {
+                if (value != null && value != settingsProvider.calcMethod) {
+                  settingsProvider.setCalcMethod(value);
+                  context.read<PrayerProvider>().loadPrayerTimes(settingsProvider);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${settingsProvider.tr(titleKey)} seçildi. Vakitler güncelleniyor... 🕌'),
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                }
+              },
+            ),
+            const SizedBox(width: 4),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    settingsProvider.tr(titleKey),
+                    style: TextStyle(
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                      fontSize: 14,
+                      color: isSelected ? (isDark ? Colors.amber : primaryColor) : (isDark ? Colors.white : Colors.black87),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    settingsProvider.tr(descKey),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
