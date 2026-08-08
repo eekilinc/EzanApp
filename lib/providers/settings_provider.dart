@@ -39,6 +39,8 @@ class SettingsProvider extends ChangeNotifier {
   bool get ongoingNotificationEnabled => _ongoingNotificationEnabled;
   bool get fridayReminderEnabled => _fridayReminderEnabled;
   bool get sahurReminderEnabled => _sahurReminderEnabled;
+  String get prayerTimesViewMode => _prayerTimesViewMode;
+  String _prayerTimesViewMode = 'standard';
 
   String tr(String key) => AppStrings.get(key, _appLanguage);
 
@@ -120,6 +122,7 @@ class SettingsProvider extends ChangeNotifier {
     _ongoingNotificationEnabled = _prefs.getBool('ongoing_notification_enabled') ?? false;
     _fridayReminderEnabled = _prefs.getBool('friday_reminder_enabled') ?? true;
     _sahurReminderEnabled = _prefs.getBool('sahur_reminder_enabled') ?? false;
+    _prayerTimesViewMode = _prefs.getString('prayer_times_view_mode') ?? 'standard';
 
     final themeStr = _prefs.getString('theme_mode') ?? 'system';
     if (themeStr == 'light') {
@@ -239,6 +242,12 @@ class SettingsProvider extends ChangeNotifier {
   Future<void> setSahurReminderEnabled(bool enabled) async {
     _sahurReminderEnabled = enabled;
     await _prefs.setBool('sahur_reminder_enabled', enabled);
+    notifyListeners();
+  }
+
+  Future<void> setPrayerTimesViewMode(String mode) async {
+    _prayerTimesViewMode = mode;
+    await _prefs.setString('prayer_times_view_mode', mode);
     notifyListeners();
   }
 

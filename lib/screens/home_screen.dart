@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../models/prayer_times.dart';
 import '../providers/prayer_provider.dart';
 import '../providers/settings_provider.dart';
 import '../services/audio_service.dart';
@@ -843,33 +844,86 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
 
-                      // Prayer times list header
+                      // Prayer times list header (with View Mode Toggle: Card View vs Compact Grid)
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Icon(Icons.access_time, size: 20, color: Colors.grey),
-                            const SizedBox(width: 8),
-                            Text(
-                              settingsProvider.tr('todays_prayers'),
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
+                            Row(
+                              children: [
+                                const Icon(Icons.access_time_filled, size: 20, color: Colors.amber),
+                                const SizedBox(width: 8),
+                                Text(
+                                  settingsProvider.tr('todays_prayers'),
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                ),
+                              ],
+                            ),
+                            // Toggle View Mode Button
+                            InkWell(
+                              borderRadius: BorderRadius.circular(20),
+                              onTap: () async {
+                                final newMode = settingsProvider.prayerTimesViewMode == 'compact'
+                                    ? 'standard'
+                                    : 'compact';
+                                await settingsProvider.setPrayerTimesViewMode(newMode);
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? primaryColor.withValues(alpha: 0.25)
+                                      : primaryColor.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: primaryColor.withValues(alpha: 0.35),
                                   ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      settingsProvider.prayerTimesViewMode == 'compact'
+                                          ? Icons.view_agenda_outlined
+                                          : Icons.grid_view_rounded,
+                                      size: 16,
+                                      color: primaryColor,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      settingsProvider.prayerTimesViewMode == 'compact'
+                                          ? settingsProvider.tr('view_standard')
+                                          : settingsProvider.tr('view_compact'),
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        color: primaryColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                           ],
                         ),
                       ),
 
-                      ...prayers.map((prayer) {
-                        final minutes = settingsProvider.getReminderMinutes(
-                          prayer.name,
-                        );
-                        return PrayerCard(
-                          prayer: prayer,
-                          minutesBefore: minutes,
-                          isNext: prayer.name == nextPrayer?.name,
-                        );
-                      }),
+                      if (settingsProvider.prayerTimesViewMode == 'compact')
+                        _buildCompactPrayerGrid(prayers, nextPrayer, settingsProvider, primaryColor, isDark)
+                      else
+                        ...prayers.map((prayer) {
+                          final minutes = settingsProvider.getReminderMinutes(
+                            prayer.name,
+                          );
+                          return PrayerCard(
+                            prayer: prayer,
+                            minutesBefore: minutes,
+                            isNext: prayer.name == nextPrayer?.name,
+                          );
+                        }),
 
                       const SizedBox(height: 32),
                     ],
@@ -962,6 +1016,140 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  IconData _getPrayerIcon(String name) {
+    switch (name.toLowerCase()) {
+      case 'fajr':
+        return Icons.dark_mode_outlined;
+      case 'sunrise':
+        return Icons.wb_sunny_outlined;
+      case 'dhuhr':
+        return Icons.wb_sunny;
+      case 'asr':
+        return Icons.wb_twilight;
+      case 'maghrib':
+        return Icons.nightlight_round;
+      case 'isha':
+        return Icons.nights_stay;
+      default:
+        return Icons.access_time_filled;
+    }
+  }
+
+  Widget _buildCompactPrayerGrid(
+    List<PrayerEntry> prayers,
+    PrayerEntry? nextPrayer,
+    SettingsProvider settingsProvider,
+    Color primaryColor,
+    bool isDark,
+  ) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF142016) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.shade200,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: prayers.length,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: 1.15,
+        ),
+        itemBuilder: (context, index) {
+          final prayer = prayers[index];
+          final isNext = prayer.name == nextPrayer?.name;
+          final displayName = settingsProvider.tr(prayer.name.toLowerCase());
+          final iconData = _getPrayerIcon(prayer.name);
+
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              gradient: isNext
+                  ? LinearGradient(
+                      colors: isDark
+                          ? [const Color(0xFF1E3A27), const Color(0xFF0F2D1C)]
+                          : [primaryColor.withValues(alpha: 0.9), primaryColor],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    )
+                  : null,
+              color: isNext
+                  ? null
+                  : (isDark ? const Color(0xFF1F2E22) : Colors.grey.shade100),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: isNext
+                    ? Colors.amber.shade400
+                    : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade300),
+                width: isNext ? 1.8 : 1.0,
+              ),
+              boxShadow: isNext
+                  ? [
+                      BoxShadow(
+                        color: Colors.amber.withValues(alpha: 0.35),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      )
+                    ]
+                  : null,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  iconData,
+                  size: 20,
+                  color: isNext
+                      ? Colors.amber.shade300
+                      : (isDark ? Colors.amber.shade400 : primaryColor),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  displayName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: isNext ? FontWeight.bold : FontWeight.w600,
+                    color: isNext
+                        ? Colors.white
+                        : (isDark ? Colors.white70 : Colors.black87),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  prayer.getDisplayTime(),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: isNext
+                        ? Colors.amber.shade200
+                        : (isDark ? Colors.white : primaryColor),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
