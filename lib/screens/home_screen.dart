@@ -848,20 +848,26 @@ class _HomeScreenState extends State<HomeScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Row(
-                              children: [
-                                const Icon(Icons.access_time_filled, size: 20, color: Colors.amber),
-                                const SizedBox(width: 8),
-                                Text(
-                                  settingsProvider.tr('todays_prayers'),
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                ),
-                              ],
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.access_time_filled, size: 20, color: Colors.amber),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      settingsProvider.tr('todays_prayers'),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
+                            const SizedBox(width: 8),
                             // Toggle View Mode Button
                             InkWell(
                               borderRadius: BorderRadius.circular(20),
@@ -872,7 +878,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 await settingsProvider.setPrayerTimesViewMode(newMode);
                               },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                 decoration: BoxDecoration(
                                   color: isDark
                                       ? primaryColor.withValues(alpha: 0.25)
@@ -889,16 +895,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                       settingsProvider.prayerTimesViewMode == 'compact'
                                           ? Icons.view_agenda_outlined
                                           : Icons.grid_view_rounded,
-                                      size: 16,
+                                      size: 15,
                                       color: primaryColor,
                                     ),
-                                    const SizedBox(width: 6),
+                                    const SizedBox(width: 4),
                                     Text(
                                       settingsProvider.prayerTimesViewMode == 'compact'
                                           ? settingsProvider.tr('view_standard')
                                           : settingsProvider.tr('view_compact'),
                                       style: TextStyle(
-                                        fontSize: 12,
+                                        fontSize: 11.5,
                                         fontWeight: FontWeight.bold,
                                         color: primaryColor,
                                       ),
