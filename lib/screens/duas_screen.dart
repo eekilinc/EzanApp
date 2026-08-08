@@ -17,6 +17,8 @@ class DuasScreen extends StatelessWidget {
           'name_tr': 'Sabah Duası',
           'name_en': 'Morning Dua',
           'arabic': 'أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ، لَا إِلٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ',
+          'pronunciation_tr': 'Asbahnâ ve asbahal-mülkü lillâhi vel-hamdü lillâh, lâ ilâhe illallâhu vahdehû lâ şerîke leh.',
+          'pronunciation_en': 'Asbahna wa asbahal-mulku lillahi wal-hamdu lillah, la ilaha illallahu wahdahu la sharika lah.',
           'meaning_tr': 'Sabaha girdik, mülk de sabaha girdi. Hamd Allah\'a mahsustur. Allah\'tan başka ilah yoktur, O tektir, ortağı yoktur.',
           'meaning_en': 'We have entered the morning and the dominion belongs to Allah. Praise is to Allah. None has the right to be worshipped except Allah, alone, without partner.',
           'source': 'Müslim',
@@ -25,6 +27,8 @@ class DuasScreen extends StatelessWidget {
           'name_tr': 'Akşam Duası',
           'name_en': 'Evening Dua',
           'arabic': 'أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ، لَا إِلٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ',
+          'pronunciation_tr': 'Emseynâ ve emsel-mülkü lillâhi vel-hamdü lillâh, lâ ilâhe illallâhu vahdehû lâ şerîke leh.',
+          'pronunciation_en': 'Amsayna wa amsal-mulku lillahi wal-hamdu lillah, la ilaha illallahu wahdahu la sharika lah.',
           'meaning_tr': 'Akşama girdik, mülk de akşama girdi. Hamd Allah\'a mahsustur. Allah\'tan başka ilah yoktur, O tektir, ortağı yoktur.',
           'meaning_en': 'We have entered the evening and the dominion belongs to Allah. Praise is to Allah. None has the right to be worshipped except Allah, alone, without partner.',
           'source': 'Müslim',
@@ -33,6 +37,8 @@ class DuasScreen extends StatelessWidget {
           'name_tr': 'Âyetel Kürsî',
           'name_en': 'Ayat al-Kursi',
           'arabic': 'اللَّهُ لَا إِلٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ',
+          'pronunciation_tr': 'Allâhu lâ ilâhe illâ hüvel-hayyül-kayyûm, lâ te\'huzühû sinetün ve lâ nevm, lehû mâ fis-semâvâti ve mâ fil-ard.',
+          'pronunciation_en': 'Allahu la ilaha illa huwal-hayyul-qayyum, la ta\'khudhuhu sinatun wa la nawm, lahu ma fis-samawati wa ma fil-ard.',
           'meaning_tr': 'Allah, kendisinden başka hiçbir ilah olmayandır. Diridir, kayyumdur. Onu ne uyuklama tutabilir ne de uyku.',
           'meaning_en': 'Allah - there is no deity except Him, the Ever-Living, the Sustainer of existence. Neither drowsiness overtakes Him nor sleep.',
           'source': 'Bakara, 255',
@@ -49,6 +55,8 @@ class DuasScreen extends StatelessWidget {
           'name_tr': 'Sübhâneke',
           'name_en': 'Subhanaka',
           'arabic': 'سُبْحَانَكَ اللَّهُمَّ وَبِحَمْدِكَ وَتَبَارَكَ اسْمُكَ وَتَعَالَىٰ جَدُّكَ وَلَا إِلٰهَ غَيْرُكَ',
+          'pronunciation_tr': 'Sübhânekallâhümme ve bi-hamdike ve tebârakesmüke ve teâlâ ceddüke ve lâ ilâhe ğayruk.',
+          'pronunciation_en': 'Subhanakallahumma wa bihamdika wa tabarakasmuka wa ta\'ala jadduka wa la ilaha ghayruk.',
           'meaning_tr': 'Allah\'ım! Sen eksik sıfatlardan pak ve uzaksın. Seni daima hamd ile anarım. Senin adın mübarektir. Varlığın her şeyden üstündür. Senden başka ilah yoktur.',
           'meaning_en': 'Glory be to You, O Allah, and praise be to You. Blessed is Your name, and exalted is Your majesty. There is no god but You.',
           'source': 'Namaz Açılış Duası',
@@ -57,6 +65,8 @@ class DuasScreen extends StatelessWidget {
           'name_tr': 'Ettehiyyâtü',
           'name_en': 'At-Tahiyyat',
           'arabic': 'اَلتَّحِيَّاتُ لِلَّهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ اَلسَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ',
+          'pronunciation_tr': 'Et-tehiyyâtü lillâhi ves-salavâtü vet-tayyibât. Es-selâmü aleyke eyyühen-nebiyyü ve rahmetullâhi ve berakâtüh.',
+          'pronunciation_en': 'At-tahiyyatu lillahi was-salawatu wat-tayyibat. As-salamu \'alayka ayyuhan-nabiyyu wa rahmatullahi wa barakatuh.',
           'meaning_tr': 'Bütün tahiyyeler, bütün namazlar ve bütün güzel sözler Allah\'a aittir. Ey Peygamber! Allah\'ın selamı, rahmeti ve bereketleri senin üzerine olsun.',
           'meaning_en': 'All compliments, prayers, and pure words are due to Allah. Peace be upon you, O Prophet, and the mercy of Allah and His blessings.',
           'source': 'Teşehhüd Duası',
@@ -65,6 +75,8 @@ class DuasScreen extends StatelessWidget {
           'name_tr': 'Salli - Bârik',
           'name_en': 'Salli - Barik',
           'arabic': 'اللَّهُمَّ صَلِّ عَلَىٰ مُحَمَّدٍ وَعَلَىٰ آلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَىٰ إِبْرَاهِيمَ وَعَلَىٰ آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ',
+          'pronunciation_tr': 'Allâhümme salli alâ Muhammedin ve alâ âli Muhammed, kemâ salleyte alâ İbrâhîme ve alâ âli İbrâhîm, inneke hamîdün mecîd.',
+          'pronunciation_en': 'Allahumma salli \'ala Muhammadin wa \'ala ali Muhammad, kama sallayta \'ala Ibrahima wa \'ala ali Ibrahim, innaka hamidun majid.',
           'meaning_tr': 'Allah\'ım! İbrahim\'e ve ailesine rahmet ettiğin gibi, Muhammed\'e ve ailesine de rahmet eyle. Şüphesiz sen övülmeye lâyık ve yücesin.',
           'meaning_en': 'O Allah, send blessings upon Muhammad and the family of Muhammad as You sent blessings upon Ibrahim and the family of Ibrahim.',
           'source': 'Salavat Duası',
@@ -73,6 +85,8 @@ class DuasScreen extends StatelessWidget {
           'name_tr': 'Rabbena Âtinâ',
           'name_en': 'Rabbana Atina',
           'arabic': 'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ',
+          'pronunciation_tr': 'Rabbendâ âtinâ fid-dünyâ haseneten ve fil-âhireti haseneten ve kınâ azâben-nâr.',
+          'pronunciation_en': 'Rabbana atina fid-dunya hasanatan wa fil-akhirati hasanatan wa qina \'adhaban-nar.',
           'meaning_tr': 'Rabbimiz! Bize dünyada iyilik ver, ahirette de iyilik ver ve bizi cehennem azabından koru.',
           'meaning_en': 'Our Lord, give us in this world that which is good and in the Hereafter that which is good and protect us from the punishment of the Fire.',
           'source': 'Bakara, 201',
@@ -89,6 +103,8 @@ class DuasScreen extends StatelessWidget {
           'name_tr': 'Yemek Duası (Yemekten Önce)',
           'name_en': 'Before Eating',
           'arabic': 'بِسْمِ اللَّهِ وَعَلَىٰ بَرَكَةِ اللَّهِ',
+          'pronunciation_tr': 'Bismillâhi ve alâ beraketillâh.',
+          'pronunciation_en': 'Bismillahi wa \'ala barakatillah.',
           'meaning_tr': 'Allah\'ın adıyla ve Allah\'ın bereketine sığınarak.',
           'meaning_en': 'In the name of Allah and with the blessings of Allah.',
           'source': 'Ebû Dâvûd',
@@ -97,6 +113,8 @@ class DuasScreen extends StatelessWidget {
           'name_tr': 'Yemek Duası (Yemekten Sonra)',
           'name_en': 'After Eating',
           'arabic': 'اَلْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا وَجَعَلَنَا مِنَ الْمُسْلِمِينَ',
+          'pronunciation_tr': 'Elhamdü lillâhillezî et\'amenâ ve sekânâ ve cealenâ minel-müslimîn.',
+          'pronunciation_en': 'Al-hamdu lillahilladhi at\'amana wa saqana wa ja\'alana minal-muslimin.',
           'meaning_tr': 'Bizi yediren, içiren ve Müslümanlardan kılan Allah\'a hamd olsun.',
           'meaning_en': 'Praise be to Allah who fed us, gave us drink, and made us Muslims.',
           'source': 'Ebû Dâvûd, Tirmizî',
@@ -105,6 +123,8 @@ class DuasScreen extends StatelessWidget {
           'name_tr': 'Yolculuk Duası',
           'name_en': 'Travel Dua',
           'arabic': 'سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ وَإِنَّا إِلَىٰ رَبِّنَا لَمُنْقَلِبُونَ',
+          'pronunciation_tr': 'Sübhânellezî sahhara lenâ hâzâ ve mâ künnâ lehû mukrinîn. Ve innâ ilâ rabbinâ lemünkalibûn.',
+          'pronunciation_en': 'Subhanalladhi sakkhara lana hadha wa ma kunna lahu muqrinin. Wa inna ila rabbina lamunqalibun.',
           'meaning_tr': 'Bunu bizim emrimize veren Allah\'ın şanı ne yücedir! Yoksa biz buna güç yetiremezdik. Şüphesiz biz Rabbimize döneceğiz.',
           'meaning_en': 'Glory to Him who has subjected this to us, and we could not have otherwise subdued it. And to our Lord we will surely return.',
           'source': 'Zuhruf, 13-14',
@@ -113,6 +133,8 @@ class DuasScreen extends StatelessWidget {
           'name_tr': 'Uyku Duası',
           'name_en': 'Before Sleep',
           'arabic': 'بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا',
+          'pronunciation_tr': 'Bismikallâhümme emûtü ve ahyâ.',
+          'pronunciation_en': 'Bismikallahumma amutu wa ahya.',
           'meaning_tr': 'Allah\'ım, Senin adınla ölürüm ve dirilirim.',
           'meaning_en': 'In Your name, O Allah, I die and I live.',
           'source': 'Buhârî',
@@ -121,6 +143,8 @@ class DuasScreen extends StatelessWidget {
           'name_tr': 'Eve Girerken',
           'name_en': 'Entering Home',
           'arabic': 'بِسْمِ اللَّهِ وَلَجْنَا وَبِسْمِ اللَّهِ خَرَجْنَا وَعَلَىٰ رَبِّنَا تَوَكَّلْنَا',
+          'pronunciation_tr': 'Bismillâhi velecnâ ve bismillâhi haracnâ ve alâ rabbinâ tevekkelnâ.',
+          'pronunciation_en': 'Bismillahi walajna wa bismillahi kharajna wa \'ala rabbina tawakkalna.',
           'meaning_tr': 'Allah\'ın adıyla girdik, Allah\'ın adıyla çıktık ve Rabbimize tevekkül ettik.',
           'meaning_en': 'In the name of Allah we enter, in the name of Allah we leave, and upon our Lord we place our trust.',
           'source': 'Ebû Dâvûd',
@@ -137,6 +161,8 @@ class DuasScreen extends StatelessWidget {
           'name_tr': 'Seyyidü\'l-İstiğfar',
           'name_en': 'Master of Forgiveness',
           'arabic': 'اللَّهُمَّ أَنْتَ رَبِّي لَا إِلٰهَ إِلَّا أَنْتَ خَلَقْتَنِي وَأَنَا عَبْدُكَ وَأَنَا عَلَىٰ عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ',
+          'pronunciation_tr': 'Allâhümme ente rabbî lâ ilâhe illâ ente halaktenî ve ene abdüke ve ene alâ ahdike ve va\'dike mesteta\'t.',
+          'pronunciation_en': 'Allahumma anta rabbi la ilaha illa anta khalaqtani wa ana \'abduka wa ana \'ala \'ahdika wa wa\'dika mastata\'t.',
           'meaning_tr': 'Allah\'ım! Sen benim Rabbimsin. Senden başka ilah yoktur. Beni Sen yarattın, ben Senin kulunum ve gücüm yettiği kadar Sana olan ahdime ve vaadime bağlıyım.',
           'meaning_en': 'O Allah, You are my Lord, there is no god but You. You created me and I am Your servant, and I abide by Your covenant and promise as best I can.',
           'source': 'Buhârî',
@@ -145,6 +171,8 @@ class DuasScreen extends StatelessWidget {
           'name_tr': 'İstiğfar',
           'name_en': 'Seeking Forgiveness',
           'arabic': 'أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ الَّذِي لَا إِلٰهَ إِلَّا هُوَ الْحَيَّ الْقَيُّومَ وَأَتُوبُ إِلَيْهِ',
+          'pronunciation_tr': 'Estagfirullâhel-azîmellezî lâ ilâhe illâ hüvel-hayyel-kayyûme ve etûbü ileyh.',
+          'pronunciation_en': 'Astaghfirullahal-\'Azimalladhi la ilaha illa huwal-Hayyul-Qayyumu wa atubu ilayh.',
           'meaning_tr': 'Kendisinden başka ilah olmayan, diri ve kayyum olan yüce Allah\'tan mağfiret dilerim ve O\'na tövbe ederim.',
           'meaning_en': 'I seek forgiveness from Allah, the Almighty, whom there is none worthy of worship except Him, the Living, the Sustainer, and I turn to Him in repentance.',
           'source': 'Ebû Dâvûd, Tirmizî',
@@ -331,8 +359,12 @@ class _DuaCardState extends State<_DuaCard> {
                             : Colors.grey.shade600),
                     tooltip: widget.isEn ? 'Copy' : 'Kopyala',
                     onPressed: () {
+                      final pron = widget.isEn
+                          ? (dua['pronunciation_en'] ?? dua['pronunciation_tr'])
+                          : dua['pronunciation_tr'];
+                      final pronText = pron != null ? '\n\nOkunuşu: $pron' : '';
                       final text =
-                          '${dua['arabic']}\n\n${widget.isEn ? dua['meaning_en'] : dua['meaning_tr']}\n\n— ${dua['source']}';
+                          '${dua['arabic']}$pronText\n\nAnlamı: ${widget.isEn ? dua['meaning_en'] : dua['meaning_tr']}\n\n— ${dua['source']}';
                       Clipboard.setData(ClipboardData(text: text));
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -382,42 +414,95 @@ class _DuaCardState extends State<_DuaCard> {
                 ),
               ),
 
-              // Meaning (expanded)
+              // Expanded details (Pronunciation + Meaning)
               AnimatedCrossFade(
                 firstChild: const SizedBox.shrink(),
                 secondChild: Padding(
                   padding: const EdgeInsets.only(top: 12),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: widget.isDark
-                          ? widget.primaryColor.withValues(alpha: 0.1)
-                          : widget.primaryColor.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.isEn ? '📖 Meaning:' : '📖 Anlamı:',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                            color: widget.isDark ? Colors.green.shade300 : widget.primaryColor,
+                  child: Column(
+                    children: [
+                      // Pronunciation section
+                      if (dua['pronunciation_tr'] != null || dua['pronunciation_en'] != null) ...[
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: widget.isDark
+                                ? Colors.amber.withValues(alpha: 0.1)
+                                : Colors.amber.shade50,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: widget.isDark
+                                  ? Colors.amber.withValues(alpha: 0.25)
+                                  : Colors.amber.shade200,
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.isEn ? '🔤 Pronunciation:' : '🔤 Türkçe Okunuşu:',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  color: widget.isDark ? Colors.amber.shade300 : Colors.amber.shade900,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                (widget.isEn ? (dua['pronunciation_en'] ?? dua['pronunciation_tr']) : dua['pronunciation_tr']) ?? '',
+                                style: TextStyle(
+                                  fontSize: 13.5,
+                                  fontStyle: FontStyle.italic,
+                                  height: 1.4,
+                                  color: widget.isDark ? Colors.amber.shade100 : Colors.grey.shade900,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 6),
-                        Text(
-                          widget.isEn ? dua['meaning_en'] : dua['meaning_tr'],
-                          style: TextStyle(
-                            fontSize: 13,
-                            height: 1.4,
-                            color: widget.isDark ? Colors.white70 : Colors.black87,
-                          ),
-                        ),
+                        const SizedBox(height: 10),
                       ],
-                    ),
+
+                      // Meaning section
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: widget.isDark
+                              ? widget.primaryColor.withValues(alpha: 0.1)
+                              : widget.primaryColor.withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: widget.isDark
+                                ? widget.primaryColor.withValues(alpha: 0.2)
+                                : widget.primaryColor.withValues(alpha: 0.15),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.isEn ? '📖 Meaning:' : '📖 Anlamı:',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                                color: widget.isDark ? Colors.green.shade300 : widget.primaryColor,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              widget.isEn ? dua['meaning_en'] : dua['meaning_tr'],
+                              style: TextStyle(
+                                fontSize: 13,
+                                height: 1.4,
+                                color: widget.isDark ? Colors.white70 : Colors.black87,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 crossFadeState:

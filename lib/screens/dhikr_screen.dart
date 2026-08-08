@@ -81,6 +81,8 @@ class _DhikrScreenState extends State<DhikrScreen> {
   Widget build(BuildContext context) {
     final settingsProvider = context.watch<SettingsProvider>();
     final isEn = settingsProvider.appLanguage == 'en';
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = settingsProvider.primaryColor;
     final currentDhikr = _dhikrList[_selectedDhikrIndex];
 
     final isTargetReached = _target > 0 && _count >= _target;
@@ -88,7 +90,7 @@ class _DhikrScreenState extends State<DhikrScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(isEn ? 'Dhikr Counter 📿' : 'Zikirmatik 📿'),
-        backgroundColor: Colors.teal.shade800,
+        backgroundColor: primaryColor,
         foregroundColor: Colors.white,
         centerTitle: true,
         actions: [
@@ -105,11 +107,17 @@ class _DhikrScreenState extends State<DhikrScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Colors.teal.shade900,
-              Colors.green.shade900,
-              const Color(0xFF0F1210),
-            ],
+            colors: isDark
+                ? [
+                    Colors.teal.shade900,
+                    Colors.green.shade900,
+                    const Color(0xFF0F1210),
+                  ]
+                : [
+                    primaryColor.withValues(alpha: 0.15),
+                    primaryColor.withValues(alpha: 0.05),
+                    Colors.grey.shade50,
+                  ],
           ),
         ),
         child: SafeArea(
@@ -121,19 +129,24 @@ class _DhikrScreenState extends State<DhikrScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Card(
-                  color: Colors.white.withValues(alpha: 0.15),
+                  elevation: isDark ? 0 : 2,
+                  color: isDark ? Colors.white.withValues(alpha: 0.15) : Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(color: Colors.teal.shade300.withValues(alpha: 0.3)),
+                    side: BorderSide(
+                      color: isDark
+                          ? Colors.teal.shade300.withValues(alpha: 0.3)
+                          : primaryColor.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<int>(
                         value: _selectedDhikrIndex,
-                        dropdownColor: Colors.teal.shade900,
+                        dropdownColor: isDark ? Colors.teal.shade900 : Colors.white,
                         isExpanded: true,
-                        icon: const Icon(Icons.keyboard_arrow_down, color: Colors.amber),
+                        icon: Icon(Icons.keyboard_arrow_down, color: isDark ? Colors.amber : primaryColor),
                         items: List.generate(_dhikrList.length, (index) {
                           final item = _dhikrList[index];
                           final name = isEn ? item['name_en'] : item['name_tr'];
@@ -141,8 +154,8 @@ class _DhikrScreenState extends State<DhikrScreen> {
                             value: index,
                             child: Text(
                               '$name  (${item['arabic']})',
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: isDark ? Colors.white : Colors.black87,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 15,
                               ),
@@ -170,18 +183,29 @@ class _DhikrScreenState extends State<DhikrScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.35),
+                  color: isDark ? Colors.black.withValues(alpha: 0.35) : Colors.white,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
+                  border: Border.all(
+                    color: isDark ? Colors.amber.withValues(alpha: 0.4) : primaryColor.withValues(alpha: 0.3),
+                  ),
+                  boxShadow: isDark
+                      ? null
+                      : [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                 ),
                 child: Column(
                   children: [
                     Text(
                       currentDhikr['arabic'] ?? '',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 28,
-                        color: Colors.amber,
+                        color: isDark ? Colors.amber : primaryColor,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'serif',
                       ),
@@ -190,7 +214,11 @@ class _DhikrScreenState extends State<DhikrScreen> {
                     Text(
                       isEn ? (currentDhikr['meaning_en'] ?? '') : (currentDhikr['meaning_tr'] ?? ''),
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 13, color: Colors.white70),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: isDark ? Colors.white70 : Colors.grey.shade700,
+                      ),
                     ),
                   ],
                 ),
@@ -198,7 +226,7 @@ class _DhikrScreenState extends State<DhikrScreen> {
 
               const Spacer(),
 
-              // Target Selector Chips (Fixed contrast for light and dark theme)
+              // Target Selector Chips (Fixed high contrast for light and dark theme)
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [33, 99, 100, 0].map((targetVal) {
@@ -209,13 +237,15 @@ class _DhikrScreenState extends State<DhikrScreen> {
                     child: ChoiceChip(
                       label: Text(label),
                       selected: isSelected,
-                      backgroundColor: Colors.white.withValues(alpha: 0.15),
-                      selectedColor: Colors.amber.shade700,
+                      backgroundColor: isDark ? Colors.white.withValues(alpha: 0.15) : Colors.grey.shade200,
+                      selectedColor: isDark ? Colors.amber.shade700 : primaryColor,
                       side: BorderSide(
-                        color: isSelected ? Colors.amber.shade300 : Colors.white.withValues(alpha: 0.2),
+                        color: isSelected
+                            ? (isDark ? Colors.amber.shade300 : primaryColor)
+                            : (isDark ? Colors.white.withValues(alpha: 0.2) : Colors.grey.shade300),
                       ),
                       labelStyle: TextStyle(
-                        color: isSelected ? Colors.black : Colors.white,
+                        color: isSelected ? Colors.white : (isDark ? Colors.white : Colors.black87),
                         fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                       ),
                       onSelected: (_) {
@@ -230,7 +260,7 @@ class _DhikrScreenState extends State<DhikrScreen> {
 
               const SizedBox(height: 16),
 
-              // Main Interactive Counter Button
+              // Main Interactive Counter Button (Vibrant high contrast in both themes)
               GestureDetector(
                 onTap: _incrementCount,
                 child: AnimatedContainer(
@@ -244,13 +274,15 @@ class _DhikrScreenState extends State<DhikrScreen> {
                       end: Alignment.bottomRight,
                       colors: isTargetReached
                           ? [Colors.amber.shade600, Colors.orange.shade800]
-                          : [Colors.teal.shade500, Colors.teal.shade900],
+                          : (isDark
+                              ? [Colors.teal.shade500, Colors.teal.shade900]
+                              : [primaryColor, settingsProvider.primaryMaterialColor.shade800]),
                     ),
                     boxShadow: [
                       BoxShadow(
                         color: isTargetReached
                             ? Colors.amber.withValues(alpha: 0.6)
-                            : Colors.tealAccent.withValues(alpha: 0.3),
+                            : primaryColor.withValues(alpha: 0.4),
                         blurRadius: 24,
                         spreadRadius: 4,
                       ),
@@ -269,6 +301,13 @@ class _DhikrScreenState extends State<DhikrScreen> {
                           fontSize: 64,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black54,
+                              blurRadius: 10,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
                         ),
                       ),
                       if (_target > 0)
@@ -276,8 +315,15 @@ class _DhikrScreenState extends State<DhikrScreen> {
                           '/ $_target',
                           style: TextStyle(
                             fontSize: 16,
-                            color: isTargetReached ? Colors.black87 : Colors.white70,
+                            color: isTargetReached ? Colors.black87 : Colors.amber.shade200,
                             fontWeight: FontWeight.bold,
+                            shadows: const [
+                              Shadow(
+                                color: Colors.black45,
+                                blurRadius: 6,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
                           ),
                         ),
                       const SizedBox(height: 4),
@@ -287,9 +333,16 @@ class _DhikrScreenState extends State<DhikrScreen> {
                             : (isEn ? 'TAP TO COUNT' : 'DOKUN VE SAY'),
                         style: TextStyle(
                           fontSize: 11,
-                          color: isTargetReached ? Colors.black : Colors.amber.shade200,
+                          color: isTargetReached ? Colors.black : Colors.amber.shade100,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1.2,
+                          shadows: const [
+                            Shadow(
+                              color: Colors.black45,
+                              blurRadius: 6,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
                         ),
                       ),
                     ],
