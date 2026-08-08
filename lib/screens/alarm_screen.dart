@@ -49,12 +49,26 @@ class _AlarmScreenState extends State<AlarmScreen>
     _pulseAnimation = Tween<double>(begin: 0.95, end: 1.08).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
+
+    // Continuous Audio Handoff: Ensures Adhan sound keeps playing when user opens/taps AlarmScreen
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        try {
+          final settingsProvider = context.read<SettingsProvider>();
+          final soundKey = settingsProvider.adhanSound;
+          if (!AudioService().isPlaying && settingsProvider.adhanSoundEnabled) {
+            AudioService().playNotificationSound(soundKey);
+          }
+        } catch (_) {}
+      }
+    });
   }
 
   @override
   void dispose() {
     _clockTimer.cancel();
     _pulseController.dispose();
+    AudioService().stop();
     super.dispose();
   }
 

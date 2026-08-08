@@ -464,9 +464,10 @@ class NotificationService {
       ongoing: true,
       autoCancel: false,
       onlyAlertOnce: true,
-      showWhen: true,
+      showWhen: false,
       playSound: false,
       enableVibration: false,
+      silent: true,
     );
 
     const notificationDetails = NotificationDetails(

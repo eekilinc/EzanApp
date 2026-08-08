@@ -49,6 +49,20 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  String _lastOngoingTitle = '';
+  String _lastOngoingBody = '';
+
+  String _formatOngoingDuration(Duration duration, bool isEn) {
+    if (duration.isNegative) return '00:00';
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes % 60;
+    if (hours > 0) {
+      return '$hours ${isEn ? 'h' : 'sa'} ${minutes.toString().padLeft(2, '0')} ${isEn ? 'm' : 'dk'}';
+    } else {
+      return '$minutes ${isEn ? 'm' : 'dk'}';
+    }
+  }
+
   void _updateHomeWidget() {
     try {
       final prayerProvider = context.read<PrayerProvider>();
@@ -58,7 +72,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (nextPrayer != null) {
         final displayName = settingsProvider.tr(nextPrayer.name.toLowerCase());
+        final isEn = settingsProvider.appLanguage == 'en';
         final countdownStr = timeUntilNext != null ? _formatDuration(timeUntilNext) : '--:--:--';
+        final ongoingCountdownStr = timeUntilNext != null ? _formatOngoingDuration(timeUntilNext, isEn) : '--:--';
 
         WidgetService.updateWidget(
           prayerName: displayName,
@@ -75,12 +91,24 @@ class _HomeScreenState extends State<HomeScreen> {
           final citySuffix = rawCity.isNotEmpty ? ' | 📍 $rawCity' : '';
           final timeLabel = settingsProvider.tr('prayer_time_label');
           final countdownLabel = settingsProvider.tr('countdown_label');
-          NotificationService().showOngoingNotification(
-            title: '🕌 $displayName $timeLabel: ${nextPrayer.getDisplayTime()}',
-            body: '⏳ $countdownLabel: $countdownStr$citySuffix',
-          );
+
+          final title = '🕌 $displayName $timeLabel: ${nextPrayer.getDisplayTime()}';
+          final body = '⏳ $countdownLabel: $ongoingCountdownStr$citySuffix';
+
+          if (title != _lastOngoingTitle || body != _lastOngoingBody) {
+            _lastOngoingTitle = title;
+            _lastOngoingBody = body;
+            NotificationService().showOngoingNotification(
+              title: title,
+              body: body,
+            );
+          }
         } else {
-          NotificationService().cancelOngoingNotification();
+          if (_lastOngoingTitle.isNotEmpty || _lastOngoingBody.isNotEmpty) {
+            _lastOngoingTitle = '';
+            _lastOngoingBody = '';
+            NotificationService().cancelOngoingNotification();
+          }
         }
       }
     } catch (_) {}
