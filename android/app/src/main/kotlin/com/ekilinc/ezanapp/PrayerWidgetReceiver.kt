@@ -1,4 +1,4 @@
-package com.example.ezan_app
+package com.ekilinc.ezanapp
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
