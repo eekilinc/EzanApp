@@ -56,7 +56,7 @@ class _AlarmScreenState extends State<AlarmScreen>
         try {
           final settingsProvider = context.read<SettingsProvider>();
           final soundKey = settingsProvider.adhanSound;
-          if (!AudioService().isPlaying && settingsProvider.adhanSoundEnabled) {
+          if (settingsProvider.adhanSoundEnabled) {
             AudioService().playNotificationSound(soundKey);
           }
         } catch (_) {}
@@ -68,7 +68,6 @@ class _AlarmScreenState extends State<AlarmScreen>
   void dispose() {
     _clockTimer.cancel();
     _pulseController.dispose();
-    AudioService().stop();
     super.dispose();
   }
 

@@ -27,7 +27,27 @@ void main() async {
   await notificationService.initialize(
     onSelectNotification: (payload) {
       if (payload == 'alarm') {
-        navigatorKey.currentState?.pushNamed('/alarm');
+        bool isAlreadyOnAlarm = false;
+        navigatorKey.currentState?.popUntil((route) {
+          if (route.settings.name == '/alarm') {
+            isAlreadyOnAlarm = true;
+          }
+          return true;
+        });
+
+        if (!isAlreadyOnAlarm) {
+          navigatorKey.currentState?.pushNamed('/alarm');
+        } else {
+          final context = navigatorKey.currentContext;
+          if (context != null) {
+            try {
+              final settingsProvider = context.read<SettingsProvider>();
+              if (settingsProvider.adhanSoundEnabled) {
+                AudioService().playNotificationSound(settingsProvider.adhanSound);
+              }
+            } catch (_) {}
+          }
+        }
       } else {
         // Persistent status bar notification or home payload -> open main app screen
         navigatorKey.currentState?.popUntil((route) => route.isFirst);
