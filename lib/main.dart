@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'providers/prayer_provider.dart';
 import 'providers/settings_provider.dart';
 import 'services/notification_service.dart';
+import 'services/audio_service.dart';
 import 'screens/splash_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/settings_screen.dart';
