@@ -115,7 +115,7 @@ class AboutScreen extends StatelessWidget {
                         const Icon(Icons.stars, color: Colors.amber, size: 16),
                         const SizedBox(width: 6),
                         Text(
-                          '${settingsProvider.tr('version')} 4.0.1 PRODUCTION',
+                          '${settingsProvider.tr('version')} 4.0.2 PRODUCTION',
                           style: const TextStyle(
                             color: Colors.amber,
                             fontWeight: FontWeight.bold,

@@ -23,7 +23,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   late Future<void> _initializationFuture;
   Timer? _countdownTimer;
   int _widgetUpdateCounter = 0;
@@ -31,8 +31,26 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _initializationFuture = _initialize();
     _startCountdownTimer();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _countdownTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      if (mounted) {
+        setState(() {});
+        _updateHomeWidget();
+      }
+    }
   }
 
   void _startCountdownTimer() {
@@ -90,11 +108,13 @@ class _HomeScreenState extends State<HomeScreen> {
             rawCity = settingsProvider.tr('current_location');
           }
           final citySuffix = rawCity.isNotEmpty ? ' | 📍 $rawCity' : '';
-          final timeLabel = settingsProvider.tr('prayer_time_label');
-          final countdownLabel = settingsProvider.tr('countdown_label');
 
-          final title = '🕌 $displayName $timeLabel: ${nextPrayer.getDisplayTime()}';
-          final body = '⏳ $countdownLabel: $ongoingCountdownStr$citySuffix';
+          final title = isEn
+              ? '🕌 Next Prayer: $displayName (${nextPrayer.getDisplayTime()})'
+              : '🕌 Sıradaki Vakit: $displayName (${nextPrayer.getDisplayTime()})';
+          final body = isEn
+              ? '⏳ $ongoingCountdownStr remaining$citySuffix'
+              : '⏳ $ongoingCountdownStr kaldı$citySuffix';
 
           if (title != _lastOngoingTitle || body != _lastOngoingBody) {
             _lastOngoingTitle = title;
@@ -113,12 +133,6 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       }
     } catch (_) {}
-  }
-
-  @override
-  void dispose() {
-    _countdownTimer?.cancel();
-    super.dispose();
   }
 
   Future<void> _initialize() async {

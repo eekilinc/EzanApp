@@ -9,6 +9,23 @@ class AudioService extends ChangeNotifier {
   }
 
   AudioService._internal() {
+    try {
+      AudioPlayer.global.setAudioContext(AudioContext(
+        android: const AudioContextAndroid(
+          usageType: AndroidUsageType.alarm,
+          contentType: AndroidContentType.music,
+          audioFocus: AndroidAudioFocus.gainTransient,
+        ),
+        iOS: AudioContextIOS(
+          category: AVAudioSessionCategory.playback,
+          options: {
+            AVAudioSessionOptions.mixWithOthers,
+            AVAudioSessionOptions.duckOthers,
+          },
+        ),
+      ));
+    } catch (_) {}
+
     _audioPlayer.onPlayerComplete.listen((_) {
       _isPlaying = false;
       notifyListeners();
