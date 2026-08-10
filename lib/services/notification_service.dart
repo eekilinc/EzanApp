@@ -336,16 +336,15 @@ class NotificationService {
         visibility: NotificationVisibility.public,
         enableVibration: vibrationEnabled,
         vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
-        playSound: soundEnabled,
-        sound: soundEnabled ? _getSoundResource(soundKey) : null,
+        playSound: false,
         audioAttributesUsage: AudioAttributesUsage.alarm,
         category: AndroidNotificationCategory.alarm,
         fullScreenIntent: true,
       ),
-      iOS: DarwinNotificationDetails(
+      iOS: const DarwinNotificationDetails(
         presentAlert: true,
         presentBadge: true,
-        presentSound: soundEnabled,
+        presentSound: false,
       ),
     );
 

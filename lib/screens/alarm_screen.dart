@@ -56,7 +56,7 @@ class _AlarmScreenState extends State<AlarmScreen>
         try {
           final settingsProvider = context.read<SettingsProvider>();
           final soundKey = settingsProvider.adhanSound;
-          if (settingsProvider.adhanSoundEnabled) {
+          if (!AudioService().isPlaying && settingsProvider.adhanSoundEnabled) {
             AudioService().playNotificationSound(soundKey);
           }
         } catch (_) {}
