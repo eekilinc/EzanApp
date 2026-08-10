@@ -171,217 +171,227 @@ class _AlarmScreenState extends State<AlarmScreen>
         ? widget.prayerName
         : (nextPrayer != null ? settingsProvider.tr(nextPrayer.name.toLowerCase()) : 'Namaz Vakti');
 
-    return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF0F172A),
-              Color(0xFF064E3B),
-              Color(0xFF022C22),
-            ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        await AudioService().stop();
+        if (context.mounted) {
+          Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+        }
+      },
+      child: Scaffold(
+        body: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF0F172A),
+                Color(0xFF064E3B),
+                Color(0xFF022C22),
+              ],
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Top Header Badge
-                Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.amber.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.amber.withValues(alpha: 0.5)),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.alarm_on, color: Colors.amber, size: 18),
-                          const SizedBox(width: 6),
-                          Text(
-                            settingsProvider.tr('app_title'),
-                            style: const TextStyle(
-                              color: Colors.amber,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      dateStr,
-                      style: TextStyle(color: Colors.grey.shade400, fontSize: 13),
-                    ),
-                  ],
-                ),
-
-                // Central Animated Mosque Glow & Clock
-                Column(
-                  children: [
-                    ScaleTransition(
-                      scale: _pulseAnimation,
-                      child: Container(
-                        padding: const EdgeInsets.all(28),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Top Header Badge
+                  Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                         decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: const Color(0xFF065F46).withValues(alpha: 0.3),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF10B981).withValues(alpha: 0.4),
-                              blurRadius: 40,
-                              spreadRadius: 10,
+                          color: Colors.amber.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.amber.withValues(alpha: 0.5)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.alarm_on, color: Colors.amber, size: 18),
+                            const SizedBox(width: 6),
+                            Text(
+                              settingsProvider.tr('app_title'),
+                              style: const TextStyle(
+                                color: Colors.amber,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
                             ),
                           ],
                         ),
-                        child: const Icon(
-                          Icons.mosque,
-                          size: 72,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        dateStr,
+                        style: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                      ),
+                    ],
+                  ),
+
+                  // Central Animated Mosque Glow & Clock
+                  Column(
+                    children: [
+                      ScaleTransition(
+                        scale: _pulseAnimation,
+                        child: Container(
+                          padding: const EdgeInsets.all(28),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: const Color(0xFF065F46).withValues(alpha: 0.3),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF10B981).withValues(alpha: 0.4),
+                                blurRadius: 40,
+                                spreadRadius: 10,
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.mosque,
+                            size: 72,
+                            color: Colors.amber,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        timeStr,
+                        style: const TextStyle(
+                          fontSize: 48,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          letterSpacing: 2,
+                          shadows: [
+                            Shadow(color: Colors.black45, blurRadius: 10),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        widget.title,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
                           color: Colors.amber,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      timeStr,
-                      style: const TextStyle(
-                        fontSize: 48,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        letterSpacing: 2,
-                        shadows: [
-                          Shadow(color: Colors.black45, blurRadius: 10),
+                      const SizedBox(height: 6),
+                      Text(
+                        prayerDisplayName,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white70,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        widget.body,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade300,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // Action Buttons Section
+                  Column(
+                    children: [
+                      // Stop Alarm / Sound Button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: ElevatedButton.icon(
+                          onPressed: () async {
+                            await AudioService().stop();
+                            await NotificationService().cancelAllNotifications();
+                            if (context.mounted) {
+                              Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+                            }
+                          },
+                          icon: const Icon(Icons.stop_circle, size: 28),
+                          label: const Text(
+                            '🛑 EZANI DURDUR & ANA EKRANA GEÇ',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red.shade700,
+                            foregroundColor: Colors.white,
+                            elevation: 6,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      Row(
+                        children: [
+                          // Adhan Dua Button
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () => _showAdhanDuaModal(context, settingsProvider),
+                              icon: const Icon(Icons.menu_book, color: Colors.amber, size: 20),
+                              label: const Text(
+                                '🤲 Ezan Duası',
+                                style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                side: const BorderSide(color: Colors.amber, width: 1.5),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+
+                          // Go to App Button
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () async {
+                                await AudioService().stop();
+                                if (context.mounted) {
+                                  Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+                                }
+                              },
+                              icon: const Icon(Icons.home, size: 20),
+                              label: const Text(
+                                '📱 Ana Ekran',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF047857),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      widget.title,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.amber,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      prayerDisplayName,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white70,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      widget.body,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.shade300,
-                      ),
-                    ),
-                  ],
-                ),
-
-                // Action Buttons Section
-                Column(
-                  children: [
-                    // Stop Alarm / Sound Button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton.icon(
-                        onPressed: () async {
-                          await AudioService().stop();
-                          await NotificationService().cancelAllNotifications();
-                          if (context.mounted) {
-                            Navigator.of(context).popUntil((route) => route.isFirst);
-                          }
-                        },
-                        icon: const Icon(Icons.stop_circle, size: 28),
-                        label: const Text(
-                          '🛑 EZANI / SESİ DURDUR',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red.shade700,
-                          foregroundColor: Colors.white,
-                          elevation: 6,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    Row(
-                      children: [
-                        // Adhan Dua Button
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () => _showAdhanDuaModal(context, settingsProvider),
-                            icon: const Icon(Icons.menu_book, color: Colors.amber, size: 20),
-                            label: const Text(
-                              '🤲 Ezan Duası',
-                              style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold),
-                            ),
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              side: const BorderSide(color: Colors.amber, width: 1.5),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-
-                        // Go to App Button
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () async {
-                              await AudioService().stop();
-                              if (context.mounted) {
-                                Navigator.of(context).popUntil((route) => route.isFirst);
-                              }
-                            },
-                            icon: const Icon(Icons.home, size: 20),
-                            label: const Text(
-                              '📱 Uygulama',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF047857),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

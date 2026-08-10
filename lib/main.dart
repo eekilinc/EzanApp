@@ -50,8 +50,8 @@ void main() async {
           }
         }
       } else {
-        // Persistent status bar notification or home payload -> open main app screen
-        navigatorKey.currentState?.popUntil((route) => route.isFirst);
+        // Persistent status bar notification or home payload -> open main app screen cleanly
+        navigatorKey.currentState?.pushNamedAndRemoveUntil('/home', (route) => false);
       }
     },
   );
