@@ -22,6 +22,9 @@ Namaz vakitlerini görüp, özelleştirilebilir hatırlatmalar almak için bir F
 - **Location**: Geolocator
 - **Notifications**: flutter_local_notifications
 - **Audio**: audioplayers
+- **HTTP Client**: dio
+- **Home Screen Widget**: home_widget
+- **Compass**: flutter_compass
 
 ## Kurulum 📦
 
@@ -131,8 +134,7 @@ MIT License - Özgür kullanım, kopyalama, dağıtım
 ## Destek 💬
 
 Sorularınız ve önerileriniz için:
-- Issues: [GitHub Issues](https://github.com/your-username/ezan-app/issues)
-- Tartışmalar: [GitHub Discussions](https://github.com/your-username/ezan-app/discussions)
+- Issues: [GitHub Issues](https://github.com/eekilinc/EzanApp/issues)
 
 ## Katkı 🤝
 
@@ -146,6 +148,6 @@ Katkılarınız çok hoş geldiniz! Lütfen bir branch oluşturup pull request g
 
 ---
 
-**Version**: 1.0.0  
-**Last Updated**: 2026-07-22  
+**Version**: 4.0.4  
+**Last Updated**: 2026-08-24  
 **Developer**: Made with ❤️
