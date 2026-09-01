@@ -15,6 +15,7 @@ import '../services/hijri_service.dart';
 import '../widgets/animated_countdown.dart';
 import '../services/widget_service.dart';
 import '../services/notification_service.dart';
+import '../services/update_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -34,6 +35,23 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     _initializationFuture = _initialize();
     _startCountdownTimer();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAutomaticUpdates();
+    });
+  }
+
+  Future<void> _checkAutomaticUpdates() async {
+    try {
+      final updateInfo = await UpdateService.checkForUpdates(force: false);
+      if (mounted && updateInfo != null && updateInfo.isUpdateAvailable) {
+        final settingsProvider = context.read<SettingsProvider>();
+        UpdateService.showUpdateDialog(
+          context: context,
+          updateInfo: updateInfo,
+          settingsProvider: settingsProvider,
+        );
+      }
+    } catch (_) {}
   }
 
   @override

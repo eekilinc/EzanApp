@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/prayer_provider.dart';
 import '../services/audio_service.dart';
-import '../services/notification_service.dart';
+import '../constants/app_version.dart';
+import '../services/update_service.dart';
 import '../constants/reminders.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -1165,11 +1166,59 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                   const Divider(height: 32),
 
+                  // Check for Updates Tile
+                  ListTile(
+                    leading: Icon(Icons.system_update_alt, color: primaryColor),
+                    title: Text(
+                      settingsProvider.tr('check_for_updates'),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                    subtitle: Text(
+                      settingsProvider.tr('check_for_updates_desc'),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                      ),
+                    ),
+                    trailing: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: primaryColor.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        'v${AppVersion.version}',
+                        style: TextStyle(
+                          color: primaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                    onTap: () {
+                      UpdateService.performManualUpdateCheck(
+                        context: context,
+                        settingsProvider: settingsProvider,
+                      );
+                    },
+                  ),
+
                   // About Section Button
                   ListTile(
                     leading: Icon(Icons.info_outline, color: primaryColor),
-                    title: Text(settingsProvider.tr('about'), style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
-                    subtitle: Text('${settingsProvider.tr("app_title")} ${settingsProvider.tr("version")} 4.0.4', style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.grey.shade600)),
+                    title: Text(
+                      settingsProvider.tr('about'),
+                      style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                    ),
+                    subtitle: Text(
+                      '${settingsProvider.tr("app_title")} ${AppVersion.releaseName}',
+                      style: TextStyle(
+                        color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                      ),
+                    ),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       Navigator.pushNamed(context, '/about');

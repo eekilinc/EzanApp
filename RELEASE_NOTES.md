@@ -5,6 +5,8 @@
 
 ## 🎉 Sürüm 5.0.0 Final Sürüm Güncellemeleri
 
+- 🚀 **Uygulama İçi GitHub Güncelleme Sistemi (In-App Updater):** Yeni sürüm çıktığında uygulama içinde otomatik algılama, sürüm notlarını görüntüleme ve tek tıkla APK indirip güncelleme penceresi eklendi.
+- 📦 **Merkezi Dinamik Sürüm Yönetimi:** Tüm ekranlar, başlıklar ve ayarlar tek bir `AppVersion` kaynağından beslenecek şekilde dinamikleştirildi; versiyon uyumsuzlukları tamamen ortadan kaldırıldı.
 - ⏱️ **Namaz Vakti Manuel Tolerans / Düzeltme (Offset) Sistemi**: Her bir namaz vakti için (Sabah, Güneş, Öğle, İkindi, Akşam, Yatsı) yerel cami takviminize göre `+/- 15` dakikaya kadar manuel tolerans ekleyebilme imkanı. Tüm geri sayım sayaçları, vakit kartları, bildirimler ve aylık takvim bu toleranslarla tam senkron çalışır.
 - 📊 **Canlı Vakit İlerleme Çubuğu (Progress Indicator)**: Ana ekrandaki sayaç kartına mevcut namaz vakti aralığının tamamlanma yüzdesini gösteren canlı dinamik ilerleme çubuğu eklendi.
 - 🎨 **Modernize Edilmiş Arayüz & Vakit Kartları**: Vakit içi parıltı (glow), renk temasına göre dinamik uyum, tolerans rozetleri ve yumuşak cam morfolojisi efektleri geliştirildi.

@@ -49,6 +49,7 @@ Ezan Hatırlatıcı, sıradan vakit uygulamalarının ötesinde, her vakit için
 | 📿 **Dokunsal Zikirmatik** | 33, 99 ve Serbest modlu; Arapça metin, okunuş, mealler ve hedef tamamlandığında titreşimli uyarı. |
 | 📖 **Dualar & Sureler** | Namaz duaları, günlük dualar, Kuran'dan dualar; Arapça orijinal metin, Türkçe meal ve sesli dinleme. |
 | 📅 **Hicri & Dini Günler Takvimi** | Kandiller, Ramazan, Kadir Gecesi ve bayramlar için canlı kalan gün sayacı ve aylık namaz takvimi. |
+| 🚀 **Uygulama İçi GitHub Güncelleyici** | GitHub Releases API entegrasyonu; yeni sürüm çıktığında sürüm notları ve tek tıkla doğrudan APK indirme penceresi. |
 | ⚡ **0ms Çevrimdışı Önbellek** | Bellek içi + SharedPreferences çift katmanlı önbellek; internetsiz ortamda bile 30 günlük verilerle anında açılış. |
 | 🎨 **PRO Temalar & Material 3** | Sistem, Açık ve Koyu mod; Zümrüt, Safir, Turkuaz, Lal ve Kehribar renk paletleri. |
 | 🌍 **Çift Dil Desteği** | Türkçe 🇹🇷 ve İngilizce 🇬🇧 tam kapsamlı dil sözlüğü. |
@@ -59,6 +60,8 @@ Ezan Hatırlatıcı, sıradan vakit uygulamalarının ötesinde, her vakit için
 
 Kalıcı paket ve imza korunur; önceki sürümleri kaldırmadan doğrudan güncelleyebilirsiniz:
 
+- 🚀 **Uygulama İçi GitHub Güncelleme Sistemi:** Yeni bir sürüm çıktığında uygulama içinde otomatik algılama, sürüm notlarını görüntüleme ve tek tıkla APK indirip güncelleme desteği.
+- 📦 **Dinamik Sürüm Yönetimi:** Tüm ekranlarda ve ayarlarda merkezi `AppVersion` kaynağı; versiyon uyumsuzlukları ve manuel metin hataları tamamen sonlandırıldı.
 - ⏱️ **Namaz Vakti Manuel Tolerans (Offset) Motoru:** Bölgesel farklılıklar veya yerel cami saatleri için her vakte bağımsız `+/- 15 dk` ekleyebilme/çıkarabilme.
 - 📊 **Canlı Vakit İlerleme Çubuğu:** Ana sayaç kartında vakit aralığının ne kadarının tamamlandığını gösteren canlı bar.
 - 🎨 **Modernize Edilmiş Vakit Kartları:** Glow parıltı efektleri, tolerans rozetleri ve dinamik renk uyumu.

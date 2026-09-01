@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../constants/app_version.dart';
 import '../providers/settings_provider.dart';
+import '../services/update_service.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -39,96 +41,120 @@ class AboutScreen extends StatelessWidget {
         centerTitle: true,
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Hero Header Gradient Container with Glowing Mosque Logo
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 24),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: isDark
-                      ? [primaryColor.withValues(alpha: 0.9), const Color(0xFF0F172A)]
-                      : [primaryColor, primaryColor.withValues(alpha: 0.8)],
-                ),
-                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
-                boxShadow: [
-                  BoxShadow(
-                    color: primaryColor.withValues(alpha: 0.3),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
+      body: ListView(
+        children: [
+          // Hero Header
+          Container(
+            padding: const EdgeInsets.fromLTRB(24, 30, 24, 34),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [primaryColor, primaryColor.withValues(alpha: 0.8)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
-              child: Column(
-                children: [
-                  // App Icon with Glowing Ambient Shadow
-                  Container(
+              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(36)),
+            ),
+            child: Column(
+              children: [
+                Hero(
+                  tag: 'app_logo',
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.amber.withValues(alpha: 0.5),
-                          blurRadius: 30,
-                          spreadRadius: 4,
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 16,
+                          offset: const Offset(0, 8),
                         ),
                       ],
                     ),
-                    child: CircleAvatar(
-                      radius: 46,
-                      backgroundColor: Colors.white,
-                      child: CircleAvatar(
-                        radius: 42,
-                        backgroundColor: primaryColor,
-                        child: const Icon(
-                          Icons.mosque,
-                          size: 48,
-                          color: Colors.amber,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(50),
+                      child: Image.asset(
+                        'assets/images/app_logo.png',
+                        width: 90,
+                        height: 90,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          width: 90,
+                          height: 90,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.mosque,
+                            size: 48,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    settingsProvider.tr('app_title'),
-                    style: const TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      letterSpacing: 0.5,
-                    ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  settingsProvider.tr('app_title'),
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 0.5,
                   ),
-                  const SizedBox(height: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.amber.withValues(alpha: 0.25),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.amber, width: 1.5),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.stars, color: Colors.amber, size: 16),
-                        const SizedBox(width: 6),
-                        Text(
-                          '${settingsProvider.tr('version')} 5.0.0 FINAL RELEASE',
-                          style: const TextStyle(
-                            color: Colors.amber,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                            letterSpacing: 0.5,
-                          ),
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.withValues(alpha: 0.25),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.amber, width: 1.5),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.stars, color: Colors.amber, size: 16),
+                      const SizedBox(width: 6),
+                      Text(
+                        '${settingsProvider.tr('version')} ${AppVersion.releaseName}',
+                        style: const TextStyle(
+                          color: Colors.amber,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          letterSpacing: 0.5,
                         ),
-                      ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: () => UpdateService.performManualUpdateCheck(
+                    context: context,
+                    settingsProvider: settingsProvider,
+                  ),
+                  icon: const Icon(Icons.system_update_alt, size: 16, color: Colors.white),
+                  label: Text(
+                    settingsProvider.tr('check_for_updates'),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
                     ),
                   ),
-                ],
-              ),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.white70, width: 1.2),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  ),
+                ),
+              ],
             ),
+          ),
 
             Padding(
               padding: const EdgeInsets.all(20),
