@@ -262,9 +262,13 @@ class PrayerProvider extends ChangeNotifier {
       nextTime = tomorrowFajr;
     }
 
-    final totalDuration = nextTime.difference(prevTime).inSeconds;
+    final pTime = prevTime;
+    final nTime = nextTime;
+    if (pTime == null || nTime == null) return 0.0;
+
+    final totalDuration = nTime.difference(pTime).inSeconds;
     if (totalDuration <= 0) return 0.0;
-    final elapsed = now.difference(prevTime).inSeconds;
+    final elapsed = now.difference(pTime).inSeconds;
     return (elapsed / totalDuration).clamp(0.0, 1.0);
   }
 

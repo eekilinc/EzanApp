@@ -1298,16 +1298,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
             if (settingsProvider.prayerTimeOffsets.values.any((v) => v != 0))
               TextButton.icon(
                 onPressed: () async {
+                  final messenger = ScaffoldMessenger.of(context);
+                  final prayerProvider = context.read<PrayerProvider>();
+                  final resetMessage = settingsProvider.tr('offsets_reset_done');
+
                   await settingsProvider.resetPrayerTimeOffsets();
-                  if (context.mounted) {
-                    await context.read<PrayerProvider>().loadPrayerTimes(settingsProvider);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(settingsProvider.tr('offsets_reset_done')),
-                        duration: const Duration(seconds: 2),
-                      ),
-                    );
-                  }
+                  await prayerProvider.loadPrayerTimes(settingsProvider);
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text(resetMessage),
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
                 },
                 icon: const Icon(Icons.refresh, size: 16),
                 label: Text(
