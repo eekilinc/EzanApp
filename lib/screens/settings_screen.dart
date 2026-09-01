@@ -1213,22 +1213,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
         child: Row(
           children: [
-            Radio<int>(
-              value: methodCode,
-              groupValue: settingsProvider.calcMethod,
-              activeColor: primaryColor,
-              onChanged: (value) {
-                if (value != null && value != settingsProvider.calcMethod) {
-                  settingsProvider.setCalcMethod(value);
-                  context.read<PrayerProvider>().loadPrayerTimes(settingsProvider);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('${settingsProvider.tr(titleKey)} seçildi. Vakitler güncelleniyor... 🕌'),
-                      duration: const Duration(seconds: 2),
-                    ),
-                  );
-                }
-              },
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              child: Icon(
+                isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                color: isSelected ? (isDark ? Colors.amber : primaryColor) : (isDark ? Colors.grey.shade600 : Colors.grey.shade400),
+                size: 22,
+              ),
             ),
             const SizedBox(width: 4),
             Expanded(

@@ -243,32 +243,29 @@ class PrayerProvider extends ChangeNotifier {
     final now = DateTime.now();
     if (prayers.isEmpty) return 0.0;
 
-    DateTime? prevTime;
-    DateTime? nextTime;
+    DateTime prevTime = prayers.first.time.subtract(const Duration(hours: 4));
+    DateTime nextTime = prayers.first.time.add(const Duration(days: 1));
 
+    bool found = false;
     for (int i = 0; i < prayers.length; i++) {
       if (prayers[i].time.isAfter(now)) {
         nextTime = prayers[i].time;
         prevTime = i > 0
             ? prayers[i - 1].time
             : prayers[i].time.subtract(const Duration(hours: 4));
+        found = true;
         break;
       }
     }
 
-    if (nextTime == null) {
+    if (!found) {
       prevTime = prayers.last.time;
-      final tomorrowFajr = prayers.first.time.add(const Duration(days: 1));
-      nextTime = tomorrowFajr;
+      nextTime = prayers.first.time.add(const Duration(days: 1));
     }
 
-    final pTime = prevTime;
-    final nTime = nextTime;
-    if (pTime == null || nTime == null) return 0.0;
-
-    final totalDuration = nTime.difference(pTime).inSeconds;
+    final totalDuration = nextTime.difference(prevTime).inSeconds;
     if (totalDuration <= 0) return 0.0;
-    final elapsed = now.difference(pTime).inSeconds;
+    final elapsed = now.difference(prevTime).inSeconds;
     return (elapsed / totalDuration).clamp(0.0, 1.0);
   }
 
