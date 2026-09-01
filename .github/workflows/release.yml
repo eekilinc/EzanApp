@@ -1,56 +1,131 @@
-name: Create Release
+name: Build and Release Final
 
 on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      version_tag:
+        description: 'Release Tag (e.g. v5.0.0)'
+        required: false
+        default: 'v5.0.0'
 
 permissions:
   contents: write
 
 jobs:
   build_and_release:
+    name: 🚀 Build APK & AAB and Create GitHub Release
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@v2
+      - name: ☕ Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 💙 Set up Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          cache: true
 
-      - name: Get dependencies
+      - name: 🔑 Configure Release Keystore Signing (if secret provided)
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "Decoding release keystore from GitHub Secret..."
+            echo "$KEYSTORE_BASE64" | base64 --decode > android/app/upload-keystore.jks
+            echo "storePassword=$KEYSTORE_PASSWORD" > android/key.properties
+            echo "keyPassword=$KEY_PASSWORD" >> android/key.properties
+            echo "keyAlias=$KEY_ALIAS" >> android/key.properties
+            echo "storeFile=upload-keystore.jks" >> android/key.properties
+            echo "✅ Keystore and key.properties configured for production signing."
+          else
+            echo "ℹ️ No ANDROID_KEYSTORE_BASE64 secret found. Using default release configuration."
+          fi
+
+      - name: 📦 Get Flutter Dependencies
         run: flutter pub get
 
-      - name: Build APK
+      - name: 🧪 Run Tests
+        run: flutter test
+
+      - name: 🔨 Build Release APK
         run: flutter build apk --release
 
-      - name: Prepare Dynamic Release APK Name
-        run: |
-          TAG_NAME="${{ github.ref_name }}"
-          cp build/app/outputs/flutter-apk/app-release.apk "build/app/outputs/flutter-apk/EzanApp-${TAG_NAME}.apk"
+      - name: 📦 Build Release Android App Bundle (AAB for Google Play)
+        run: flutter build appbundle --release
 
-      - name: Create Release
+      - name: 🏷️ Determine Release Tag & Prepare Artifacts
+        id: prepare_artifacts
+        run: |
+          if [ -n "${{ github.event.inputs.version_tag }}" ]; then
+            TAG="${{ github.event.inputs.version_tag }}"
+          elif [ -n "${{ github.ref_name }}" ]; then
+            TAG="${{ github.ref_name }}"
+          else
+            TAG="v5.0.0"
+          fi
+          
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          
+          mkdir -p release_artifacts
+          cp build/app/outputs/flutter-apk/app-release.apk "release_artifacts/EzanApp-${TAG}.apk"
+          cp build/app/outputs/bundle/release/app-release.aab "release_artifacts/EzanApp-${TAG}.aab"
+          
+          echo "SHA256 Checksums:" > release_artifacts/checksums.txt
+          sha256sum "release_artifacts/EzanApp-${TAG}.apk" >> release_artifacts/checksums.txt
+          sha256sum "release_artifacts/EzanApp-${TAG}.aab" >> release_artifacts/checksums.txt
+          cat release_artifacts/checksums.txt
+
+      - name: 🚀 Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: build/app/outputs/flutter-apk/EzanApp-${{ github.ref_name }}.apk
+          tag_name: ${{ steps.prepare_artifacts.outputs.tag }}
+          name: "🕌 Ezan Hatırlatıcı ${{ steps.prepare_artifacts.outputs.tag }} (Final Release)"
+          files: |
+            release_artifacts/EzanApp-${{ steps.prepare_artifacts.outputs.tag }}.apk
+            release_artifacts/EzanApp-${{ steps.prepare_artifacts.outputs.tag }}.aab
+            release_artifacts/checksums.txt
           body: |
-            ## 🎉 Ezan Hatırlatıcı ${{ github.ref_name }}
+            # 🕌 Ezan Hatırlatıcı ${{ steps.prepare_artifacts.outputs.tag }} - Final Sürüm
 
-            ### 📦 İndirme
-            - **Android APK**: `EzanApp-${{ github.ref_name }}.apk`
+            Namaz vakitleri, canlı geri sayım, ezan sesleri, Kıble pusulası ve zikirmatik içeren hepsi bir arada İslami yaşam asistanı.
 
-            ### ✨ Yenilikler ve Öne Çıkan Özellikler
-            - ⏱️ **Canlı Geri Sayım Sayacı**: Sonraki namaz vaktine kalan canlı saat, dakika ve saniye gösterimi
-            - 🔔 **Dinamik Bildirim Sistemı**: Vakit öncesinde veya vakit girdikten (sonra) zamanlanabilen bildirimler
-            - 🎨 **PRO Renk Temaları**: Zümrüt, Safir, Turkuaz, Bordo ve Kehribar renk seçenekleri
-            - 🗓️ **İnteraktif Çift Takvim**: Miladi & Hicri tarih görünümü ve dini günler sayaçları
-            - 🕌 **Mekke & Medine Sesli Ezan Kayıtları**: 5 farklı dünya ezanı ve uyarı ses tonu
-            - 📶 **Çevrimdışı (Offline) Önbellekleme**: İnternetsiz çalışma ve 30 günlük otomatik zamanlama
+            ---
 
-            ### 🛠️ Teknik Stack
-            - Flutter 3.38.5 & Dart 3.10.4
-            - AlarmClock System Level Local Notifications
-            - Provider State Management
+            ### 📦 İndirme Bağlantıları (Download)
+            * 📱 **Android APK (Doğrudan Cihaza Kurulum):** [`EzanApp-${{ steps.prepare_artifacts.outputs.tag }}.apk`](https://github.com/${{ github.repository }}/releases/download/${{ steps.prepare_artifacts.outputs.tag }}/EzanApp-${{ steps.prepare_artifacts.outputs.tag }}.apk)
+            * 🏬 **Android App Bundle (Google Play Store Hazır):** [`EzanApp-${{ steps.prepare_artifacts.outputs.tag }}.aab`](https://github.com/${{ github.repository }}/releases/download/${{ steps.prepare_artifacts.outputs.tag }}/EzanApp-${{ steps.prepare_artifacts.outputs.tag }}.aab)
+
+            ---
+
+            ### 🎉 v5.0.0 Final Sürüm Yenilikleri ve Öne Çıkanlar
+            * ⏱️ **Namaz Vakti Manuel Tolerans (Offset) Ayarı:** Her namaz vakti için yerel cami takviminize göre `+/- 15` dakikaya kadar ince ayar yapabilme.
+            * 📊 **Canlı Vakit İlerleme Çubuğu:** Sonraki vakte kalan süreyi ve mevcut vakit aralığının tamamlanma yüzdesini gösteren dinamik gösterge.
+            * 🕌 **5 Farklı Dünya Ezanı & Özel Manevi Tonlar:** Mekke, Medine, İstanbul, Kahire ve Mescid-i Aksa ezanları; Ney, Çağrı müziği ve Salavat tonları.
+            * 🧭 **Canlı Donanımsal Kıble Pusulası:** Titreşimli Kabe hizalanma algılayıcısı ve yön hesaplama.
+            * 📿 **Zikirmatik & Sure/Dualar:** Dokunsal titreşimli sayaç, namaz duaları ve Kuran'dan dualar.
+            * 📅 **Miladi & Hicri Takvim:** Dini günler, kandiller, bayramlar ve kalan gün sayacı.
+            * 🔐 **Güvenli Android İmzalaması:** Google Play Store ve Android cihazlar için optimize edilmiş, imzalı üretim paketleri.
+            * ⚡ **0ms Çevrimdışı Önbellekleme:** İnternet bağlantısı olmasa bile kesintisiz çalışma.
+
+            ---
+
+            ### 🛠️ Teknik Özellikler
+            * **Framework:** Flutter 3.38+ & Dart 3.10+
+            * **State Management:** Provider
+            * **Architecture:** Offline-First Layered Architecture
+            * **Lisans:** MIT Open Source
           draft: false
           prerelease: false

@@ -1051,6 +1051,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
 
+                  // Manual Prayer Time Offset / Tolerance Section
+                  _buildManualOffsetSection(
+                    context: context,
+                    settingsProvider: settingsProvider,
+                    isDark: isDark,
+                    primaryColor: primaryColor,
+                    cardBgColor: cardBgColor,
+                  ),
+
                   const Divider(height: 32, thickness: 1.5),
 
                   // Reminder times section
@@ -1249,5 +1258,188 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildManualOffsetSection({
+    required BuildContext context,
+    required SettingsProvider settingsProvider,
+    required bool isDark,
+    required Color primaryColor,
+    required Color cardBgColor,
+  }) {
+    final offsetPrayers = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    settingsProvider.tr('manual_time_adjust'),
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    settingsProvider.tr('manual_time_adjust_desc'),
+                    style: const TextStyle(color: Colors.grey, fontSize: 13),
+                  ),
+                ],
+              ),
+            ),
+            if (settingsProvider.prayerTimeOffsets.values.any((v) => v != 0))
+              TextButton.icon(
+                onPressed: () async {
+                  await settingsProvider.resetPrayerTimeOffsets();
+                  if (context.mounted) {
+                    await context.read<PrayerProvider>().loadPrayerTimes(settingsProvider);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(settingsProvider.tr('offsets_reset_done')),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                },
+                icon: const Icon(Icons.refresh, size: 16),
+                label: Text(
+                  settingsProvider.tr('reset_offsets'),
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Card(
+          elevation: 2,
+          color: cardBgColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            child: Column(
+              children: offsetPrayers.map((prayer) {
+                final displayName = settingsProvider.tr(prayer.toLowerCase());
+                final offset = settingsProvider.getPrayerTimeOffset(prayer);
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: offset != 0
+                              ? (offset > 0 ? Colors.green : Colors.orange).withValues(alpha: 0.15)
+                              : (isDark ? Colors.white.withValues(alpha: 0.06) : primaryColor.withValues(alpha: 0.08)),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          _getSettingsPrayerIcon(prayer),
+                          size: 18,
+                          color: offset != 0
+                              ? (offset > 0 ? (isDark ? Colors.greenAccent : Colors.green.shade800) : Colors.orange.shade800)
+                              : (isDark ? Colors.grey.shade300 : primaryColor),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          displayName,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                      ),
+                      // Value badge
+                      Container(
+                        constraints: const BoxConstraints(minWidth: 52),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: offset != 0
+                              ? (offset > 0 ? Colors.green : Colors.orange).withValues(alpha: 0.18)
+                              : (isDark ? Colors.grey.shade800 : Colors.grey.shade200),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          '${offset > 0 ? '+' : ''}$offset dk',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            color: offset != 0
+                                ? (offset > 0 ? (isDark ? Colors.greenAccent : Colors.green.shade800) : Colors.orange.shade800)
+                                : (isDark ? Colors.grey.shade400 : Colors.grey.shade700),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      // Decrement button
+                      IconButton(
+                        visualDensity: VisualDensity.compact,
+                        icon: const Icon(Icons.remove_circle_outline, size: 22),
+                        color: offset > -15 ? primaryColor : Colors.grey,
+                        onPressed: offset > -15
+                            ? () async {
+                                await settingsProvider.setPrayerTimeOffset(prayer, offset - 1);
+                                if (context.mounted) {
+                                  context.read<PrayerProvider>().loadPrayerTimes(settingsProvider);
+                                }
+                              }
+                            : null,
+                      ),
+                      // Increment button
+                      IconButton(
+                        visualDensity: VisualDensity.compact,
+                        icon: const Icon(Icons.add_circle_outline, size: 22),
+                        color: offset < 15 ? primaryColor : Colors.grey,
+                        onPressed: offset < 15
+                            ? () async {
+                                await settingsProvider.setPrayerTimeOffset(prayer, offset + 1);
+                                if (context.mounted) {
+                                  context.read<PrayerProvider>().loadPrayerTimes(settingsProvider);
+                                }
+                              }
+                            : null,
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  IconData _getSettingsPrayerIcon(String name) {
+    switch (name.toLowerCase()) {
+      case 'fajr':
+        return Icons.dark_mode_outlined;
+      case 'sunrise':
+        return Icons.wb_sunny_outlined;
+      case 'dhuhr':
+        return Icons.wb_sunny;
+      case 'asr':
+        return Icons.wb_twilight;
+      case 'maghrib':
+        return Icons.nightlight_round;
+      case 'isha':
+        return Icons.nights_stay;
+      default:
+        return Icons.access_time_filled;
+    }
   }
 }

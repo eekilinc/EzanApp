@@ -41,12 +41,14 @@ class PrayerProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _prayerTimes = await _apiService.getPrayerTimesForToday(
+      final rawTimes = await _apiService.getPrayerTimesForToday(
         latitude: _location!.latitude,
         longitude: _location!.longitude,
         school: settingsProvider?.asrSchool ?? 'standard',
         calcMethod: settingsProvider?.calcMethod ?? 13,
       );
+
+      _prayerTimes = rawTimes.withOffsets(settingsProvider?.prayerTimeOffsets);
 
       // Schedule multi-day notifications for upcoming prayers using settings
       await scheduleNotifications(
@@ -62,6 +64,7 @@ class PrayerProvider extends ChangeNotifier {
         reminderSoundEnabled: settingsProvider?.reminderSoundEnabled,
         fridayReminderEnabled: settingsProvider?.fridayReminderEnabled ?? true,
         sahurReminderEnabled: settingsProvider?.sahurReminderEnabled ?? false,
+        prayerOffsets: settingsProvider?.prayerTimeOffsets,
       );
 
       _isLoading = false;
@@ -86,6 +89,7 @@ class PrayerProvider extends ChangeNotifier {
     bool? reminderSoundEnabled,
     bool fridayReminderEnabled = true,
     bool sahurReminderEnabled = false,
+    Map<String, int>? prayerOffsets,
   }) async {
     if (_prayerTimes == null || _location == null) return;
 
@@ -126,7 +130,8 @@ class PrayerProvider extends ChangeNotifier {
         } catch (_) {}
       }
 
-      for (final dayTimes in allDays) {
+      for (final rawDayTimes in allDays) {
+        final dayTimes = rawDayTimes.withOffsets(prayerOffsets);
         final dayDiff = dayTimes.date.difference(todayMidnight).inDays;
         // Schedule for today and next 7 days only for maximum performance and OS memory efficiency
         if (dayDiff < 0 || dayDiff > 7) continue;
@@ -216,6 +221,51 @@ class PrayerProvider extends ChangeNotifier {
 
   List<String> getCityList() {
     return _locationService.getCityList();
+  }
+
+  PrayerEntry? getCurrentPrayer() {
+    if (_prayerTimes == null) return null;
+    final prayers = _prayerTimes!.getPrayerList();
+    final now = DateTime.now();
+
+    PrayerEntry? current;
+    for (final prayer in prayers) {
+      if (prayer.time.isBefore(now)) {
+        current = prayer;
+      }
+    }
+    return current ?? (prayers.isNotEmpty ? prayers.last : null);
+  }
+
+  double getPrayerProgress() {
+    if (_prayerTimes == null) return 0.0;
+    final prayers = _prayerTimes!.getPrayerList();
+    final now = DateTime.now();
+    if (prayers.isEmpty) return 0.0;
+
+    DateTime? prevTime;
+    DateTime? nextTime;
+
+    for (int i = 0; i < prayers.length; i++) {
+      if (prayers[i].time.isAfter(now)) {
+        nextTime = prayers[i].time;
+        prevTime = i > 0
+            ? prayers[i - 1].time
+            : prayers[i].time.subtract(const Duration(hours: 4));
+        break;
+      }
+    }
+
+    if (nextTime == null) {
+      prevTime = prayers.last.time;
+      final tomorrowFajr = prayers.first.time.add(const Duration(days: 1));
+      nextTime = tomorrowFajr;
+    }
+
+    final totalDuration = nextTime.difference(prevTime).inSeconds;
+    if (totalDuration <= 0) return 0.0;
+    final elapsed = now.difference(prevTime).inSeconds;
+    return (elapsed / totalDuration).clamp(0.0, 1.0);
   }
 
   PrayerEntry? getNextPrayer() {

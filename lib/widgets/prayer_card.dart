@@ -66,6 +66,8 @@ class _PrayerCardState extends State<PrayerCard>
   Widget build(BuildContext context) {
     final settingsProvider = context.watch<SettingsProvider>();
     final displayName = settingsProvider.tr(widget.prayer.name.toLowerCase());
+    final offset = settingsProvider.getPrayerTimeOffset(widget.prayer.name);
+
     final String reminderText;
     if (widget.minutesBefore == 0) {
       reminderText = settingsProvider.tr('exact_time');
@@ -90,14 +92,14 @@ class _PrayerCardState extends State<PrayerCard>
                 decoration: BoxDecoration(
                   color: widget.isNext
                       ? primaryColor
-                      : (isDark ? Colors.grey.shade800 : Colors.grey.shade100),
+                      : (isDark ? Colors.white.withValues(alpha: 0.08) : primaryColor.withValues(alpha: 0.08)),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   _getPrayerIcon(widget.prayer.name),
                   color: widget.isNext
                       ? Colors.white
-                      : (isDark ? Colors.grey.shade400 : Colors.grey.shade600),
+                      : (isDark ? Colors.grey.shade300 : primaryColor),
                   size: 20,
                 ),
               ),
@@ -105,17 +107,36 @@ class _PrayerCardState extends State<PrayerCard>
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    displayName,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight:
-                              widget.isNext ? FontWeight.bold : FontWeight.w600,
-                          color: widget.isNext
-                              ? (isDark
-                                  ? Colors.green.shade200
-                                  : Colors.green.shade900)
-                              : (isDark ? Colors.white : Colors.black87),
+                  Row(
+                    children: [
+                      Text(
+                        displayName,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: widget.isNext ? FontWeight.bold : FontWeight.w600,
+                              color: widget.isNext
+                                  ? (isDark ? Colors.white : primaryColor)
+                                  : (isDark ? Colors.white : Colors.black87),
+                            ),
+                      ),
+                      if (offset != 0) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: (offset > 0 ? Colors.green : Colors.orange).withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            '${offset > 0 ? '+' : ''}$offset m',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: offset > 0 ? (isDark ? Colors.greenAccent : Colors.green.shade800) : Colors.orange.shade800,
+                            ),
+                          ),
                         ),
+                      ],
+                    ],
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -123,12 +144,8 @@ class _PrayerCardState extends State<PrayerCard>
                     style: TextStyle(
                       fontSize: 12,
                       color: widget.isNext
-                          ? (isDark
-                              ? Colors.green.shade300
-                              : Colors.green.shade700)
-                          : (isDark
-                              ? Colors.grey.shade400
-                              : Colors.grey.shade600),
+                          ? (isDark ? Colors.white70 : primaryColor.withValues(alpha: 0.8))
+                          : (isDark ? Colors.grey.shade400 : Colors.grey.shade600),
                     ),
                   ),
                 ],
@@ -143,20 +160,24 @@ class _PrayerCardState extends State<PrayerCard>
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: widget.isNext
-                          ? (isDark
-                              ? Colors.green.shade300
-                              : Colors.green.shade700)
+                          ? (isDark ? Colors.white : primaryColor)
                           : (isDark ? Colors.white : Colors.black87),
                     ),
               ),
               if (widget.isNext)
                 Container(
                   margin: const EdgeInsets.only(top: 4),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
                     color: primaryColor,
                     borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: primaryColor.withValues(alpha: 0.3),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: Text(
                     settingsProvider.tr('next_prayer'),
@@ -178,28 +199,26 @@ class _PrayerCardState extends State<PrayerCard>
         animation: _glowAnimation!,
         builder: (context, child) {
           return Card(
-            elevation: 2 + (_glowAnimation!.value * 4),
+            elevation: 2 + (_glowAnimation!.value * 3),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
               side: BorderSide(
-                color: Colors.green.shade400
-                    .withValues(alpha: 0.4 + (_glowAnimation!.value * 0.6)),
-                width: 2,
+                color: primaryColor.withValues(alpha: 0.3 + (_glowAnimation!.value * 0.5)),
+                width: 1.8,
               ),
             ),
             color: isDark
-                ? Colors.green.shade900.withValues(alpha: 0.5)
-                : Colors.green.shade50,
+                ? primaryColor.withValues(alpha: 0.25)
+                : primaryColor.withValues(alpha: 0.08),
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.green
-                        .withValues(alpha: 0.15 * _glowAnimation!.value),
-                    blurRadius: 12 * _glowAnimation!.value,
-                    spreadRadius: 2 * _glowAnimation!.value,
+                    color: primaryColor.withValues(alpha: 0.12 * _glowAnimation!.value),
+                    blurRadius: 10 * _glowAnimation!.value,
+                    spreadRadius: 1 * _glowAnimation!.value,
                   ),
                 ],
               ),

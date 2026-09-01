@@ -22,8 +22,18 @@ class SettingsProvider extends ChangeNotifier {
   bool _ongoingNotificationEnabled = false;
   bool _fridayReminderEnabled = true;
   bool _sahurReminderEnabled = false;
+  Map<String, int> _prayerTimeOffsets = {
+    'Fajr': 0,
+    'Sunrise': 0,
+    'Dhuhr': 0,
+    'Asr': 0,
+    'Maghrib': 0,
+    'Isha': 0,
+  };
 
   Map<String, int> get reminderMinutes => _reminderMinutes;
+  Map<String, int> get prayerTimeOffsets => _prayerTimeOffsets;
+  int getPrayerTimeOffset(String prayer) => _prayerTimeOffsets[prayer] ?? 0;
   bool get soundEnabled => _soundEnabled;
   bool get adhanSoundEnabled => _adhanSoundEnabled;
   bool get reminderSoundEnabled => _reminderSoundEnabled;
@@ -123,6 +133,14 @@ class SettingsProvider extends ChangeNotifier {
     _fridayReminderEnabled = _prefs.getBool('friday_reminder_enabled') ?? true;
     _sahurReminderEnabled = _prefs.getBool('sahur_reminder_enabled') ?? false;
     _prayerTimesViewMode = _prefs.getString('prayer_times_view_mode') ?? 'standard';
+
+    final offsetsJson = _prefs.getString('prayer_time_offsets');
+    if (offsetsJson != null) {
+      try {
+        final decoded = jsonDecode(offsetsJson) as Map<String, dynamic>;
+        _prayerTimeOffsets = decoded.map((k, v) => MapEntry(k, v as int));
+      } catch (_) {}
+    }
 
     final themeStr = _prefs.getString('theme_mode') ?? 'system';
     if (themeStr == 'light') {
@@ -248,6 +266,32 @@ class SettingsProvider extends ChangeNotifier {
   Future<void> setPrayerTimesViewMode(String mode) async {
     _prayerTimesViewMode = mode;
     await _prefs.setString('prayer_times_view_mode', mode);
+    notifyListeners();
+  }
+
+  Future<void> setPrayerTimeOffset(String prayer, int offsetMinutes) async {
+    _prayerTimeOffsets = Map<String, int>.from(_prayerTimeOffsets);
+    _prayerTimeOffsets[prayer] = offsetMinutes;
+    await _prefs.setString(
+      'prayer_time_offsets',
+      jsonEncode(_prayerTimeOffsets),
+    );
+    notifyListeners();
+  }
+
+  Future<void> resetPrayerTimeOffsets() async {
+    _prayerTimeOffsets = {
+      'Fajr': 0,
+      'Sunrise': 0,
+      'Dhuhr': 0,
+      'Asr': 0,
+      'Maghrib': 0,
+      'Isha': 0,
+    };
+    await _prefs.setString(
+      'prayer_time_offsets',
+      jsonEncode(_prayerTimeOffsets),
+    );
     notifyListeners();
   }
 

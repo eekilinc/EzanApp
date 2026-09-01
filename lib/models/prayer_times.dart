@@ -58,6 +58,22 @@ class PrayerTimes {
   String get maghribTime => _formatTime(timings['Maghrib']);
   String get ishaTime => _formatTime(timings['Isha']);
 
+  PrayerTimes withOffsets(Map<String, int>? offsets) {
+    if (offsets == null || offsets.isEmpty) return this;
+    final adjustedTimings = Map<String, DateTime>.from(timings);
+    offsets.forEach((prayerName, offsetMinutes) {
+      if (offsetMinutes != 0 && adjustedTimings.containsKey(prayerName)) {
+        adjustedTimings[prayerName] =
+            adjustedTimings[prayerName]!.add(Duration(minutes: offsetMinutes));
+      }
+    });
+    return PrayerTimes(
+      date: date,
+      timings: adjustedTimings,
+      createdAt: createdAt,
+    );
+  }
+
   List<PrayerEntry> getPrayerList() {
     final prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
     return prayers

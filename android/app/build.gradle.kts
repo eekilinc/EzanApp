@@ -14,6 +14,17 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
+val envKeyAlias = System.getenv("KEY_ALIAS") ?: (keystoreProperties["keyAlias"] as String?)
+val envKeyPassword = System.getenv("KEY_PASSWORD") ?: (keystoreProperties["keyPassword"] as String?)
+val envStorePassword = System.getenv("STORE_PASSWORD") ?: (keystoreProperties["storePassword"] as String?)
+val envStoreFile = System.getenv("STORE_FILE") ?: (keystoreProperties["storeFile"] as String?)
+
+val isSigningConfigured = !envKeyAlias.isNullOrEmpty() &&
+        !envKeyPassword.isNullOrEmpty() &&
+        !envStorePassword.isNullOrEmpty() &&
+        !envStoreFile.isNullOrEmpty() &&
+        (file(envStoreFile).exists() || rootProject.file(envStoreFile).exists())
+
 android {
     namespace = "com.ekilinc.ezanapp"
     compileSdk = flutter.compileSdkVersion
@@ -39,16 +50,19 @@ android {
 
     signingConfigs {
         create("release") {
-            keyAlias = keystoreProperties["keyAlias"] as String? ?: ""
-            keyPassword = keystoreProperties["keyPassword"] as String? ?: ""
-            storeFile = keystoreProperties["storeFile"]?.let { file(it) }
-            storePassword = keystoreProperties["storePassword"] as String? ?: ""
+            if (isSigningConfigured) {
+                keyAlias = envKeyAlias
+                keyPassword = envKeyPassword
+                val resolvedStoreFile = if (file(envStoreFile!!).exists()) file(envStoreFile) else rootProject.file(envStoreFile)
+                storeFile = resolvedStoreFile
+                storePassword = envStorePassword
+            }
         }
     }
 
     buildTypes {
         release {
-            signingConfig = if (keystorePropertiesFile.exists()) {
+            signingConfig = if (isSigningConfigured) {
                 signingConfigs.getByName("release")
             } else {
                 signingConfigs.getByName("debug")

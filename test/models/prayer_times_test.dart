@@ -65,6 +65,33 @@ void main() {
       expect(prayers[0].name, 'Fajr');
       expect(prayers[4].name, 'Isha');
     });
+
+    test('withOffsets adjusts timings correctly', () {
+      final json = {
+        'date': {
+          'gregorian': {'date': '22-7-2026'}
+        },
+        'timings': {
+          'Fajr': '05:30',
+          'Dhuhr': '12:30',
+          'Asr': '15:45',
+          'Maghrib': '18:15',
+          'Isha': '19:30',
+        }
+      };
+
+      final prayerTimes = PrayerTimes.fromJson(json);
+      final adjusted = prayerTimes.withOffsets({
+        'Fajr': 5,
+        'Maghrib': -3,
+        'Isha': 0,
+      });
+
+      expect(adjusted.fajrTime, '05:35');
+      expect(adjusted.dhuhrTime, '12:30');
+      expect(adjusted.maghribTime, '18:12');
+      expect(adjusted.ishaTime, '19:30');
+    });
   });
 
   group('PrayerEntry', () {

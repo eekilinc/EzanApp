@@ -709,7 +709,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       // Next Prayer Live Countdown Banner
                       Container(
                         width: double.infinity,
-                        margin: const EdgeInsets.all(16),
+                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -719,50 +719,97 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
-                          borderRadius: BorderRadius.circular(22),
+                          borderRadius: BorderRadius.circular(24),
                           boxShadow: [
                             BoxShadow(
-                              color: primaryColor.withValues(alpha: isDark ? 0.2 : 0.35),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
+                              color: primaryColor.withValues(alpha: isDark ? 0.3 : 0.35),
+                              blurRadius: 16,
+                              offset: const Offset(0, 6),
                             ),
                           ],
                         ),
                         child: Column(
                           children: [
-                            Text(
-                              settingsProvider.tr('next_prayer'),
-                              style: TextStyle(
-                                color: Colors.green.shade100,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1.3,
-                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.18),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.alarm_on_rounded, size: 14, color: Colors.amberAccent),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        settingsProvider.tr('next_prayer'),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 0.8,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                if (settingsProvider.prayerTimeOffsets.values.any((v) => v != 0))
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: Colors.amber.withValues(alpha: 0.25),
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(color: Colors.amber.shade300, width: 0.8),
+                                    ),
+                                    child: const Text(
+                                      '⏱️ Offset',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                              ],
                             ),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: 10),
                             Text(
                               nextDisplayName,
                               style: const TextStyle(
                                 color: Colors.white,
-                                fontSize: 24,
+                                fontSize: 26,
                                 fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
                               ),
                             ),
                             if (nextPrayer != null) ...[
+                              const SizedBox(height: 2),
                               Text(
                                 nextPrayer.getDisplayTime(),
                                 style: TextStyle(
-                                  color: Colors.green.shade100,
+                                  color: Colors.white.withValues(alpha: 0.85),
                                   fontSize: 16,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 14),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                                 decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.25),
+                                  color: Colors.black.withValues(alpha: 0.3),
                                   borderRadius: BorderRadius.circular(30),
-                                  border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                                  border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.2),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
                                 ),
                                 child: timeUntilNext != null
                                     ? AnimatedCountdown(
@@ -776,6 +823,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
+                              ),
+                              const SizedBox(height: 14),
+                              // Live Prayer Interval Progress Bar
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: LinearProgressIndicator(
+                                  value: prayerProvider.getPrayerProgress(),
+                                  minHeight: 5,
+                                  backgroundColor: Colors.white.withValues(alpha: 0.2),
+                                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.amberAccent),
+                                ),
                               ),
                             ],
                           ],

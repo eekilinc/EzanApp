@@ -115,7 +115,7 @@ class AboutScreen extends StatelessWidget {
                         const Icon(Icons.stars, color: Colors.amber, size: 16),
                         const SizedBox(width: 6),
                         Text(
-                          '${settingsProvider.tr('version')} 4.0.4 PRODUCTION',
+                          '${settingsProvider.tr('version')} 5.0.0 FINAL RELEASE',
                           style: const TextStyle(
                             color: Colors.amber,
                             fontWeight: FontWeight.bold,
@@ -239,6 +239,13 @@ class AboutScreen extends StatelessWidget {
                             color: Colors.blue.shade700,
                             title: 'Android Ana Ekran Canlı Widget\'ı',
                             desc: 'Telefon ana ekranında sonraki vakit ve canlı geri sayım takibi.',
+                            isDark: isDark,
+                          ),
+                          _buildModernFeatureTile(
+                            icon: Icons.tune,
+                            color: Colors.teal.shade700,
+                            title: 'Namaz Vakti Manuel Tolerans (Offset)',
+                            desc: 'Her vakit için yerel cami takviminize göre +/- 15 dakikaya kadar manuel ince ayar.',
                             isDark: isDark,
                           ),
                           _buildModernFeatureTile(

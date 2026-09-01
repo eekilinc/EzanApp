@@ -1,3 +1,19 @@
+# Ezan Hatırlatıcı v5.0.0 - Final Release Notes
+
+**Tarih**: 2026-09-02
+**Sürüm**: 5.0.0+80
+
+## 🎉 Sürüm 5.0.0 Final Sürüm Güncellemeleri
+
+- ⏱️ **Namaz Vakti Manuel Tolerans / Düzeltme (Offset) Sistemi**: Her bir namaz vakti için (Sabah, Güneş, Öğle, İkindi, Akşam, Yatsı) yerel cami takviminize göre `+/- 15` dakikaya kadar manuel tolerans ekleyebilme imkanı. Tüm geri sayım sayaçları, vakit kartları, bildirimler ve aylık takvim bu toleranslarla tam senkron çalışır.
+- 📊 **Canlı Vakit İlerleme Çubuğu (Progress Indicator)**: Ana ekrandaki sayaç kartına mevcut namaz vakti aralığının tamamlanma yüzdesini gösteren canlı dinamik ilerleme çubuğu eklendi.
+- 🎨 **Modernize Edilmiş Arayüz & Vakit Kartları**: Vakit içi parıltı (glow), renk temasına göre dinamik uyum, tolerans rozetleri ve yumuşak cam morfolojisi efektleri geliştirildi.
+- 🔐 **Gelişmiş Android Release İmzalaması**: `build.gradle.kts` ve `generate_keystore.sh` ile hem yerel geliştirme ortamında `key.properties` hem de GitHub Actions CI/CD ortamında secrets tabanlı otomatik üretim imzalaması sağlandı.
+- 🚀 **GitHub Actions CI/CD Otomasyonu**: Hem doğrudan kurulum için APK (`EzanApp-v5.0.0.apk`) hem de Google Play Store için AAB (`EzanApp-v5.0.0.aab`) derleyip SHA256 sağlama toplamları ile otomatik GitHub Release oluşturan iş akışı güncellendi.
+- 🌍 **Zenginleştirilmiş Çift Dilli Lokalizasyon**: Tüm yeni özellikler, ayarlar ve toast mesajları Türkçe 🇹🇷 ve İngilizce 🇬🇧 olarak entegre edildi.
+
+---
+
 # Ezan Hatırlatıcı v2.0.0 - Release Notes
 
 **Tarih**: 2026-07-23
