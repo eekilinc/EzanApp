@@ -179,6 +179,6 @@ Bu proje **[MIT Lisansı](LICENSE)** kapsamında özgür bir yazılımdır. Tica
 ---
 
 <p align="center">
-  Geliştirici: <strong><a href="https://github.com/eekilinc">Emirhan Kılınç (@eekilinc)</a></strong><br>
+  Geliştirici: <strong><a href="https://github.com/eekilinc">Ekrem Eşref Kılınç (@eekilinc)</a></strong><br>
   Made with ❤️ for the Muslim Community
 </p>
