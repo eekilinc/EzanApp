@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/prayer_provider.dart';
 import '../services/audio_service.dart';
+import '../services/notification_service.dart';
 import '../constants/app_version.dart';
 import '../services/update_service.dart';
 import '../constants/reminders.dart';

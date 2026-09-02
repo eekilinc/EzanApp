@@ -391,8 +391,7 @@ class AboutScreen extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildModernFeatureTile({
