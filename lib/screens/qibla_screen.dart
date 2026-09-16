@@ -21,6 +21,31 @@ class _QiblaScreenState extends State<QiblaScreen> {
   bool _hasCompassSensor = false;
   bool _manualMode = false;
   bool _wasAligned = false;
+  // WMM sapması konum başına önbelleklenir (her sensör örneğinde yeniden
+  // hesaplanmaz).
+  double? _cachedDeclination;
+  double? _cachedDeclLat;
+  double? _cachedDeclLon;
+
+  /// Hizalanma eşiği (±derece). WMM düzeltmesiyle daraltıldı.
+  static const double _alignTolerance = 4.0;
+
+  double _declinationFor(double lat, double lon) {
+    if (_cachedDeclination == null ||
+        _cachedDeclLat == null ||
+        (lat - _cachedDeclLat!).abs() > 0.01 ||
+        (lon - _cachedDeclLon!).abs() > 0.01) {
+      try {
+        _cachedDeclination =
+            QiblaService.magneticDeclination(lat, lon);
+      } catch (_) {
+        _cachedDeclination = 0.0;
+      }
+      _cachedDeclLat = lat;
+      _cachedDeclLon = lon;
+    }
+    return _cachedDeclination!;
+  }
 
   @override
   void initState() {
@@ -53,7 +78,15 @@ class _QiblaScreenState extends State<QiblaScreen> {
         // Bazı cihazlar geçersiz okumada negatif başlık gönderir — örneği atla.
         if (event.heading == null || event.heading! < 0) return;
         if (mounted && !_manualMode) {
-          final targetHeading = (event.heading! + 360) % 360;
+          // Sensör manyetik kuzeyi verir -> WMM2025 ile gerçek kuzeye çevir.
+          var magnetic = (event.heading! + 360) % 360;
+          try {
+            final loc = context.read<PrayerProvider>().location;
+            if (loc != null) {
+              magnetic = (magnetic + _declinationFor(loc.latitude, loc.longitude)) % 360;
+            }
+          } catch (_) {}
+          final targetHeading = (magnetic + 360) % 360;
           final smoothed = _smoothHeading(_deviceHeading, targetHeading);
           // Hizalanma titreşimi build() içinde değil burada (side-effect güvenli).
           var aligned = _wasAligned;
@@ -63,7 +96,8 @@ class _QiblaScreenState extends State<QiblaScreen> {
               final q = QiblaService.calculateQiblaDirection(
                   loc.latitude, loc.longitude);
               final rel = (q - smoothed + 360) % 360;
-              final nowAligned = (rel < 6 || rel > 354);
+              final nowAligned = (rel < _alignTolerance ||
+                  rel > 360 - _alignTolerance);
               if (nowAligned && !_wasAligned) {
                 HapticFeedback.mediumImpact();
               }
@@ -134,10 +168,12 @@ class _QiblaScreenState extends State<QiblaScreen> {
         : null;
 
     // Calculate relative rotation angle for needle/dial relative to device heading
+    // (_deviceHeading artık WMM düzeltmeli gerçek başlıktır.)
     final relativeQiblaAngle =
         qiblaAngle != null ? (qiblaAngle - _deviceHeading + 360) % 360 : 0.0;
-    final isAligned =
-        qiblaAngle != null && (relativeQiblaAngle < 6 || relativeQiblaAngle > 354);
+    final isAligned = qiblaAngle != null &&
+        (relativeQiblaAngle < _alignTolerance ||
+            relativeQiblaAngle > 360 - _alignTolerance);
 
     // Manuel modda hizalanma rozeti canlı titreşim üretmez; _wasAligned
     // yalnızca canlı sensör akışında güncellenir (listener içinde).

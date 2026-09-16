@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'wmm2025.dart';
 
 class QiblaService {
   // Kaaba (Mecca) coordinates
@@ -18,11 +19,9 @@ class QiblaService {
 
   /// Calculates Qibla direction (in degrees from True North 0..360°).
   ///
-  /// NOT: Telefon pusulası manyetik kuzeyi verir, bu formül gerçek
-  /// (coğrafi) kuzeye göre açı hesaplar. Aradaki manyetik sapma
-  /// (deklinasyon, Türkiye'de ~+5°) cihaza ve konuma göre değişir;
-  /// hassas hizalama için ekrandaki manuel kalibrasyon kaydırıcısı
-  /// bu farkı kapatmak içindir.
+  /// NOT: Telefon pusulası manyetik kuzeyi verir; sensör okuması
+  /// [trueHeadingFromMagnetic] (WMM2025) ile gerçek kuzeye çevrilmeden
+  /// bu açıyla karşılaştırılmamalıdır.
   static double calculateQiblaDirection(double latitude, double longitude) {
     validateCoordinates(latitude, longitude);
     final phi1 = _degreesToRadians(latitude);
@@ -37,6 +36,29 @@ class QiblaService {
     qiblaAngle = _radiansToDegrees(qiblaAngle);
 
     return (qiblaAngle + 360) % 360;
+  }
+
+  /// WMM2025 manyetik sapması (deklinasyon, derece, doğu pozitif).
+  /// Telefon pusulası manyetik kuzeyi verir; gerçek başlık =
+  /// `(manyetik + sapma) % 360`.
+  static double magneticDeclination(
+    double latitude,
+    double longitude, [
+    DateTime? date,
+  ]) {
+    validateCoordinates(latitude, longitude);
+    return Wmm2025.declination(latitude, longitude, date);
+  }
+
+  /// Manyetik pusula başlığını gerçek (coğrafi) kuzeye çevirir.
+  static double trueHeadingFromMagnetic(
+    double magneticHeading,
+    double latitude,
+    double longitude, [
+    DateTime? date,
+  ]) {
+    final d = magneticDeclination(latitude, longitude, date);
+    return (magneticHeading + d + 360) % 360;
   }
 
   /// Calculates distance to Kaaba in kilometers
