@@ -338,8 +338,6 @@ class NotificationService {
     final scheduledTzDateTime = _toTZDateTime(scheduledTime);
     final channelId = _getChannelId(soundKey);
 
-    final androidImplementation = _notificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
     await _ensureChannel(
       channelId: channelId,
       soundKey: soundKey,

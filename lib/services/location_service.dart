@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -83,8 +84,10 @@ class LocationService {
     } catch (_) {}
 
     try {
+      // geocoding 5.x: üst düzey fonksiyon yerine Geocoding sınıfı.
       final placemarks = await geo
-          .placemarkFromCoordinates(latitude, longitude, localeIdentifier: 'tr')
+          .Geocoding(locale: const Locale('tr'))
+          .placemarkFromCoordinates(latitude, longitude)
           .timeout(const Duration(seconds: 4));
       if (placemarks.isEmpty) return null;
       final p = placemarks.first;
