@@ -529,7 +529,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 );
               }
 
-              final prayers = prayerProvider.prayerTimes!.getPrayerList();
+              final prayers = prayerProvider.prayerTimes!.getTimelineList();
               final nextPrayer = prayerProvider.getNextPrayer();
               final timeUntilNext = prayerProvider.getTimeUntilNextPrayer();
               final nextDisplayName = nextPrayer != null

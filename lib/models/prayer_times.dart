@@ -75,6 +75,7 @@ class PrayerTimes {
   }
 
   List<PrayerEntry> getPrayerList() {
+    // Sadece ezan okunan 5 vakit (Güneş hariç — Güneş'te ezan okunmaz)
     final prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
     return prayers
         .where((prayer) => timings.containsKey(prayer))
@@ -84,6 +85,19 @@ class PrayerTimes {
             ))
         .toList();
   }
+
+  /// Sayaç, ilerleme çubuğu ve kart listesi için 6'lı zaman çizelgesi
+  /// (Sabah -> Güneş -> Öğle -> İkindi -> Akşam -> Yatsı).
+  List<PrayerEntry> getTimelineList() {
+    const timeline = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+    return timeline
+        .where((name) => timings.containsKey(name))
+        .map((name) => PrayerEntry(name: name, time: timings[name]!))
+        .toList();
+  }
+
+  /// Güneş doğumunda ezan okunmaz — sadece sessiz/kısa hatırlatma verilir.
+  static bool isAdhanTime(String name) => name != 'Sunrise';
 }
 
 class PrayerEntry {

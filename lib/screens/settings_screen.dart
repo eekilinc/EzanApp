@@ -25,6 +25,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           vibrationEnabled: settingsProvider.vibrationEnabled,
           soundKey: settingsProvider.notificationSound,
           asrSchool: settingsProvider.asrSchool,
+          calcMethod: settingsProvider.calcMethod,
+          adhanSoundKey: settingsProvider.adhanSound,
+          adhanSoundEnabled: settingsProvider.effectiveAdhanSoundEnabled,
+          reminderSoundKey: settingsProvider.reminderSound,
+          reminderSoundEnabled: settingsProvider.effectiveReminderSoundEnabled,
+          fridayReminderEnabled: settingsProvider.fridayReminderEnabled,
+          sahurReminderEnabled: settingsProvider.sahurReminderEnabled,
+          prayerOffsets: settingsProvider.prayerTimeOffsets,
         );
   }
 

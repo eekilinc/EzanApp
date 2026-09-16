@@ -59,9 +59,9 @@ class PrayerProvider extends ChangeNotifier {
         asrSchool: settingsProvider?.asrSchool ?? 'standard',
         calcMethod: settingsProvider?.calcMethod ?? 13,
         adhanSoundKey: settingsProvider?.adhanSound,
-        adhanSoundEnabled: settingsProvider?.adhanSoundEnabled,
+        adhanSoundEnabled: settingsProvider?.effectiveAdhanSoundEnabled,
         reminderSoundKey: settingsProvider?.reminderSound,
-        reminderSoundEnabled: settingsProvider?.reminderSoundEnabled,
+        reminderSoundEnabled: settingsProvider?.effectiveReminderSoundEnabled,
         fridayReminderEnabled: settingsProvider?.fridayReminderEnabled ?? true,
         sahurReminderEnabled: settingsProvider?.sahurReminderEnabled ?? false,
         prayerOffsets: settingsProvider?.prayerTimeOffsets,
@@ -136,19 +136,53 @@ class PrayerProvider extends ChangeNotifier {
         // Schedule for today and next 7 days only for maximum performance and OS memory efficiency
         if (dayDiff < 0 || dayDiff > 7) continue;
 
-        final prayers = dayTimes.getPrayerList();
+        final prayers = dayTimes.getTimelineList();
         for (final prayer in prayers) {
           final reminderMinutes = reminders[prayer.name] ?? defaultReminderMinutes[prayer.name] ?? 5;
-          await _notificationService.schedulePrayerNotification(
-            prayerName: prayer.name,
-            prayerTime: prayer.time,
-            minutesBefore: reminderMinutes,
-            vibrationEnabled: vibrationEnabled,
-            adhanSoundKey: finalAdhanSound,
-            adhanSoundEnabled: finalAdhanEnabled,
-            reminderSoundKey: finalReminderSound,
-            reminderSoundEnabled: finalReminderEnabled,
-          );
+          if (prayer.name == 'Sunrise') {
+            // Güneş doğumunda ezan okunmaz — sadece kısa hatırlatma.
+            final sunriseTime = prayer.time;
+            if (!sunriseTime.isBefore(now) && finalReminderEnabled) {
+              await _notificationService.scheduleNotification(
+                id: ('${sunriseTime.year}${sunriseTime.month.toString().padLeft(2, '0')}${sunriseTime.day.toString().padLeft(2, '0')}Sunrise_exact').hashCode & 0x7FFFFFFF,
+                title: '🌅 Güneş Doğdu',
+                body: 'Kerahat vakti çıktı. Sabah namazı vakti sona erdi.',
+                scheduledTime: sunriseTime,
+                soundEnabled: finalReminderEnabled,
+                vibrationEnabled: vibrationEnabled,
+                soundKey: finalReminderSound,
+              );
+            }
+            if (reminderMinutes != 0) {
+              final DateTime reminderTime = reminderMinutes > 0
+                  ? sunriseTime.subtract(Duration(minutes: reminderMinutes))
+                  : sunriseTime.add(Duration(minutes: reminderMinutes.abs()));
+              if (!reminderTime.isBefore(now)) {
+                await _notificationService.scheduleNotification(
+                  id: ('${sunriseTime.year}${sunriseTime.month.toString().padLeft(2, '0')}${sunriseTime.day.toString().padLeft(2, '0')}Sunrise_reminder').hashCode & 0x7FFFFFFF,
+                  title: '🌅 Güneş Hatırlatması ⏰',
+                  body: reminderMinutes > 0
+                      ? 'Güneş doğumuna $reminderMinutes dakika kaldı.'
+                      : 'Güneş doğalı ${reminderMinutes.abs()} dakika oldu.',
+                  scheduledTime: reminderTime,
+                  soundEnabled: finalReminderEnabled,
+                  vibrationEnabled: vibrationEnabled,
+                  soundKey: finalReminderSound,
+                );
+              }
+            }
+          } else {
+            await _notificationService.schedulePrayerNotification(
+              prayerName: prayer.name,
+              prayerTime: prayer.time,
+              minutesBefore: reminderMinutes,
+              vibrationEnabled: vibrationEnabled,
+              adhanSoundKey: finalAdhanSound,
+              adhanSoundEnabled: finalAdhanEnabled,
+              reminderSoundKey: finalReminderSound,
+              reminderSoundEnabled: finalReminderEnabled,
+            );
+          }
 
           // Special Friday Alert (1 hour before Friday Dhuhr)
           if (fridayReminderEnabled && prayer.name == 'Dhuhr' && prayer.time.weekday == DateTime.friday) {
@@ -185,9 +219,23 @@ class PrayerProvider extends ChangeNotifier {
       }
     } catch (_) {
       // Fallback to today's prayer times if monthly fetch fails
-      final prayers = _prayerTimes!.getPrayerList();
+      final prayers = _prayerTimes!.getTimelineList();
       for (final prayer in prayers) {
         final reminderMinutes = reminders[prayer.name] ?? defaultReminderMinutes[prayer.name] ?? 5;
+        if (prayer.name == 'Sunrise') {
+          if (!prayer.time.isBefore(DateTime.now())) {
+            await _notificationService.scheduleNotification(
+              id: ('fallback${prayer.time.day}Sunrise').hashCode & 0x7FFFFFFF,
+              title: '🌅 Güneş Doğdu',
+              body: 'Kerahat vakti çıktı. Sabah namazı vakti sona erdi.',
+              scheduledTime: prayer.time,
+              soundEnabled: finalReminderEnabled,
+              vibrationEnabled: vibrationEnabled,
+              soundKey: finalReminderSound,
+            );
+          }
+          continue;
+        }
         await _notificationService.schedulePrayerNotification(
           prayerName: prayer.name,
           prayerTime: prayer.time,
@@ -225,21 +273,26 @@ class PrayerProvider extends ChangeNotifier {
 
   PrayerEntry? getCurrentPrayer() {
     if (_prayerTimes == null) return null;
-    final prayers = _prayerTimes!.getPrayerList();
+    // 6'lı zaman çizelgesi: gece yarısından sonra (Sabah'tan önce)
+    // dünün Yatsı'sındayız — bugünün gelecek Yatsı'sını değil, null dönüp
+    // UI'nin "dün Yatsı" durumunu göstermesine izin veriyoruz.
+    final prayers = _prayerTimes!.getTimelineList();
     final now = DateTime.now();
 
     PrayerEntry? current;
     for (final prayer in prayers) {
-      if (prayer.time.isBefore(now)) {
+      if (!prayer.time.isAfter(now)) {
         current = prayer;
+      } else {
+        break;
       }
     }
-    return current ?? (prayers.isNotEmpty ? prayers.last : null);
+    return current;
   }
 
   double getPrayerProgress() {
     if (_prayerTimes == null) return 0.0;
-    final prayers = _prayerTimes!.getPrayerList();
+    final prayers = _prayerTimes!.getTimelineList();
     final now = DateTime.now();
     if (prayers.isEmpty) return 0.0;
 
@@ -272,7 +325,8 @@ class PrayerProvider extends ChangeNotifier {
   PrayerEntry? getNextPrayer() {
     if (_prayerTimes == null) return null;
 
-    final prayers = _prayerTimes!.getPrayerList();
+    // Güneş dahil 6'lı çizelge: Sabah'tan sonra sıradaki Güneş'tir.
+    final prayers = _prayerTimes!.getTimelineList();
     final now = DateTime.now();
 
     for (final prayer in prayers) {

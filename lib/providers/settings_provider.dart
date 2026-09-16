@@ -37,6 +37,10 @@ class SettingsProvider extends ChangeNotifier {
   bool get soundEnabled => _soundEnabled;
   bool get adhanSoundEnabled => _adhanSoundEnabled;
   bool get reminderSoundEnabled => _reminderSoundEnabled;
+  // Ana ses anahtarı kapalıyken alt tercihler korunur ama efektif olarak sessizdir.
+  bool get effectiveAdhanSoundEnabled => _soundEnabled && _adhanSoundEnabled;
+  bool get effectiveReminderSoundEnabled =>
+      _soundEnabled && _reminderSoundEnabled;
   bool get vibrationEnabled => _vibrationEnabled;
   String get notificationSound => _adhanSound;
   String get adhanSound => _adhanSound;
@@ -109,16 +113,26 @@ class SettingsProvider extends ChangeNotifier {
 
   Future<void> _loadSettings() async {
     final remindersJson = _prefs.getString('reminder_minutes');
+    // Eski kayıtlarda Sunrise anahtarı olmayabilir — varsayılanlarla birleştir.
+    final baseReminders = Map<String, int>.from(defaultReminderMinutes);
     if (remindersJson != null) {
-      final decoded = jsonDecode(remindersJson) as Map<String, dynamic>;
-      _reminderMinutes = decoded.cast<String, int>();
-    } else {
-      _reminderMinutes = Map<String, int>.from(defaultReminderMinutes);
+      try {
+        final decoded = jsonDecode(remindersJson) as Map<String, dynamic>;
+        for (final entry in decoded.entries) {
+          final v = entry.value;
+          if (v is int) {
+            baseReminders[entry.key] = v;
+          } else if (v is num) {
+            baseReminders[entry.key] = v.toInt();
+          }
+        }
+      } catch (_) {}
     }
+    _reminderMinutes = baseReminders;
 
     _soundEnabled = _prefs.getBool('sound_enabled') ?? true;
-    _adhanSoundEnabled = _prefs.getBool('adhan_sound_enabled') ?? _soundEnabled;
-    _reminderSoundEnabled = _prefs.getBool('reminder_sound_enabled') ?? _soundEnabled;
+    _adhanSoundEnabled = _prefs.getBool('adhan_sound_enabled') ?? true;
+    _reminderSoundEnabled = _prefs.getBool('reminder_sound_enabled') ?? true;
     _vibrationEnabled = _prefs.getBool('vibration_enabled') ?? true;
     
     // Load separate sounds with fallbacks
@@ -165,12 +179,11 @@ class SettingsProvider extends ChangeNotifier {
   }
 
   Future<void> setSoundEnabled(bool enabled) async {
+    // Sadece ana anahtarı değiştirir — alt ezan/hatırlatıcı tercihleri korunur.
+    // Efektif ses durumu effectiveAdhanSoundEnabled / effectiveReminderSoundEnabled
+    // üzerinden hesaplanır.
     _soundEnabled = enabled;
-    _adhanSoundEnabled = enabled;
-    _reminderSoundEnabled = enabled;
     await _prefs.setBool('sound_enabled', enabled);
-    await _prefs.setBool('adhan_sound_enabled', enabled);
-    await _prefs.setBool('reminder_sound_enabled', enabled);
     notifyListeners();
   }
 

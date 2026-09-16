@@ -1,3 +1,20 @@
+# Ezan Hatırlatıcı v5.0.2 - Final Release Notes
+
+**Tarih**: 2026-09-16
+**Sürüm**: 5.0.2+82
+
+## 🎉 Sürüm 5.0.2 Final Sürüm Güncellemeleri (Bug-Fix)
+
+- 🌅 **Güneş (Sunrise) Zaman Çizelgesi:** Sabah namazından sonraki sıradaki vakit artık Güneş olarak gösteriliyor. Sayaç, ilerleme çubuğu, vakit kartları ve bildirimler 6'lı çizelgeyle (Sabah → Güneş → Öğle → İkindi → Akşam → Yatsı) tam senkron çalışıyor. Güneş doğumunda ezan okunmaz, kısa hatırlatma bildirimi veriliyor.
+- 🔔 **Bildirim Sesi Düzeltmesi:** Zamanlanmış bildirimlerde `playSound: false` sabitliği kaldırıldı; kanal sesi (ezan/hatırlatıcı) artık ayara uygun şekilde çalıyor, kapalıysa gerçekten sessiz.
+- 🌙 **Gece Yarısı Mevcut-Vakit Düzeltmesi:** 00:00–Sabah arası `getCurrentPrayer()` artık bugünün gelecek Yatsı'sını değil `null` dönüyor; sonraki vakit hesabı (yarın Sabah) zaten doğru çalışıyordu.
+- 🔊 **Ses Tercihleri Korunması:** Ana ses anahtarı artık ezan/hatırlatıcı alt tercihlerini ezmiyor; efektif durum `effectiveAdhanSoundEnabled` / `effectiveReminderSoundEnabled` üzerinden hesaplanıyor. Eski kayıtlardaki eksik Sunrise hatırlatıcı anahtarı varsayılanla birleştiriliyor.
+- 📅 **Aylık Takvim Tutarlılığı:** Aylık tabloya `calcMethod` ve manuel tolerans (`withOffsets`) uygulandı.
+- 🔧 **Teknik:** `ApiService` arka plan yenilemede `unawaited()` kullanımı, `release.yml` sürüm varsayılanları güncellendi (`v5.0.2`), `flutter.yml` analiz komutu `flutter analyze` olarak düzeltildi.
+- 🧪 **Testler:** `getTimelineList` / `isAdhanTime` ve hatırlatıcı sabitleri için yeni birim testleri eklendi.
+
+---
+
 # Ezan Hatırlatıcı v5.0.1 - Final Release Notes
 
 **Tarih**: 2026-09-02
