@@ -912,84 +912,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           );
                         }),
 
-                      // Daily Verse / Hadith Card (günün kapanış kartı:
-                      // sayaç + liste art arda, ayet en altta)
-                      Container(
-                        width: double.infinity,
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF262014) : Colors.amber.shade50,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: isDark ? Colors.amber.shade700.withValues(alpha: 0.5) : Colors.amber.shade200,
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(Icons.format_quote, color: isDark ? Colors.amber.shade300 : Colors.amber.shade900, size: 20),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      todayContent.type,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: isDark ? Colors.amber.shade300 : Colors.amber.shade900,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.copy, size: 18, color: isDark ? Colors.amber.shade300 : Colors.amber.shade900),
-                                  tooltip: settingsProvider.appLanguage == 'en' ? 'Copy Text' : 'Metni Kopyala',
-                                  onPressed: () {
-                                    final shareText = '"${todayContent.text}" — ${todayContent.source}';
-                                    Clipboard.setData(ClipboardData(text: shareText));
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(settingsProvider.appLanguage == 'en'
-                                            ? 'Text copied to clipboard! 📋'
-                                            : 'Ayet/Hadis metni panoya kopyalandı! 📋'),
-                                        duration: const Duration(seconds: 2),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              '"${todayContent.text}"',
-                              style: TextStyle(
-                                fontStyle: FontStyle.italic,
-                                color: isDark ? Colors.amber.shade50 : Colors.grey.shade900,
-                                fontSize: 14,
-                                height: 1.3,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                '— ${todayContent.source}',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.amber.shade200 : Colors.grey.shade700,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 16),
                     ],
                   ),
                 ),
@@ -1019,11 +942,55 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           );
         },
       ),
-      // Altta sabit hızlı erişim barı: Konum → Sayaç → Ayet → Liste
-      // sıralamasının ardından araçlar her zaman başparmak mesafesinde.
+      // Altta sabit alan: ince ayet şeridi (dokun=açılır) + hızlı erişim barı.
+      // Liste artık tam ekrana sığar, ayet için kaydırmaya gerek kalmaz.
       bottomNavigationBar: SafeArea(
         top: false,
-        child: Container(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Sticky mini ayet/hadis şeridi
+            InkWell(
+              onTap: () => _showVerseSheet(context, settingsProvider, isDark),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF262014) : Colors.amber.shade50,
+                  border: Border(
+                    top: BorderSide(
+                      color: isDark
+                          ? Colors.amber.shade700.withValues(alpha: 0.5)
+                          : Colors.amber.shade200,
+                    ),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.format_quote,
+                        size: 16,
+                        color: isDark ? Colors.amber.shade300 : Colors.amber.shade900),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        '${todayContent.type} • ${todayContent.text}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontStyle: FontStyle.italic,
+                          color: isDark ? Colors.amber.shade100 : Colors.grey.shade800,
+                        ),
+                      ),
+                    ),
+                    Icon(Icons.keyboard_arrow_up,
+                        size: 18,
+                        color: isDark ? Colors.amber.shade300 : Colors.amber.shade800),
+                  ],
+                ),
+              ),
+            ),
+            Container(
           decoration: BoxDecoration(
             color: isDark ? AppColors.darkSurface : Colors.white,
             border: Border(
@@ -1087,8 +1054,117 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ),
             ],
           ),
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  /// Sticky ayet şeridine dokununca tam metni gösteren alt sayfa.
+  void _showVerseSheet(
+    BuildContext context,
+    SettingsProvider settingsProvider,
+    bool isDark,
+  ) {
+    final todayContent = DailyContent.getTodayContent();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF162218) : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade400,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Icon(Icons.format_quote,
+                      color: isDark
+                          ? Colors.amber.shade300
+                          : Colors.amber.shade900),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      todayContent.type,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: isDark
+                            ? Colors.amber.shade300
+                            : Colors.amber.shade900,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.copy,
+                        size: 20,
+                        color: isDark
+                            ? Colors.amber.shade300
+                            : Colors.amber.shade900),
+                    tooltip: settingsProvider.appLanguage == 'en'
+                        ? 'Copy Text'
+                        : 'Metni Kopyala',
+                    onPressed: () {
+                      final shareText =
+                          '"${todayContent.text}" — ${todayContent.source}';
+                      Clipboard.setData(ClipboardData(text: shareText));
+                      ScaffoldMessenger.of(sheetContext).showSnackBar(
+                        SnackBar(
+                          content: Text(settingsProvider.appLanguage == 'en'
+                              ? 'Text copied to clipboard! 📋'
+                              : 'Ayet/Hadis metni panoya kopyalandı! 📋'),
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '"${todayContent.text}"',
+                style: TextStyle(
+                  fontStyle: FontStyle.italic,
+                  fontSize: 16,
+                  height: 1.4,
+                  color: isDark ? Colors.amber.shade50 : Colors.grey.shade900,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  '— ${todayContent.source}',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color:
+                        isDark ? Colors.amber.shade200 : Colors.grey.shade700,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+          ),
+        );
+      },
     );
   }
 
