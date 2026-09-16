@@ -1,3 +1,15 @@
+# Ezan Hatırlatıcı v5.2.0 - Final Release Notes
+
+**Tarih**: 2026-09-17
+**Sürüm**: 5.2.0+84
+
+## 🎉 Sürüm 5.2.0 Yenilikleri
+
+- 🧭 **WMM2025 Manyetik Sapma Düzeltmesi:** Kıble pusulası resmi Dünya Manyetik Modeli (epoch 2025.0) ile otomatik kalibre oluyor. 100 resmi test vektörüyle doğrulandı (maks hata 0.005). Hizalanma eşiği ±6° → ±4° daraltıldı. Canlı/manuel rozetine dokunarak modlar arası geçiş, negatif başlık filtresi, tema uyumlu AppBar.
+- 🏠 **Yeni Ana Ekran Dizilimi:** Hızlı erişim araçları (kıble, zikirmatik, dini günler, aylık, dualar) altta sabit bara taşındı. İçerik sırası: Konum → Sonraki Vakit Sayacı → Günün Ayeti/Hadisi → Namaz Listesi.
+
+---
+
 # Ezan Hatırlatıcı v5.1.0 - Final Release Notes
 
 **Tarih**: 2026-09-16
