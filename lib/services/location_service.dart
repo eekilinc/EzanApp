@@ -1,4 +1,5 @@
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart' as geo;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../models/location_data.dart';
@@ -53,13 +54,58 @@ class LocationService {
         timeLimit: const Duration(seconds: 10),
       );
 
+      // İl/ilçe adını çöz (başarısız olursa "Current Location" kalır).
+      final cityName = await resolvePlaceName(
+        position.latitude,
+        position.longitude,
+      );
+
       return LocationData(
-        city: 'Current Location',
+        city: cityName ?? 'Current Location',
         latitude: position.latitude,
         longitude: position.longitude,
         updatedAt: DateTime.now(),
       );
     } catch (e) {
+      return null;
+    }
+  }
+
+  /// Koordinattan "İlçe, İl" adını çözer. ~1 km ızgara önbelleği sayesinde
+  /// aynı bölgede tekrar ağ isteği yapılmaz; çevrimdışı/hatada null döner
+  /// (çağıran "Current Location" kullanır).
+  Future<String?> resolvePlaceName(double latitude, double longitude) async {
+    final gridKey =
+        'geo_${latitude.toStringAsFixed(2)}_${longitude.toStringAsFixed(2)}';
+    try {
+      final cached = _prefs.getString(gridKey);
+      if (cached != null && cached.isNotEmpty) return cached;
+    } catch (_) {}
+
+    try {
+      final placemarks = await geo
+          .placemarkFromCoordinates(latitude, longitude, localeIdentifier: 'tr')
+          .timeout(const Duration(seconds: 4));
+      if (placemarks.isEmpty) return null;
+      final p = placemarks.first;
+      final district = (p.locality ?? p.subAdministrativeArea ?? '').trim();
+      final city = (p.administrativeArea ?? '').trim();
+      String? name;
+      if (city.isNotEmpty && district.isNotEmpty && district != city) {
+        name = '$district, $city';
+      } else if (city.isNotEmpty) {
+        name = city;
+      } else if (district.isNotEmpty) {
+        name = district;
+      }
+      if (name != null && name.isNotEmpty) {
+        try {
+          await _prefs.setString(gridKey, name);
+        } catch (_) {}
+        return name;
+      }
+      return null;
+    } catch (_) {
       return null;
     }
   }

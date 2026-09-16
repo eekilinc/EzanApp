@@ -814,82 +814,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         ),
                       ),
 
-                      // Daily Verse / Hadith Card (Theme Adaptive)
-                      Container(
-                        width: double.infinity,
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF262014) : Colors.amber.shade50,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: isDark ? Colors.amber.shade700.withValues(alpha: 0.5) : Colors.amber.shade200,
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(Icons.format_quote, color: isDark ? Colors.amber.shade300 : Colors.amber.shade900, size: 20),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      todayContent.type,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: isDark ? Colors.amber.shade300 : Colors.amber.shade900,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.copy, size: 18, color: isDark ? Colors.amber.shade300 : Colors.amber.shade900),
-                                  tooltip: settingsProvider.appLanguage == 'en' ? 'Copy Text' : 'Metni Kopyala',
-                                  onPressed: () {
-                                    final shareText = '"${todayContent.text}" — ${todayContent.source}';
-                                    Clipboard.setData(ClipboardData(text: shareText));
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(settingsProvider.appLanguage == 'en'
-                                            ? 'Text copied to clipboard! 📋'
-                                            : 'Ayet/Hadis metni panoya kopyalandı! 📋'),
-                                        duration: const Duration(seconds: 2),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              '"${todayContent.text}"',
-                              style: TextStyle(
-                                fontStyle: FontStyle.italic,
-                                color: isDark ? Colors.amber.shade50 : Colors.grey.shade900,
-                                fontSize: 14,
-                                height: 1.3,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                '— ${todayContent.source}',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.amber.shade200 : Colors.grey.shade700,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
                       // Prayer times list header (with View Mode Toggle: Card View vs Compact Grid)
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -976,6 +900,83 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             isNext: prayer.name == nextPrayer?.name,
                           );
                         }),
+
+                      // Daily Verse / Hadith Card (günün kapanış kartı:
+                      // sayaç + liste art arda, ayet en altta)
+                      Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF262014) : Colors.amber.shade50,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: isDark ? Colors.amber.shade700.withValues(alpha: 0.5) : Colors.amber.shade200,
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(Icons.format_quote, color: isDark ? Colors.amber.shade300 : Colors.amber.shade900, size: 20),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      todayContent.type,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: isDark ? Colors.amber.shade300 : Colors.amber.shade900,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.copy, size: 18, color: isDark ? Colors.amber.shade300 : Colors.amber.shade900),
+                                  tooltip: settingsProvider.appLanguage == 'en' ? 'Copy Text' : 'Metni Kopyala',
+                                  onPressed: () {
+                                    final shareText = '"${todayContent.text}" — ${todayContent.source}';
+                                    Clipboard.setData(ClipboardData(text: shareText));
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(settingsProvider.appLanguage == 'en'
+                                            ? 'Text copied to clipboard! 📋'
+                                            : 'Ayet/Hadis metni panoya kopyalandı! 📋'),
+                                        duration: const Duration(seconds: 2),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '"${todayContent.text}"',
+                              style: TextStyle(
+                                fontStyle: FontStyle.italic,
+                                color: isDark ? Colors.amber.shade50 : Colors.grey.shade900,
+                                fontSize: 14,
+                                height: 1.3,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                '— ${todayContent.source}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? Colors.amber.shade200 : Colors.grey.shade700,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
 
                       const SizedBox(height: 32),
                     ],
