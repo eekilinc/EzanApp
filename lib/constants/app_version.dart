@@ -1,8 +1,8 @@
 class AppVersion {
-  static const String version = '5.0.2';
-  static const int buildNumber = 82;
-  static const String releaseTag = 'v5.0.2';
-  static const String releaseName = 'v5.0.2 Final Release';
+  static const String version = '5.1.0';
+  static const int buildNumber = 83;
+  static const String releaseTag = 'v5.1.0';
+  static const String releaseName = 'v5.1.0 Final Release';
   static const String fullDisplay = 'v$version ($buildNumber)';
   static const String githubRepo = 'eekilinc/EzanApp';
   static const String latestReleaseApiUrl =

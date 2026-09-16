@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       version_tag:
-        description: 'Release Tag (e.g. v5.0.2)'
+        description: 'Release Tag (e.g. v5.1.0)'
         required: false
-        default: 'v5.0.2'
+        default: 'v5.1.0'
 
 permissions:
   contents: write
@@ -74,7 +74,7 @@ jobs:
           elif [ -n "${{ github.ref_name }}" ]; then
             TAG="${{ github.ref_name }}"
           else
-            TAG="v5.0.2"
+            TAG="v5.1.0"
           fi
           
           echo "tag=$TAG" >> $GITHUB_OUTPUT
@@ -111,11 +111,11 @@ jobs:
             ---
 
             ### 🎉 Yenilikler ve Öne Çıkanlar
-            * ⏱️ **Namaz Vakti Manuel Tolerans (Offset) Ayarı:** Her namaz vakti için yerel cami takviminize göre `+/- 15` dakikaya kadar ince ayar yapabilme.
-            * 🌅 **Güneş (Sunrise) Zaman Çizelgesi:** Sabah sonrası sıradaki vakit artık Güneş; sayaç, ilerleme çubuğu, kartlar ve bildirimler 6'lı çizelgeyle senkron (Güneş'te ezan yok, kısa hatırlatma var).
-            * 🔔 **Bildirim Sesi Düzeltmesi:** Zamanlanmış bildirimlerde kanal sesi artık doğru çalıyor; sessize alma gerçekten sessiz.
-            * 🌙 **Gece Yarısı Sayacı Düzeltmesi:** Yatsı sonrası / sabah öncesi mevcut-vakit mantığı düzeltildi.
-            * 🔊 **Ses Tercihleri Korunur:** Ana ses anahtarı artık ezan/hatırlatıcı alt tercihlerini ezmiyor.
+            * 🔔 **Bildirim Güvenilirliği:** Saat/saat dilimi değişiminde otomatik tazeleme, gün devri yakalama, pil optimizasyonu yönlendirmesi.
+            * 🧭 **Kıble İyileştirmeleri:** Sensörsüz cihazda manuel kalibrasyon modu, konum yoksa dürüst yer tutucu, build-dışı titreşim.
+            * 📍 **Konum Akışları:** Kalıcı rette doğru ayar ekranı, GPS kapalı uyarısı, bilinmeyen şehirde sessiz yanlışlık yerine hata.
+            * 📿 **Zikirmatik & Dualar:** Kalıcı sayaç, dua arama + favoriler, tek-kaynak dini gün listesi ve kandil hatırlatıcısı.
+            * 🎨 **UI Tutarlılığı:** Tek karanlık palet (`AppColors`), eksiksiz çift-dil metinler, erişilebilir sayaç ve taşmaz ızgara.
             * 📊 **Canlı Vakit İlerleme Çubuğu:** Sonraki vakte kalan süreyi ve mevcut vakit aralığının tamamlanma yüzdesini gösteren dinamik gösterge.
             * 🕌 **5 Farklı Dünya Ezanı & Özel Manevi Tonlar:** Mekke, Medine, İstanbul, Kahire ve Mescid-i Aksa ezanları; Ney, Çağrı müziği ve Salavat tonları.
             * 🧭 **Canlı Donanımsal Kıble Pusulası:** Titreşimli Kabe hizalanma algılayıcısı ve yön hesaplama.

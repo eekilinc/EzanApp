@@ -1,3 +1,21 @@
+# Ezan Hatırlatıcı v5.1.0 - Final Release Notes
+
+**Tarih**: 2026-09-16
+**Sürüm**: 5.1.0+83
+
+## 🎉 Sürüm 5.1.0 Yenilikleri
+
+- 🔔 **Bildirim Güvenilirliği:** `TIME_SET`/`TIMEZONE_CHANGED` receiver, uygulamaya dönüşte gün-devri/saat-dilimi tazeleme, pil optimizasyonu yönlendirme kartı.
+- 🧭 **Kıble:** Koordinat doğrulama, sensörsüz cihazda manuel mod, konum yokken sahte değer yerine yer tutucu, build-dışı hizalanma titreşimi, lokalize yön harfleri.
+- 📍 **Konum:** Kalıcı rette uygulama ayarlarına yönlendirme, GPS kapalı/servis hatası geri bildirimi, bilinmeyen şehirde sessiz Adana yerine hata.
+- 📿 **Zikirmatik:** Sayı/hedef/seçim kalıcılığı (SharedPreferences) + titreşim ayarına saygı.
+- 📖 **Dualar:** Arama, favoriler (kalıcı), boş-sonuç durumu, lokalize bildirimler.
+- 📅 **Dini Günler:** Tek-kaynak etkinlik listesi (drift bitti), `daysRemaining` günübirlik hatası düzeltmesi, 1 gün önce 09:00 kandil hatırlatıcısı + ayar düğmesi.
+- 🎨 **UI:** Merkezi `AppColors` karanlık paleti, ~25 yeni çift-dilli metin, erişilebilir + taşmaz geri sayım ve ızgara, konum seçicide boş-sonuç durumu.
+- 🧪 **Testler:** Kıble validasyonu ve dini-gün mantığı için yeni birim testleri.
+
+---
+
 # Ezan Hatırlatıcı v5.0.2 - Final Release Notes
 
 **Tarih**: 2026-09-16

@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/eekilinc/EzanApp/releases/latest"><strong>↓ Son Final APK'yı İndir (v5.0.2)</strong></a>
+  <a href="https://github.com/eekilinc/EzanApp/releases/latest"><strong>↓ Son Final APK'yı İndir (v5.1.0)</strong></a>
   · <a href="#-kurulum-ve-kullanım">Kurulum</a>
   · <a href="RELEASE_NOTES.md">Sürüm Notları</a>
   · <a href="#-android-imzalaması-app-signing">İmzalama</a>
@@ -56,9 +56,16 @@ Ezan Hatırlatıcı, sıradan vakit uygulamalarının ötesinde, her vakit için
 
 ---
 
-## 🎉 5.0.2 ile Gelen Yenilikler
+## 🎉 5.1.0 ile Gelen Yenilikler
 
 Kalıcı paket ve imza korunur; önceki sürümleri kaldırmadan doğrudan güncelleyebilirsiniz:
+
+- 🔔 **Bildirim Güvenilirliği:** Saat/saat dilimi değişiminde otomatik tazeleme, pil optimizasyonu yönlendirmesi.
+- 🧭 **Kıble:** Sensörsüz cihazda manuel kalibrasyon, dürüst yer tutucu.
+- 📿 **Zikirmatik & Dualar:** Kalıcı sayaç, dua arama + favoriler, kandil hatırlatıcısı.
+- 🎨 **UI Tutarlılığı:** Tek karanlık palet, eksiksiz çift-dil, erişilebilir sayaç.
+
+## 🕘 Önceki Sürümler
 
 - 🌅 **Güneş Zaman Çizelgesi:** Sabah sonrası sıradaki vakit artık Güneş; sayaç, ilerleme çubuğu ve bildirimler 6'lı çizelgeyle senkron.
 - 🔔 **Bildirim Sesi Düzeltmesi:** Zamanlanmış ezan/hatırlatıcı sesleri artık ayara uygun çalıyor.
@@ -79,7 +86,7 @@ Kalıcı paket ve imza korunur; önceki sürümleri kaldırmadan doğrudan günc
 
 ### 1. Kullanıcılar İçin (APK İndirme)
 1. **[Son Final Sürümünü](https://github.com/eekilinc/EzanApp/releases/latest)** açın.
-2. `EzanApp-v5.0.2.apk` dosyasını telefonunuza indirin ve kurun.
+2. `EzanApp-v5.1.0.apk` dosyasını telefonunuza indirin ve kurun.
 3. Uygulamayı açtığınızda GPS izni verin veya listeden şehrinizi seçin.
 
 ### 2. Geliştiriciler İçin (Kaynak Koddan Derleme)
