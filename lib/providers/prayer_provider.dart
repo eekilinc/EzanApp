@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/prayer_times.dart';
 import '../models/location_data.dart';
+import '../models/islamic_event.dart';
 import '../services/api_service.dart';
 import '../services/location_service.dart';
 import '../services/notification_service.dart';
@@ -16,6 +17,10 @@ class PrayerProvider extends ChangeNotifier {
   LocationData? _location;
   bool _isLoading = false;
   String? _error;
+
+  // Gün devri ve saat dilimi değişimini yakalamak için izlenen durum.
+  DateTime? _loadedForDate;
+  Duration? _loadedWithOffset;
 
   PrayerTimes? get prayerTimes => _prayerTimes;
   LocationData? get location => _location;
@@ -50,6 +55,11 @@ class PrayerProvider extends ChangeNotifier {
 
       _prayerTimes = rawTimes.withOffsets(settingsProvider?.prayerTimeOffsets);
 
+      // Gün devri / saat dilimi takibi için damgala.
+      final nowStamp = DateTime.now();
+      _loadedForDate = DateTime(nowStamp.year, nowStamp.month, nowStamp.day);
+      _loadedWithOffset = nowStamp.timeZoneOffset;
+
       // Schedule multi-day notifications for upcoming prayers using settings
       await scheduleNotifications(
         customReminderMinutes: settingsProvider?.reminderMinutes,
@@ -64,6 +74,7 @@ class PrayerProvider extends ChangeNotifier {
         reminderSoundEnabled: settingsProvider?.effectiveReminderSoundEnabled,
         fridayReminderEnabled: settingsProvider?.fridayReminderEnabled ?? true,
         sahurReminderEnabled: settingsProvider?.sahurReminderEnabled ?? false,
+        eventReminderEnabled: settingsProvider?.eventReminderEnabled ?? true,
         prayerOffsets: settingsProvider?.prayerTimeOffsets,
       );
 
@@ -74,6 +85,21 @@ class PrayerProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  /// Uygulama aradan dönünce çağrılır: gün devri veya saat dilimi/saat
+  /// değişimi varsa vakitleri yeniden yükleyip bildirimleri tazeler.
+  /// Yeniden yükleme yapıldıysa true döner (UI setState yapabilir).
+  Future<bool> refreshIfDateOrTimezoneChanged(
+      [SettingsProvider? settingsProvider]) async {
+    if (_location == null || _prayerTimes == null) return false;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    if (_loadedForDate != today || _loadedWithOffset != now.timeZoneOffset) {
+      await loadPrayerTimes(settingsProvider);
+      return true;
+    }
+    return false;
   }
 
   Future<void> scheduleNotifications({
@@ -89,6 +115,7 @@ class PrayerProvider extends ChangeNotifier {
     bool? reminderSoundEnabled,
     bool fridayReminderEnabled = true,
     bool sahurReminderEnabled = false,
+    bool eventReminderEnabled = true,
     Map<String, int>? prayerOffsets,
   }) async {
     if (_prayerTimes == null || _location == null) return;
@@ -248,15 +275,48 @@ class PrayerProvider extends ChangeNotifier {
         );
       }
     }
+
+    // Dini gün / kandil hatırlatıcısı: sıradaki etkinlikten 1 gün önce sabah 09:00.
+    if (eventReminderEnabled) {
+      try {
+        final nextEvent = IslamicEventService.getNextEvent();
+        if (nextEvent != null) {
+          final reminderDay = DateTime(
+            nextEvent.gregorianDate.year,
+            nextEvent.gregorianDate.month,
+            nextEvent.gregorianDate.day,
+          ).subtract(const Duration(days: 1));
+          final reminderTime =
+              DateTime(reminderDay.year, reminderDay.month, reminderDay.day, 9);
+          if (!reminderTime.isBefore(DateTime.now())) {
+            await _notificationService.scheduleNotification(
+              id: 777001,
+              title: '🕌 Yarın: ${nextEvent.titleTr}',
+              body:
+                  '${nextEvent.hijri} — ${nextEvent.dateTr}. Mübarek olsun! 🤲',
+              scheduledTime: reminderTime,
+              soundEnabled: finalReminderEnabled,
+              vibrationEnabled: vibrationEnabled,
+              soundKey: finalReminderSound,
+            );
+          }
+        }
+      } catch (_) {}
+    }
   }
 
   Future<void> selectCity(String cityName, [SettingsProvider? settingsProvider]) async {
-    _location = await _locationService.selectCity(cityName);
-    await loadPrayerTimes(settingsProvider);
+    try {
+      _location = await _locationService.selectCity(cityName);
+      await loadPrayerTimes(settingsProvider);
+    } catch (e) {
+      _error = e.toString().replaceAll('Exception: ', '');
+    }
     notifyListeners();
   }
 
-  Future<void> useGpsLocation([SettingsProvider? settingsProvider]) async {
+  /// GPS konumuna geçmeyi dener; başarı durumunu döner (UI bilgi verir).
+  Future<bool> useGpsLocation([SettingsProvider? settingsProvider]) async {
     final gpsLocation = await _locationService.getCurrentLocation();
     if (gpsLocation != null) {
       _location = gpsLocation;
@@ -264,8 +324,13 @@ class PrayerProvider extends ChangeNotifier {
       await _locationService.setUseGps(true);
       await loadPrayerTimes(settingsProvider);
       notifyListeners();
+      return true;
     }
+    return false;
   }
+
+  /// Cihaz konum servisi (GPS) açık mı? (Konum seçim UI'ı için)
+  Future<bool> isGpsEnabled() => _locationService.isLocationServiceEnabled();
 
   List<String> getCityList() {
     return _locationService.getCityList();

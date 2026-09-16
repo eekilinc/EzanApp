@@ -54,13 +54,16 @@ class _MonthlyScreenState extends State<MonthlyScreen> {
         setState(() {
           _monthlyTimes = list;
           _isLoading = false;
+          _error = null;
         });
       }
     } catch (e) {
       if (mounted) {
+        // Ham exception yerine kullanıcı dostu lokalize mesaj göster.
+        final settings = context.read<SettingsProvider>();
         setState(() {
           _isLoading = false;
-          _error = e.toString().replaceAll('Exception: ', '');
+          _error = settings.tr('prayer_load_error');
         });
       }
     }
@@ -188,7 +191,10 @@ class _MonthlyScreenState extends State<MonthlyScreen> {
                               const SizedBox(height: 12),
                               ElevatedButton(
                                 onPressed: () {
-                                  setState(() => _isLoading = true);
+                                  setState(() {
+                                    _isLoading = true;
+                                    _error = null;
+                                  });
                                   _loadMonthlyData();
                                 },
                                 child: Text(settingsProvider.tr('retry')),

@@ -8,28 +8,43 @@ class AnimatedCountdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Parse the time string into individual digits
+    // Parse the time string into individual digits (hata toleranslı)
     final parts = timeString.split(':');
     if (parts.length != 3) {
       return Text(timeString,
           style: const TextStyle(color: Colors.white, fontSize: 18));
     }
+    final safe = parts.map((p) => p.padLeft(2, '0')).toList();
+    if (safe.any((p) => p.length != 2)) {
+      return Text(timeString,
+          style: const TextStyle(color: Colors.white, fontSize: 18));
+    }
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Hours
-        _AnimatedDigit(value: parts[0][0]),
-        _AnimatedDigit(value: parts[0][1]),
-        const _Separator(),
-        // Minutes
-        _AnimatedDigit(value: parts[1][0]),
-        _AnimatedDigit(value: parts[1][1]),
-        const _Separator(),
-        // Seconds
-        _AnimatedDigit(value: parts[2][0]),
-        _AnimatedDigit(value: parts[2][1]),
-      ],
+    // Ekran okuyucu her saniye anons etmesin: tek etiket + iç animasyon hariç.
+    // Büyük yazı tipinde taşmayı FittedBox engeller.
+    return Semantics(
+      label: timeString,
+      child: ExcludeSemantics(
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Hours
+              _AnimatedDigit(value: safe[0][0]),
+              _AnimatedDigit(value: safe[0][1]),
+              const _Separator(),
+              // Minutes
+              _AnimatedDigit(value: safe[1][0]),
+              _AnimatedDigit(value: safe[1][1]),
+              const _Separator(),
+              // Seconds
+              _AnimatedDigit(value: safe[2][0]),
+              _AnimatedDigit(value: safe[2][1]),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -54,7 +69,10 @@ class _AnimatedDigit extends StatelessWidget {
         ),
       ),
       child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 350),
+        // Hareket azaltma açıkken animasyonu kapat.
+        duration: MediaQuery.disableAnimationsOf(context)
+            ? Duration.zero
+            : const Duration(milliseconds: 350),
         transitionBuilder: (Widget child, Animation<double> animation) {
           // Slide from top for incoming, slide down for outgoing
           final inAnimation = Tween<Offset>(

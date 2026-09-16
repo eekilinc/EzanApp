@@ -1,10 +1,79 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../constants/app_colors.dart';
 import '../providers/settings_provider.dart';
 
-class DuasScreen extends StatelessWidget {
+class DuasScreen extends StatefulWidget {
   const DuasScreen({super.key});
+
+  @override
+  State<DuasScreen> createState() => _DuasScreenState();
+}
+
+class _DuasScreenState extends State<DuasScreen> {
+  String _query = '';
+  bool _favoritesOnly = false;
+  Set<String> _favorites = {};
+
+  static const String _kFavKey = 'dua_favorites';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFavorites();
+  }
+
+  Future<void> _loadFavorites() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (!mounted) return;
+      setState(() {
+        _favorites = (prefs.getStringList(_kFavKey) ?? []).toSet();
+      });
+    } catch (_) {}
+  }
+
+  Future<void> _toggleFavorite(String id) async {
+    setState(() {
+      if (_favorites.contains(id)) {
+        _favorites.remove(id);
+      } else {
+        _favorites.add(id);
+      }
+    });
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(_kFavKey, _favorites.toList());
+    } catch (_) {}
+    if (!mounted) return;
+    final settings = context.read<SettingsProvider>();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(_favorites.contains(id)
+            ? settings.tr('dua_fav_added')
+            : settings.tr('dua_fav_removed')),
+        duration: const Duration(seconds: 1),
+      ),
+    );
+  }
+
+  static String _duaId(Map<String, dynamic> dua) =>
+      (dua['name_tr'] ?? dua['name_en'] ?? dua['arabic'] ?? '').toString();
+
+  bool _matches(Map<String, dynamic> dua, String q) {
+    if (q.isEmpty) return true;
+    final haystack = [
+      dua['name_tr'],
+      dua['name_en'],
+      dua['meaning_tr'],
+      dua['meaning_en'],
+      dua['arabic'],
+      dua['source'],
+    ].whereType<String>().join(' ').toLowerCase();
+    return q.split(' ').every((w) => haystack.contains(w));
+  }
 
   static final List<Map<String, dynamic>> _duaCategories = [
     {
@@ -187,6 +256,20 @@ class DuasScreen extends StatelessWidget {
     final primaryColor = settingsProvider.primaryColor;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isEn = settingsProvider.appLanguage == 'en';
+    final q = _query.trim().toLowerCase();
+
+    // Kategori + arama + favori filtresi uygula.
+    final visibleCategories = <Map<String, dynamic>>[];
+    for (final category in _duaCategories) {
+      final duas = (category['duas'] as List<Map<String, dynamic>>)
+          .where((dua) =>
+              _matches(dua, q) &&
+              (!_favoritesOnly || _favorites.contains(_duaId(dua))))
+          .toList();
+      if (duas.isNotEmpty) {
+        visibleCategories.add({...category, 'duas': duas});
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -195,74 +278,132 @@ class DuasScreen extends StatelessWidget {
         foregroundColor: Colors.white,
         centerTitle: true,
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: _duaCategories.length,
-        itemBuilder: (context, catIndex) {
-          final category = _duaCategories[catIndex];
-          final duas = category['duas'] as List<Map<String, dynamic>>;
-          final categoryColor = category['color'] as MaterialColor;
-
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (catIndex > 0) const SizedBox(height: 20),
-              // Category header
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      categoryColor.withValues(alpha: isDark ? 0.3 : 0.15),
-                      categoryColor.withValues(alpha: isDark ? 0.1 : 0.05),
-                    ],
-                  ),
+      body: Column(
+        children: [
+          // Search + favorites filter
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: settingsProvider.tr('duas_search_hint'),
+                labelText: settingsProvider.tr('duas_search_hint'),
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: isDark ? AppColors.darkCardAlt : Colors.grey.shade100,
+                border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: categoryColor.withValues(alpha: 0.3)),
+                  borderSide: BorderSide.none,
                 ),
-                child: Row(
-                  children: [
-                    Icon(category['icon'] as IconData, color: categoryColor, size: 24),
-                    const SizedBox(width: 10),
-                    Text(
-                      isEn ? category['title_en'] : category['title_tr'],
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: isDark ? Colors.white : Colors.black87,
-                      ),
-                    ),
-                    const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: categoryColor.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              onChanged: (v) => setState(() => _query = v),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Row(
+              children: [
+                FilterChip(
+                  label: Text(settingsProvider.tr('duas_favorites_only')),
+                  selected: _favoritesOnly,
+                  onSelected: (v) => setState(() => _favoritesOnly = v),
+                  selectedColor: primaryColor.withValues(alpha: 0.2),
+                  checkmarkColor: primaryColor,
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: visibleCategories.isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
                       child: Text(
-                        '${duas.length}',
+                        settingsProvider.tr('duas_no_result'),
+                        textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                          color: categoryColor,
+                          color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                          fontSize: 14,
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10),
-              // Duas list
-              ...duas.map((dua) => _DuaCard(
-                    dua: dua,
-                    isEn: isEn,
-                    isDark: isDark,
-                    primaryColor: primaryColor,
-                    categoryColor: categoryColor,
-                  )),
-            ],
-          );
-        },
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: visibleCategories.length,
+                    itemBuilder: (context, catIndex) {
+                      final category = visibleCategories[catIndex];
+                      final duas = category['duas'] as List<Map<String, dynamic>>;
+                      final categoryColor = category['color'] as MaterialColor;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (catIndex > 0) const SizedBox(height: 20),
+                          // Category header
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  categoryColor.withValues(alpha: isDark ? 0.3 : 0.15),
+                                  categoryColor.withValues(alpha: isDark ? 0.1 : 0.05),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: categoryColor.withValues(alpha: 0.3)),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(category['icon'] as IconData, color: categoryColor, size: 24),
+                                const SizedBox(width: 10),
+                                Text(
+                                  isEn ? category['title_en'] : category['title_tr'],
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: isDark ? Colors.white : Colors.black87,
+                                  ),
+                                ),
+                                const Spacer(),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: categoryColor.withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Text(
+                                    '${duas.length}',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                      color: categoryColor,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          // Duas list
+                          ...duas.map((dua) {
+                            final id = _duaId(dua);
+                            return _DuaCard(
+                              dua: dua,
+                              isEn: isEn,
+                              isDark: isDark,
+                              primaryColor: primaryColor,
+                              categoryColor: categoryColor,
+                              isFavorite: _favorites.contains(id),
+                              onToggleFavorite: () => _toggleFavorite(id),
+                            );
+                          }),
+                        ],
+                      );
+                    },
+                  ),
+          ),
+        ],
       ),
     );
   }
@@ -274,6 +415,8 @@ class _DuaCard extends StatefulWidget {
   final bool isDark;
   final Color primaryColor;
   final MaterialColor categoryColor;
+  final bool isFavorite;
+  final VoidCallback onToggleFavorite;
 
   const _DuaCard({
     required this.dua,
@@ -281,6 +424,8 @@ class _DuaCard extends StatefulWidget {
     required this.isDark,
     required this.primaryColor,
     required this.categoryColor,
+    required this.isFavorite,
+    required this.onToggleFavorite,
   });
 
   @override
@@ -297,7 +442,7 @@ class _DuaCardState extends State<_DuaCard> {
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       elevation: widget.isDark ? 0 : 1,
-      color: widget.isDark ? const Color(0xFF1A261D) : Colors.white,
+      color: widget.isDark ? AppColors.darkCardAlt : Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
         side: BorderSide(
@@ -351,6 +496,20 @@ class _DuaCardState extends State<_DuaCard> {
                       ],
                     ),
                   ),
+                  // Favorite button
+                  IconButton(
+                    icon: Icon(
+                      widget.isFavorite ? Icons.star : Icons.star_border,
+                      size: 20,
+                      color: widget.isFavorite
+                          ? Colors.amber
+                          : (widget.isDark
+                              ? Colors.grey.shade500
+                              : Colors.grey.shade600),
+                    ),
+                    tooltip: '⭐',
+                    onPressed: widget.onToggleFavorite,
+                  ),
                   // Copy button
                   IconButton(
                     icon: Icon(Icons.copy, size: 18,
@@ -366,11 +525,12 @@ class _DuaCardState extends State<_DuaCard> {
                       final text =
                           '${dua['arabic']}$pronText\n\nAnlamı: ${widget.isEn ? dua['meaning_en'] : dua['meaning_tr']}\n\n— ${dua['source']}';
                       Clipboard.setData(ClipboardData(text: text));
+                      final msg = context
+                          .read<SettingsProvider>()
+                          .tr('dua_copied');
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text(widget.isEn
-                              ? 'Dua copied! 📋'
-                              : 'Dua metni kopyalandı! 📋'),
+                          content: Text(msg),
                           duration: const Duration(seconds: 2),
                         ),
                       );

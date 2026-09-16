@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/prayer_provider.dart';
@@ -32,6 +33,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           reminderSoundEnabled: settingsProvider.effectiveReminderSoundEnabled,
           fridayReminderEnabled: settingsProvider.fridayReminderEnabled,
           sahurReminderEnabled: settingsProvider.sahurReminderEnabled,
+          eventReminderEnabled: settingsProvider.eventReminderEnabled,
           prayerOffsets: settingsProvider.prayerTimeOffsets,
         );
   }
@@ -811,7 +813,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     Icon(Icons.stars, color: Colors.amber.shade800, size: 20),
                                     const SizedBox(width: 8),
                                     Text(
-                                      settingsProvider.appLanguage == 'en' ? 'Special Extra Notifications 🌟' : 'Özel Ekstra Bildirimler 🌟',
+                                      settingsProvider.tr('special_extra_notifications'),
                                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                                     ),
                                   ],
@@ -872,6 +874,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     _updateNotifications(settingsProvider);
                                   },
                                 ),
+                                const Divider(height: 1),
+                                SwitchListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  secondary: const Icon(Icons.event, color: Colors.teal),
+                                  title: Text(
+                                    settingsProvider.tr('event_reminder'),
+                                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                                  ),
+                                  subtitle: Text(
+                                    settingsProvider.tr('event_reminder_desc'),
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                  value: settingsProvider.eventReminderEnabled,
+                                  activeTrackColor: primaryColor,
+                                  onChanged: (value) async {
+                                    await settingsProvider.setEventReminderEnabled(value);
+                                    _updateNotifications(settingsProvider);
+                                  },
+                                ),
                               ],
                             ),
                           ),
@@ -888,12 +909,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   SnackBar(
                                     content: Text(
                                       isGranted
-                                          ? (settingsProvider.appLanguage == 'en'
-                                              ? 'Exact Alarm Permission is ACTIVE! ⏰'
-                                              : 'Tam Vakit Alarm İzni AKTİF! ⏰')
-                                          : (settingsProvider.appLanguage == 'en'
-                                              ? 'Please enable Alarms & Reminders in system settings.'
-                                              : 'Lütfen cihaz ayarlarınızdan Alarmlar ve Hatırlatıcılar iznini açın.'),
+                                          ? settingsProvider.tr('exact_alarm_active')
+                                          : settingsProvider.tr('exact_alarm_missing'),
                                     ),
                                   ),
                                 );
@@ -902,7 +919,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             icon: const Icon(Icons.alarm_on, size: 18),
                             label: Text(settingsProvider.tr('request_exact_alarm')),
                             style: OutlinedButton.styleFrom(
-                              foregroundColor: isDark ? primaryColor : primaryColor,
+                              foregroundColor: primaryColor,
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               side: BorderSide(color: primaryColor),
                               shape: RoundedRectangleBorder(
@@ -912,6 +929,66 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                       ],
+                    ),
+                  ),
+
+                  // Battery Optimization Card: bazı cihazlar arka planda
+                  // bildirimleri susturur — kullanıcıyı uygulama ayarlarına yönlendir.
+                  const SizedBox(height: 12),
+                  Card(
+                    elevation: 1,
+                    color: cardBgColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.battery_saver_outlined,
+                                  color: Colors.orange.shade700, size: 20),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  settingsProvider.tr('battery_title'),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold, fontSize: 15),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            settingsProvider.tr('battery_desc'),
+                            style: const TextStyle(
+                                color: Colors.grey, fontSize: 13),
+                          ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: () async {
+                                await Geolocator.openAppSettings();
+                              },
+                              icon: const Icon(Icons.settings_outlined, size: 18),
+                              label: Text(settingsProvider
+                                  .tr('battery_open_settings')),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: primaryColor,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 12),
+                                side: BorderSide(color: primaryColor),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
 

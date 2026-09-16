@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../constants/app_colors.dart';
 import '../models/prayer_times.dart';
 import '../providers/prayer_provider.dart';
 import '../providers/settings_provider.dart';
@@ -65,8 +66,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       if (mounted) {
-        setState(() {});
-        _updateHomeWidget();
+        // Gün devri / saat dilimi değişiminde vakit + bildirimleri tazele.
+        final prayerProvider = context.read<PrayerProvider>();
+        final settingsProvider = context.read<SettingsProvider>();
+        prayerProvider
+            .refreshIfDateOrTimezoneChanged(settingsProvider)
+            .then((_) {
+          if (mounted) setState(() {});
+          _updateHomeWidget();
+        });
       }
     }
   }
@@ -172,9 +180,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         onCitySelected: (city) {
           context.read<PrayerProvider>().selectCity(city, settingsProvider);
         },
-        onUseGpsPressed: () {
-          context.read<PrayerProvider>().useGpsLocation(settingsProvider);
+        onUseGpsPressed: () async {
+          final ok = await context
+              .read<PrayerProvider>()
+              .useGpsLocation(settingsProvider);
+          if (!context.mounted) return;
           Navigator.pop(context);
+          if (!ok) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(settingsProvider.tr('gps_unavailable')),
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          }
         },
       ),
       isScrollControlled: true,
@@ -1190,7 +1209,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   : null,
               color: isNext
                   ? null
-                  : (isDark ? const Color(0xFF1F2E22) : Colors.grey.shade100),
+                  : (isDark ? AppColors.darkCard : Colors.grey.shade100),
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
                 color: isNext
@@ -1232,14 +1251,21 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   ),
                 ),
                 const SizedBox(height: 2),
-                Text(
-                  prayer.getDisplayTime(),
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: isNext
-                        ? Colors.amber.shade200
-                        : (isDark ? Colors.white : primaryColor),
+                // Büyük yazı tipi ölçeğinde taşmayı önlemek için küçültülebilir.
+                SizedBox(
+                  width: double.infinity,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      prayer.getDisplayTime(),
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: isNext
+                            ? Colors.amber.shade200
+                            : (isDark ? Colors.white : primaryColor),
+                      ),
+                    ),
                   ),
                 ),
               ],

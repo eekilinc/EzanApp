@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../constants/app_colors.dart';
 import '../providers/settings_provider.dart';
 
 class LocationPicker extends StatefulWidget {
@@ -53,8 +54,8 @@ class _LocationPickerState extends State<LocationPicker> {
     final settingsProvider = context.watch<SettingsProvider>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final bgColor = isDark ? const Color(0xFF161F18) : Colors.white;
-    final cardBgColor = isDark ? const Color(0xFF222E25) : Colors.grey.shade100;
+    final bgColor = isDark ? AppColors.darkSurface : Colors.white;
+    final cardBgColor = isDark ? AppColors.darkCardAlt : Colors.grey.shade100;
     final textColor = isDark ? Colors.white : Colors.grey.shade900;
 
     return Container(
@@ -117,6 +118,7 @@ class _LocationPickerState extends State<LocationPicker> {
                 ),
                 IconButton(
                   icon: Icon(Icons.close, color: isDark ? Colors.grey.shade400 : Colors.grey.shade600),
+                  tooltip: settingsProvider.tr('close'),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],
@@ -181,6 +183,7 @@ class _LocationPickerState extends State<LocationPicker> {
               style: TextStyle(color: textColor),
               decoration: InputDecoration(
                 hintText: settingsProvider.tr('search_city'),
+                labelText: settingsProvider.tr('search_city'),
                 hintStyle: TextStyle(color: isDark ? Colors.grey.shade500 : Colors.grey.shade400),
                 prefixIcon: Icon(Icons.search, color: Colors.green.shade700),
                 suffixIcon: _searchController.text.isNotEmpty
@@ -212,7 +215,7 @@ class _LocationPickerState extends State<LocationPicker> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Türkiye İlleri (${_filteredCities.length})',
+                  '${settingsProvider.tr('turkish_cities')} (${_filteredCities.length})',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -225,7 +228,33 @@ class _LocationPickerState extends State<LocationPicker> {
 
           // Cities ListView
           Expanded(
-            child: ListView.builder(
+            child: _filteredCities.isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.search_off,
+                              size: 40,
+                              color: isDark
+                                  ? Colors.grey.shade600
+                                  : Colors.grey.shade400),
+                          const SizedBox(height: 8),
+                          Text(
+                            settingsProvider.tr('no_city_found'),
+                            style: TextStyle(
+                              color: isDark
+                                  ? Colors.grey.shade400
+                                  : Colors.grey.shade600,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               itemCount: _filteredCities.length,
               itemBuilder: (context, index) {

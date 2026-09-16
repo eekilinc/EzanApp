@@ -22,6 +22,7 @@ class SettingsProvider extends ChangeNotifier {
   bool _ongoingNotificationEnabled = false;
   bool _fridayReminderEnabled = true;
   bool _sahurReminderEnabled = false;
+  bool _eventReminderEnabled = true;
   Map<String, int> _prayerTimeOffsets = {
     'Fajr': 0,
     'Sunrise': 0,
@@ -53,6 +54,7 @@ class SettingsProvider extends ChangeNotifier {
   bool get ongoingNotificationEnabled => _ongoingNotificationEnabled;
   bool get fridayReminderEnabled => _fridayReminderEnabled;
   bool get sahurReminderEnabled => _sahurReminderEnabled;
+  bool get eventReminderEnabled => _eventReminderEnabled;
   String get prayerTimesViewMode => _prayerTimesViewMode;
   String _prayerTimesViewMode = 'standard';
 
@@ -146,6 +148,7 @@ class SettingsProvider extends ChangeNotifier {
     _ongoingNotificationEnabled = _prefs.getBool('ongoing_notification_enabled') ?? false;
     _fridayReminderEnabled = _prefs.getBool('friday_reminder_enabled') ?? true;
     _sahurReminderEnabled = _prefs.getBool('sahur_reminder_enabled') ?? false;
+    _eventReminderEnabled = _prefs.getBool('event_reminder_enabled') ?? true;
     _prayerTimesViewMode = _prefs.getString('prayer_times_view_mode') ?? 'standard';
 
     final offsetsJson = _prefs.getString('prayer_time_offsets');
@@ -273,6 +276,12 @@ class SettingsProvider extends ChangeNotifier {
   Future<void> setSahurReminderEnabled(bool enabled) async {
     _sahurReminderEnabled = enabled;
     await _prefs.setBool('sahur_reminder_enabled', enabled);
+    notifyListeners();
+  }
+
+  Future<void> setEventReminderEnabled(bool enabled) async {
+    _eventReminderEnabled = enabled;
+    await _prefs.setBool('event_reminder_enabled', enabled);
     notifyListeners();
   }
 

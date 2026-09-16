@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../constants/app_colors.dart';
 import '../models/prayer_times.dart';
 import '../providers/settings_provider.dart';
 
@@ -236,7 +237,7 @@ class _PrayerCardState extends State<PrayerCard>
         borderRadius: BorderRadius.circular(16),
         side: BorderSide.none,
       ),
-      color: isDark ? Colors.grey.shade900 : Colors.white,
+      color: isDark ? AppColors.darkCard : Colors.white,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: cardContent,
     );

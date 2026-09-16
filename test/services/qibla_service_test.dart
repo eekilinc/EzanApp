@@ -18,5 +18,21 @@ void main() {
       expect(distance, greaterThan(2000));
       expect(distance, lessThan(3000));
     });
+
+    test('validateCoordinates throws on out-of-range values', () {
+      expect(() => QiblaService.calculateQiblaDirection(91, 0),
+          throwsArgumentError);
+      expect(() => QiblaService.calculateQiblaDirection(0, 181),
+          throwsArgumentError);
+      expect(() => QiblaService.calculateDistanceToMecca(-91, 0),
+          throwsArgumentError);
+    });
+
+    test('validateCoordinates accepts boundary values', () {
+      expect(() => QiblaService.calculateQiblaDirection(90, 180),
+          returnsNormally);
+      expect(() => QiblaService.calculateQiblaDirection(-90, -180),
+          returnsNormally);
+    });
   });
 }

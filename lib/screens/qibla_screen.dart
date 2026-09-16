@@ -18,7 +18,8 @@ class QiblaScreen extends StatefulWidget {
 class _QiblaScreenState extends State<QiblaScreen> {
   double _deviceHeading = 0.0; // Device Heading from North (0..360°)
   StreamSubscription<CompassEvent>? _compassSubscription;
-  bool _hasCompassSensor = true;
+  bool _hasCompassSensor = false;
+  bool _manualMode = false;
   bool _wasAligned = false;
 
   @override
@@ -36,24 +37,65 @@ class _QiblaScreenState extends State<QiblaScreen> {
 
   void _initCompass() {
     try {
-      _compassSubscription = FlutterCompass.events?.listen((event) {
-        if (event.heading != null && mounted) {
-          final targetHeading = (event.heading! + 360) % 360;
+      final events = FlutterCompass.events;
+      if (events == null) {
+        // Pusula sensörü yok — manuel modda başla.
+        if (mounted) {
           setState(() {
-            _deviceHeading = _smoothHeading(_deviceHeading, targetHeading);
+            _hasCompassSensor = false;
+            _manualMode = true;
+          });
+        }
+        return;
+      }
+      _compassSubscription = events.listen((event) {
+        if (event.heading != null && mounted && !_manualMode) {
+          final targetHeading = (event.heading! + 360) % 360;
+          final smoothed = _smoothHeading(_deviceHeading, targetHeading);
+          // Hizalanma titreşimi build() içinde değil burada (side-effect güvenli).
+          var aligned = _wasAligned;
+          try {
+            final loc = context.read<PrayerProvider>().location;
+            if (loc != null) {
+              final q = QiblaService.calculateQiblaDirection(
+                  loc.latitude, loc.longitude);
+              final rel = (q - smoothed + 360) % 360;
+              final nowAligned = (rel < 6 || rel > 354);
+              if (nowAligned && !_wasAligned) {
+                HapticFeedback.mediumImpact();
+              }
+              aligned = nowAligned;
+            }
+          } catch (_) {}
+          setState(() {
+            _deviceHeading = smoothed;
             _hasCompassSensor = true;
+            _wasAligned = aligned;
           });
         }
       }, onError: (_) {
         if (mounted) {
           setState(() {
             _hasCompassSensor = false;
+            _manualMode = true;
           });
         }
       });
     } catch (_) {
       _hasCompassSensor = false;
+      _manualMode = true;
     }
+  }
+
+  void _switchToManual(double value) {
+    // Kullanıcı kaydırıcıya dokununca canlı sensörü bırak, manuel kalibrasyona geç.
+    _compassSubscription?.cancel();
+    _compassSubscription = null;
+    setState(() {
+      _manualMode = true;
+      _deviceHeading = value;
+      _wasAligned = false;
+    });
   }
 
   @override
@@ -68,24 +110,23 @@ class _QiblaScreenState extends State<QiblaScreen> {
     final settingsProvider = context.watch<SettingsProvider>();
     final location = prayerProvider.location;
 
+    // Konum yoksa sahte İstanbul değeri gösterme — yer tutucu + bilgi.
     final qiblaAngle = location != null
         ? QiblaService.calculateQiblaDirection(location.latitude, location.longitude)
-        : 151.6;
+        : null;
 
     final distanceKm = location != null
         ? QiblaService.calculateDistanceToMecca(location.latitude, location.longitude)
-        : 2400.0;
+        : null;
 
     // Calculate relative rotation angle for needle/dial relative to device heading
-    final relativeQiblaAngle = (qiblaAngle - _deviceHeading + 360) % 360;
-    final isAligned = (relativeQiblaAngle < 6 || relativeQiblaAngle > 354);
+    final relativeQiblaAngle =
+        qiblaAngle != null ? (qiblaAngle - _deviceHeading + 360) % 360 : 0.0;
+    final isAligned =
+        qiblaAngle != null && (relativeQiblaAngle < 6 || relativeQiblaAngle > 354);
 
-    if (isAligned && !_wasAligned) {
-      _wasAligned = true;
-      HapticFeedback.mediumImpact();
-    } else if (!isAligned) {
-      _wasAligned = false;
-    }
+    // Manuel modda hizalanma rozeti canlı titreşim üretmez; _wasAligned
+    // yalnızca canlı sensör akışında güncellenir (listener içinde).
 
     return Scaffold(
       appBar: AppBar(
@@ -146,7 +187,9 @@ class _QiblaScreenState extends State<QiblaScreen> {
                       Text(
                         isAligned
                             ? settingsProvider.tr('qibla_aligned')
-                            : '${(location?.city == "Current Location" || location?.city == "current_location") ? settingsProvider.tr("current_location") : (location?.city ?? settingsProvider.tr("location"))}: ${qiblaAngle.toStringAsFixed(1)}°',
+                            : (qiblaAngle != null
+                                ? '${(location?.city == "Current Location" || location?.city == "current_location") ? settingsProvider.tr("current_location") : (location?.city ?? settingsProvider.tr("location"))}: ${qiblaAngle.toStringAsFixed(1)}°'
+                                : settingsProvider.tr('qibla_no_location')),
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -207,21 +250,21 @@ class _QiblaScreenState extends State<QiblaScreen> {
                             }),
 
                             // Cardinal Directions
-                            const Positioned(
+                            Positioned(
                               top: 20,
-                              child: Text('K (0°)', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 13)),
+                              child: Text('${settingsProvider.tr('cardinal_n')} (0°)', style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 13)),
                             ),
-                            const Positioned(
+                            Positioned(
                               bottom: 20,
-                              child: Text('G (180°)', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                              child: Text('${settingsProvider.tr('cardinal_s')} (180°)', style: const TextStyle(color: Colors.white70, fontSize: 12)),
                             ),
-                            const Positioned(
+                            Positioned(
                               right: 20,
-                              child: Text('D (90°)', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                              child: Text('${settingsProvider.tr('cardinal_e')} (90°)', style: const TextStyle(color: Colors.white70, fontSize: 12)),
                             ),
-                            const Positioned(
+                            Positioned(
                               left: 20,
-                              child: Text('B (270°)', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                              child: Text('${settingsProvider.tr('cardinal_w')} (270°)', style: const TextStyle(color: Colors.white70, fontSize: 12)),
                             ),
                           ],
                         ),
@@ -285,11 +328,13 @@ class _QiblaScreenState extends State<QiblaScreen> {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: _hasCompassSensor ? Colors.green.shade800 : Colors.orange.shade900,
+                                  color: (_hasCompassSensor && !_manualMode) ? Colors.green.shade800 : Colors.orange.shade900,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
-                                  _hasCompassSensor ? 'Pusula Live 📡' : 'Manuel ⚙️',
+                                  (_hasCompassSensor && !_manualMode)
+                                      ? settingsProvider.tr('qibla_live')
+                                      : settingsProvider.tr('qibla_manual'),
                                   style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -307,12 +352,18 @@ class _QiblaScreenState extends State<QiblaScreen> {
                         max: 360,
                         activeColor: Colors.amber,
                         inactiveColor: Colors.white24,
-                        onChanged: (val) {
-                          setState(() {
-                            _deviceHeading = val;
-                          });
-                        },
+                        onChanged: _switchToManual,
                       ),
+                      if (!_hasCompassSensor || _manualMode)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            settingsProvider.tr('qibla_manual_hint'),
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color: Colors.white60, fontSize: 11),
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -335,7 +386,9 @@ class _QiblaScreenState extends State<QiblaScreen> {
                           Text(settingsProvider.tr('qibla_angle'), style: const TextStyle(color: Colors.white70, fontSize: 13)),
                           const SizedBox(height: 4),
                           Text(
-                            '${qiblaAngle.toStringAsFixed(1)}°',
+                            qiblaAngle != null
+                                ? '${qiblaAngle.toStringAsFixed(1)}°'
+                                : '--',
                             style: const TextStyle(
                               color: Colors.amber,
                               fontSize: 22,
@@ -350,7 +403,9 @@ class _QiblaScreenState extends State<QiblaScreen> {
                           Text(settingsProvider.tr('distance_to_kaaba'), style: const TextStyle(color: Colors.white70, fontSize: 13)),
                           const SizedBox(height: 4),
                           Text(
-                            '${distanceKm.toStringAsFixed(0)} km',
+                            distanceKm != null
+                                ? '${distanceKm.toStringAsFixed(0)} km'
+                                : '--',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 22,

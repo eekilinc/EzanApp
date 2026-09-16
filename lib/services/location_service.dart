@@ -22,15 +22,29 @@ class LocationService {
     }
 
     if (permission == LocationPermission.deniedForever) {
-      await Geolocator.openLocationSettings();
+      // Kalıcı rette konum ayarları değil, uygulama ayarları açılmalı
+      // (kullanıcı izni yalnızca oradan geri verebilir).
+      await Geolocator.openAppSettings();
       return false;
     }
 
     return true;
   }
 
+  /// Cihaz konum servisi (GPS) açık mı?
+  Future<bool> isLocationServiceEnabled() async {
+    try {
+      return await Geolocator.isLocationServiceEnabled();
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<LocationData?> getCurrentLocation() async {
     try {
+      // GPS kapalıysa sessizce değil, erken çık (çağıran kullanıcıya bildirir).
+      if (!await isLocationServiceEnabled()) return null;
+
       final hasPermission = await requestLocationPermission();
       if (!hasPermission) return null;
 
@@ -90,10 +104,14 @@ class LocationService {
   }
 
   Future<LocationData> selectCity(String cityName) async {
-    final city = turkishCities.firstWhere(
+    final matches = turkishCities.where(
       (c) => c.name.toLowerCase() == cityName.toLowerCase(),
-      orElse: () => turkishCities.first,
     );
+    if (matches.isEmpty) {
+      // Sessizce yanlış şehre düşmek yerine hata fırlat (çağıran yakalar).
+      throw ArgumentError('Bilinmeyen şehir: $cityName');
+    }
+    final city = matches.first;
 
     final location = LocationData(
       city: city.name,

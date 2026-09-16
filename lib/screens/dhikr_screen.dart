@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/settings_provider.dart';
 
 class DhikrScreen extends StatefulWidget {
@@ -14,6 +15,47 @@ class _DhikrScreenState extends State<DhikrScreen> {
   int _count = 0;
   int _target = 33;
   int _selectedDhikrIndex = 0;
+
+  static const String _kCountKey = 'dhikr_count';
+  static const String _kTargetKey = 'dhikr_target';
+  static const String _kIndexKey = 'dhikr_selected_index';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadState();
+  }
+
+  Future<void> _loadState() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (!mounted) return;
+      setState(() {
+        _count = prefs.getInt(_kCountKey) ?? 0;
+        _target = prefs.getInt(_kTargetKey) ?? 33;
+        final idx = prefs.getInt(_kIndexKey) ?? 0;
+        _selectedDhikrIndex =
+            (idx >= 0 && idx < _dhikrList.length) ? idx : 0;
+      });
+    } catch (_) {}
+  }
+
+  Future<void> _saveState() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_kCountKey, _count);
+      await prefs.setInt(_kTargetKey, _target);
+      await prefs.setInt(_kIndexKey, _selectedDhikrIndex);
+    } catch (_) {}
+  }
+
+  bool get _vibrationOn {
+    try {
+      return context.read<SettingsProvider>().vibrationEnabled;
+    } catch (_) {
+      return true;
+    }
+  }
 
   final List<Map<String, String>> _dhikrList = [
     {
@@ -61,20 +103,22 @@ class _DhikrScreenState extends State<DhikrScreen> {
   ];
 
   void _incrementCount() {
-    HapticFeedback.lightImpact();
+    if (_vibrationOn) HapticFeedback.lightImpact();
     setState(() {
       _count++;
-      if (_target > 0 && _count == _target) {
+      if (_target > 0 && _count == _target && _vibrationOn) {
         HapticFeedback.vibrate();
       }
     });
+    _saveState();
   }
 
   void _resetCount() {
-    HapticFeedback.mediumImpact();
+    if (_vibrationOn) HapticFeedback.mediumImpact();
     setState(() {
       _count = 0;
     });
+    _saveState();
   }
 
   @override
@@ -168,6 +212,7 @@ class _DhikrScreenState extends State<DhikrScreen> {
                               _selectedDhikrIndex = val;
                               _count = 0;
                             });
+                            _saveState();
                           }
                         },
                       ),
@@ -252,6 +297,7 @@ class _DhikrScreenState extends State<DhikrScreen> {
                         setState(() {
                           _target = targetVal;
                         });
+                        _saveState();
                       },
                     ),
                   );

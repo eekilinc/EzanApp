@@ -129,10 +129,14 @@ class IslamicEventService {
   static List<IslamicEvent> getUpcomingEvents() {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final upcoming = events.where((e) => e.gregorianDate.isAfter(today) || e.gregorianDate.isAtSameMomentAs(today)).toList();
-    if (upcoming.isEmpty) {
-      return events;
-    }
+    final upcoming = events.where((e) => !e.gregorianDate.isBefore(today)).toList();
+    upcoming.sort((a, b) => a.gregorianDate.compareTo(b.gregorianDate));
     return upcoming;
+  }
+
+  /// Hatırlatma için sıradaki etkinlik (bugün dahil), yoksa null.
+  static IslamicEvent? getNextEvent() {
+    final upcoming = getUpcomingEvents();
+    return upcoming.isEmpty ? null : upcoming.first;
   }
 }
