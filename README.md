@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/eekilinc/EzanApp/releases/latest"><strong>↓ Son Final APK'yı İndir (v5.2.2)</strong></a>
+  <a href="https://github.com/eekilinc/EzanApp/releases/latest"><strong>↓ Son Final APK'yı İndir (v5.3.0)</strong></a>
   · <a href="#-kurulum-ve-kullanım">Kurulum</a>
   · <a href="RELEASE_NOTES.md">Sürüm Notları</a>
   · <a href="#-android-imzalaması-app-signing">İmzalama</a>
@@ -56,17 +56,16 @@ Ezan Hatırlatıcı, sıradan vakit uygulamalarının ötesinde, her vakit için
 
 ---
 
-## 🎉 5.2.2 ile Gelen Yenilikler
+## 🎉 5.3.0 ile Gelen Yenilikler
 
 Kalıcı paket ve imza korunur; önceki sürümleri kaldırmadan doğrudan güncelleyebilirsiniz:
 
-- 🔧 **Konum Adı Düzeltmesi:** `geocoding` 5.x yeni sınıf API'sine uyum (derleme hatası giderildi).
-- ⚡ **Performans:** Önbellekli arka plan, pil dostu sayaç, hızlı bildirim planlama.
-- 📍 **Konum Adı:** GPS ile il/ilçe gösterimi.
-- 🏠 **Ana Ekran:** Sayaç + liste art arda, ayet en altta.
+- 📖 **Sticky Ayet Şeridi:** Günün ayeti ince sabit şeritte, dokununca tam metin açılıyor.
 
 ## 🕘 Önceki Sürümler
 
+- ⚡ **Performans:** Önbellekli arka plan, pil dostu sayaç, hızlı bildirim planlama.
+- 📍 **Konum Adı:** GPS ile il/ilçe gösterimi.
 - 🌅 **Güneş Zaman Çizelgesi:** Sabah sonrası sıradaki vakit artık Güneş; sayaç, ilerleme çubuğu ve bildirimler 6'lı çizelgeyle senkron.
 - 🔔 **Bildirim Sesi Düzeltmesi:** Zamanlanmış ezan/hatırlatıcı sesleri artık ayara uygun çalıyor.
 - 🌙 **Gece Yarısı Sayacı Düzeltmesi:** 00:00–Sabah arası mevcut-vakit mantığı düzeltildi.
@@ -86,7 +85,7 @@ Kalıcı paket ve imza korunur; önceki sürümleri kaldırmadan doğrudan günc
 
 ### 1. Kullanıcılar İçin (APK İndirme)
 1. **[Son Final Sürümünü](https://github.com/eekilinc/EzanApp/releases/latest)** açın.
-2. `EzanApp-v5.2.2.apk` dosyasını telefonunuza indirin ve kurun.
+2. `EzanApp-v5.3.0.apk` dosyasını telefonunuza indirin ve kurun.
 3. Uygulamayı açtığınızda GPS izni verin veya listeden şehrinizi seçin.
 
 ### 2. Geliştiriciler İçin (Kaynak Koddan Derleme)

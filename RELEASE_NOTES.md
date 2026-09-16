@@ -1,3 +1,14 @@
+# Ezan Hatırlatıcı v5.3.0 - Final Release Notes
+
+**Tarih**: 2026-09-17
+**Sürüm**: 5.3.0+87
+
+## 🎉 Sürüm 5.3.0 Yenilikleri
+
+- 📖 **Sticky Ayet Şeridi:** Günün ayet/hadisi artık alt barın üstünde ince sabit şeritte (tek satır önizleme); dokununca tam metin, kaynak ve kopyala butonuyla alt sayfada açılıyor. Namaz listesi tam ekrana sığıyor, ayet için kaydırmaya gerek kalmıyor.
+
+---
+
 # Ezan Hatırlatıcı v5.2.2 - Final Release Notes
 
 **Tarih**: 2026-09-17

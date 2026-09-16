@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       version_tag:
-        description: 'Release Tag (e.g. v5.2.2)'
+        description: 'Release Tag (e.g. v5.3.0)'
         required: false
-        default: 'v5.2.2'
+        default: 'v5.3.0'
 
 permissions:
   contents: write
@@ -74,7 +74,7 @@ jobs:
           elif [ -n "${{ github.ref_name }}" ]; then
             TAG="${{ github.ref_name }}"
           else
-            TAG="v5.2.2"
+            TAG="v5.3.0"
           fi
           
           echo "tag=$TAG" >> $GITHUB_OUTPUT
@@ -111,9 +111,10 @@ jobs:
             ---
 
             ### 🎉 Yenilikler ve Öne Çıkanlar
+            * 📖 **Sticky Ayet Şeridi:** Günün ayet/hadisi artık ince sabit şeritte; dokununca tam metin alt sayfada. Liste tam ekrana sığıyor.
             * ⚡ **Performans:** Arka plan deseni tek katmanda önbellekli, uygulama arkaplandayken sayaç duruyor (pil), bildirim planlama hızlandı, pusula gereksiz çizimleri atlıyor.
             * 📍 **Konum Adı:** GPS ile "Kadıköy, İstanbul" gibi il/ilçe gösterimi (çevrimdışıyken "Mevcut Konum").
-            * 🏠 **Ana Ekran:** Sayaç + liste art arda, ayet kartı en altta, araçlar sabit alt barda.
+            * 🏠 **Ana Ekran:** Sayaç + liste art arda, araçlar sabit alt barda.
             * 📊 **Canlı Vakit İlerleme Çubuğu:** Sonraki vakte kalan süreyi ve mevcut vakit aralığının tamamlanma yüzdesini gösteren dinamik gösterge.
             * 🕌 **5 Farklı Dünya Ezanı & Özel Manevi Tonlar:** Mekke, Medine, İstanbul, Kahire ve Mescid-i Aksa ezanları; Ney, Çağrı müziği ve Salavat tonları.
             * 🧭 **Canlı Donanımsal Kıble Pusulası:** Titreşimli Kabe hizalanma algılayıcısı ve yön hesaplama.
