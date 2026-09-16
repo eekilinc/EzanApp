@@ -1,3 +1,16 @@
+# Ezan Hatırlatıcı v5.2.1 - Final Release Notes
+
+**Tarih**: 2026-09-17
+**Sürüm**: 5.2.1+85
+
+## 🎉 Sürüm 5.2.1 Yenilikleri (Performans + Konum)
+
+- ⚡ **Performans:** Arka plan deseni `RepaintBoundary` ile tek katmanda önbellekli; uygulama arkaplandayken 1 sn'lik sayaç duruyor (pil tasarrufu); bildirim kanal oluşturma oturumda bir kez yapılıyor (~100 platform çağrısı → ~2); pusula mikro oynamalarda rebuild atlıyor.
+- 📍 **Konum Adı Çözümü:** GPS konumunda resmi `geocoding` eklentisiyle "İlçe, İl" gösterimi (örn. Kadıköy, İstanbul); ~1 km ızgara önbellekli, çevrimdışında "Mevcut Konum" fallback'i.
+- 🏠 **Ana Ekran Sıralaması:** Konum → Sayaç → Liste → Ayet kartı (sayaç ile liste art arda).
+
+---
+
 # Ezan Hatırlatıcı v5.2.0 - Final Release Notes
 
 **Tarih**: 2026-09-17
