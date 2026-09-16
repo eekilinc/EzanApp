@@ -680,69 +680,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         ),
                       ),
 
-                      // Single-Row 5-Item Compact Quick Action Bar (Ultra-efficient 70px height)
-                      Container(
-                        width: double.infinity,
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF18241B) : Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.06),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            _buildCompactQuickAction(
-                              context: context,
-                              icon: Icons.explore_rounded,
-                              label: settingsProvider.tr('qibla'),
-                              color: Colors.green,
-                              route: '/qibla',
-                              isDark: isDark,
-                            ),
-                            _buildCompactQuickAction(
-                              context: context,
-                              icon: Icons.touch_app_rounded,
-                              label: settingsProvider.appLanguage == 'en' ? 'Dhikr' : 'Zikirmatik',
-                              color: Colors.teal,
-                              route: '/dhikr',
-                              isDark: isDark,
-                            ),
-                            _buildCompactQuickAction(
-                              context: context,
-                              icon: Icons.calendar_month_rounded,
-                              label: settingsProvider.appLanguage == 'en' ? 'Events' : 'Dini Günler',
-                              color: Colors.amber,
-                              route: '/calendar',
-                              isDark: isDark,
-                            ),
-                            _buildCompactQuickAction(
-                              context: context,
-                              icon: Icons.calendar_today_rounded,
-                              label: settingsProvider.tr('monthly_times'),
-                              color: Colors.blue,
-                              route: '/monthly',
-                              isDark: isDark,
-                            ),
-                            _buildCompactQuickAction(
-                              context: context,
-                              icon: Icons.menu_book_rounded,
-                              label: settingsProvider.appLanguage == 'en' ? 'Duas' : 'Dualar',
-                              color: Colors.purple,
-                              route: '/duas',
-                              isDark: isDark,
-                            ),
-                          ],
-                        ),
-                      ),
-
                       // Next Prayer Live Countdown Banner
                       Container(
                         width: double.infinity,
@@ -1069,6 +1006,76 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             ),
           );
         },
+      ),
+      // Altta sabit hızlı erişim barı: Konum → Sayaç → Ayet → Liste
+      // sıralamasının ardından araçlar her zaman başparmak mesafesinde.
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Container(
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.darkSurface : Colors.white,
+            border: Border(
+              top: BorderSide(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : Colors.black.withValues(alpha: 0.08),
+              ),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
+                blurRadius: 10,
+                offset: const Offset(0, -3),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildCompactQuickAction(
+                context: context,
+                icon: Icons.explore_rounded,
+                label: settingsProvider.tr('qibla'),
+                color: Colors.green,
+                route: '/qibla',
+                isDark: isDark,
+              ),
+              _buildCompactQuickAction(
+                context: context,
+                icon: Icons.touch_app_rounded,
+                label: settingsProvider.appLanguage == 'en' ? 'Dhikr' : 'Zikirmatik',
+                color: Colors.teal,
+                route: '/dhikr',
+                isDark: isDark,
+              ),
+              _buildCompactQuickAction(
+                context: context,
+                icon: Icons.calendar_month_rounded,
+                label: settingsProvider.appLanguage == 'en' ? 'Events' : 'Dini Günler',
+                color: Colors.amber,
+                route: '/calendar',
+                isDark: isDark,
+              ),
+              _buildCompactQuickAction(
+                context: context,
+                icon: Icons.calendar_today_rounded,
+                label: settingsProvider.tr('monthly_times'),
+                color: Colors.blue,
+                route: '/monthly',
+                isDark: isDark,
+              ),
+              _buildCompactQuickAction(
+                context: context,
+                icon: Icons.menu_book_rounded,
+                label: settingsProvider.appLanguage == 'en' ? 'Duas' : 'Dualar',
+                color: Colors.purple,
+                route: '/duas',
+                isDark: isDark,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
