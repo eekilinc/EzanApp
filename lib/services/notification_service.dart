@@ -105,6 +105,7 @@ class NotificationService {
           audioAttributesUsage: AudioAttributesUsage.alarm,
         );
         await androidImplementation.createNotificationChannel(channel);
+        _markChannelCreated(_getChannelId(sKey));
       }
 
       try {
@@ -184,6 +185,44 @@ class NotificationService {
     }
   }
 
+  /// Oturum içi kanal önbelleği: ~100 zamanlanmış bildirimin her birinde
+  /// platform kanalını yeniden oluşturmak ciddi yavaşlıktı. Kanal sesi
+  /// Android'de ilk oluşturmada kilitlendiği için tekrar oluşturma zaten
+  /// etkisizdi — oturumda bir kez oluşturmak davranış değiştirmez.
+  static final Set<String> _createdChannels = {};
+
+  static void _markChannelCreated(String channelId) {
+    _createdChannels.add(channelId);
+  }
+
+  Future<void> _ensureChannel({
+    required String channelId,
+    required String soundKey,
+    required bool soundEnabled,
+    required bool vibrationEnabled,
+  }) async {
+    if (_createdChannels.contains(channelId)) return;
+    final androidImplementation = _notificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+    if (androidImplementation == null) return;
+    try {
+      final channel = AndroidNotificationChannel(
+        channelId,
+        'Ezan Hatırlatıcı ($soundKey)',
+        description: 'Namaz vakitleri hatırlatma bildirimleri',
+        importance: Importance.max,
+        playSound: soundEnabled,
+        sound: soundEnabled ? _getSoundResource(soundKey) : null,
+        enableVibration: vibrationEnabled,
+        vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
+        audioAttributesUsage: AudioAttributesUsage.alarm,
+      );
+      await androidImplementation.createNotificationChannel(channel);
+      _createdChannels.add(channelId);
+    } catch (_) {}
+  }
+
   tz.TZDateTime _toTZDateTime(DateTime scheduledTime) {
     try {
       final now = DateTime.now();
@@ -215,20 +254,12 @@ class NotificationService {
         await androidImplementation.requestExactAlarmsPermission();
       } catch (_) {}
 
-      try {
-        final channel = AndroidNotificationChannel(
-          channelId,
-          'Ezan Hatırlatıcı ($soundKey)',
-          description: 'Namaz vakitleri hatırlatma bildirimleri',
-          importance: Importance.max,
-          playSound: soundEnabled,
-          sound: soundEnabled ? _getSoundResource(soundKey) : null,
-          enableVibration: vibrationEnabled,
-          vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
-          audioAttributesUsage: AudioAttributesUsage.alarm,
-        );
-        await androidImplementation.createNotificationChannel(channel);
-      } catch (_) {}
+      await _ensureChannel(
+        channelId: channelId,
+        soundKey: soundKey,
+        soundEnabled: soundEnabled,
+        vibrationEnabled: vibrationEnabled,
+      );
     }
 
     try {
@@ -309,22 +340,12 @@ class NotificationService {
 
     final androidImplementation = _notificationsPlugin
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
-    if (androidImplementation != null) {
-      try {
-        final channel = AndroidNotificationChannel(
-          channelId,
-          'Ezan Hatırlatıcı ($soundKey)',
-          description: 'Namaz vakitleri hatırlatma bildirimleri',
-          importance: Importance.max,
-          playSound: soundEnabled,
-          sound: soundEnabled ? _getSoundResource(soundKey) : null,
-          enableVibration: vibrationEnabled,
-          vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
-          audioAttributesUsage: AudioAttributesUsage.alarm,
-        );
-        await androidImplementation.createNotificationChannel(channel);
-      } catch (_) {}
-    }
+    await _ensureChannel(
+      channelId: channelId,
+      soundKey: soundKey,
+      soundEnabled: soundEnabled,
+      vibrationEnabled: vibrationEnabled,
+    );
 
     final notificationDetails = NotificationDetails(
       android: AndroidNotificationDetails(

@@ -66,6 +66,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       if (mounted) {
+        // Arka plandan dönüşte sayacı yeniden başlat (paused'da durmuştu).
+        _startCountdownTimer();
         // Gün devri / saat dilimi değişiminde vakit + bildirimleri tazele.
         final prayerProvider = context.read<PrayerProvider>();
         final settingsProvider = context.read<SettingsProvider>();
@@ -76,6 +78,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           _updateHomeWidget();
         });
       }
+    } else if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached) {
+      // Pil: uygulama görünmüyorken 1 sn'lik rebuild sayacını durdur.
+      _countdownTimer?.cancel();
     }
   }
 
@@ -496,10 +503,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       body: Stack(
         children: [
           Positioned.fill(
-            child: CustomPaint(
-              painter: IslamicPatternPainter(
-                color: primaryColor,
-                isDark: isDark,
+            // Desen katmanını izole et: 1 sn'lik sayaç rebuild'leri her seferinde
+            // ~700 yolu yeniden rasterize etmesin, bir kez önbelleklensin.
+            child: RepaintBoundary(
+              child: CustomPaint(
+                painter: IslamicPatternPainter(
+                  color: primaryColor,
+                  isDark: isDark,
+                ),
               ),
             ),
           ),

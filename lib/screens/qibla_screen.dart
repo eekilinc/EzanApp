@@ -60,6 +60,9 @@ class _QiblaScreenState extends State<QiblaScreen> {
     return (oldHeading + diff * 0.25 + 360) % 360;
   }
 
+  /// Dairesel fark (derece, -180..180).
+  static double _circDiff(double a, double b) => ((a - b + 540) % 360) - 180;
+
   void _initCompass() {
     if (_compassSubscription != null) return; // Zaten canlı akış var.
     try {
@@ -104,6 +107,14 @@ class _QiblaScreenState extends State<QiblaScreen> {
               aligned = nowAligned;
             }
           } catch (_) {}
+          // Mikro oynamalarda rebuild atla (sensör ~10-20 Hz ateşler):
+          // değer yine de güncellenir, ekran sadece anlamlı değişimde çizilir.
+          if (_hasCompassSensor &&
+              _circDiff(smoothed, _deviceHeading).abs() < 0.2 &&
+              aligned == _wasAligned) {
+            _deviceHeading = smoothed;
+            return;
+          }
           setState(() {
             _deviceHeading = smoothed;
             _hasCompassSensor = true;
