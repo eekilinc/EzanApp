@@ -1,3 +1,17 @@
+# Ezan Hatırlatıcı v5.2.2 - Final Release Notes
+
+**Tarih**: 2026-09-17
+**Sürüm**: 5.2.2+86
+
+## 🎉 Sürüm 5.2.2 Yenilikleri (Hotfix + Performans + Konum)
+
+- 🔧 **Derleme Düzeltmesi:** `geocoding` 5.x sınıf API'sine uyum + kullanılmayan değişken temizliği (`flutter analyze` temiz).
+- ⚡ **Performans:** Arka plan deseni `RepaintBoundary` ile tek katmanda önbellekli; uygulama arkaplandayken 1 sn'lik sayaç duruyor; bildirim kanal oluşturma oturumda bir kez; pusula mikro oynamalarda rebuild atlıyor.
+- 📍 **Konum Adı Çözümü:** GPS konumunda "İlçe, İl" gösterimi; ~1 km ızgara önbellekli, çevrimdışında "Mevcut Konum" fallback'i.
+- 🏠 **Ana Ekran Sıralaması:** Konum → Sayaç → Liste → Ayet kartı.
+
+---
+
 # Ezan Hatırlatıcı v5.2.1 - Final Release Notes
 
 **Tarih**: 2026-09-17
