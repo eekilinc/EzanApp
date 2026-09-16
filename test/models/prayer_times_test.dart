@@ -51,6 +51,7 @@ void main() {
         },
         'timings': {
           'Fajr': '05:30',
+          'Sunrise': '06:45',
           'Dhuhr': '12:30',
           'Asr': '15:45',
           'Maghrib': '18:15',
@@ -61,9 +62,41 @@ void main() {
       final prayerTimes = PrayerTimes.fromJson(json);
       final prayers = prayerTimes.getPrayerList();
 
+      // Ezan listesi 5 vakit olmalı (Güneş hariç)
       expect(prayers.length, 5);
       expect(prayers[0].name, 'Fajr');
       expect(prayers[4].name, 'Isha');
+      expect(prayers.any((p) => p.name == 'Sunrise'), isFalse);
+    });
+
+    test('getTimelineList includes Sunrise in correct order', () {
+      final json = {
+        'date': {
+          'gregorian': {'date': '22-7-2026'}
+        },
+        'timings': {
+          'Fajr': '05:30',
+          'Sunrise': '06:45',
+          'Dhuhr': '12:30',
+          'Asr': '15:45',
+          'Maghrib': '18:15',
+          'Isha': '19:30',
+        }
+      };
+
+      final prayerTimes = PrayerTimes.fromJson(json);
+      final timeline = prayerTimes.getTimelineList();
+
+      expect(timeline.length, 6);
+      expect(timeline.map((e) => e.name).toList(),
+          ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']);
+    });
+
+    test('isAdhanTime returns false only for Sunrise', () {
+      expect(PrayerTimes.isAdhanTime('Sunrise'), isFalse);
+      expect(PrayerTimes.isAdhanTime('Fajr'), isTrue);
+      expect(PrayerTimes.isAdhanTime('Dhuhr'), isTrue);
+      expect(PrayerTimes.isAdhanTime('Isha'), isTrue);
     });
 
     test('withOffsets adjusts timings correctly', () {

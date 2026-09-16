@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -42,7 +43,7 @@ class ApiService {
         _memoryCache[cacheKey] = prayerTimes;
 
         // Background refresh in background without blocking UI
-        _fetchAndCacheToday(latitude, longitude, school, calcMethod, cacheKey, prefs).ignore();
+        unawaited(_fetchAndCacheToday(latitude, longitude, school, calcMethod, cacheKey, prefs));
 
         return prayerTimes;
       } catch (_) {}

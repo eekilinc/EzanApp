@@ -43,7 +43,7 @@ void main() async {
           if (context != null) {
             try {
               final settingsProvider = context.read<SettingsProvider>();
-              if (settingsProvider.adhanSoundEnabled) {
+              if (settingsProvider.effectiveAdhanSoundEnabled) {
                 AudioService().playNotificationSound(settingsProvider.adhanSound);
               }
             } catch (_) {}

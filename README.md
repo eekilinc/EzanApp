@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/eekilinc/EzanApp/releases/latest"><strong>↓ Son Final APK'yı İndir (v5.0.1)</strong></a>
+  <a href="https://github.com/eekilinc/EzanApp/releases/latest"><strong>↓ Son Final APK'yı İndir (v5.0.2)</strong></a>
   · <a href="#-kurulum-ve-kullanım">Kurulum</a>
   · <a href="RELEASE_NOTES.md">Sürüm Notları</a>
   · <a href="#-android-imzalaması-app-signing">İmzalama</a>
@@ -56,10 +56,14 @@ Ezan Hatırlatıcı, sıradan vakit uygulamalarının ötesinde, her vakit için
 
 ---
 
-## 🎉 5.0.1 ile Gelen Yenilikler
+## 🎉 5.0.2 ile Gelen Yenilikler
 
 Kalıcı paket ve imza korunur; önceki sürümleri kaldırmadan doğrudan güncelleyebilirsiniz:
 
+- 🌅 **Güneş Zaman Çizelgesi:** Sabah sonrası sıradaki vakit artık Güneş; sayaç, ilerleme çubuğu ve bildirimler 6'lı çizelgeyle senkron.
+- 🔔 **Bildirim Sesi Düzeltmesi:** Zamanlanmış ezan/hatırlatıcı sesleri artık ayara uygun çalıyor.
+- 🌙 **Gece Yarısı Sayacı Düzeltmesi:** 00:00–Sabah arası mevcut-vakit mantığı düzeltildi.
+- 🔊 **Ses Tercihleri Korunur:** Ana ses anahtarı alt tercihleri ezmiyor.
 - 🚀 **Uygulama İçi GitHub Güncelleme Sistemi:** Yeni bir sürüm çıktığında uygulama içinde otomatik algılama, sürüm notlarını görüntüleme ve tek tıkla APK indirip güncelleme desteği.
 - 📦 **Dinamik Sürüm Yönetimi:** Tüm ekranlarda ve ayarlarda merkezi `AppVersion` kaynağı; versiyon uyumsuzlukları ve manuel metin hataları tamamen sonlandırıldı.
 - ⏱️ **Namaz Vakti Manuel Tolerans (Offset) Motoru:** Bölgesel farklılıklar veya yerel cami saatleri için her vakte bağımsız `+/- 15 dk` ekleyebilme/çıkarabilme.
@@ -75,7 +79,7 @@ Kalıcı paket ve imza korunur; önceki sürümleri kaldırmadan doğrudan günc
 
 ### 1. Kullanıcılar İçin (APK İndirme)
 1. **[Son Final Sürümünü](https://github.com/eekilinc/EzanApp/releases/latest)** açın.
-2. `EzanApp-v5.0.1.apk` dosyasını telefonunuza indirin ve kurun.
+2. `EzanApp-v5.0.2.apk` dosyasını telefonunuza indirin ve kurun.
 3. Uygulamayı açtığınızda GPS izni verin veya listeden şehrinizi seçin.
 
 ### 2. Geliştiriciler İçin (Kaynak Koddan Derleme)

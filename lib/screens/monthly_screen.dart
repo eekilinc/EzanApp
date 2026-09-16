@@ -47,6 +47,7 @@ class _MonthlyScreenState extends State<MonthlyScreen> {
         year: now.year,
         month: now.month,
         school: settingsProvider.asrSchool,
+        calcMethod: settingsProvider.calcMethod,
       );
 
       if (mounted) {
@@ -199,7 +200,10 @@ class _MonthlyScreenState extends State<MonthlyScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                           itemCount: _monthlyTimes.length,
                           itemBuilder: (context, index) {
-                            final item = _monthlyTimes[index];
+                            final rawItem = _monthlyTimes[index];
+                            // Manuel toleransları aylık tabloya da yansıt.
+                            final item = rawItem.withOffsets(
+                                settingsProvider.prayerTimeOffsets);
                             final isToday = item.date.day == now.day && item.date.month == now.month && item.date.year == now.year;
 
                             return Container(
