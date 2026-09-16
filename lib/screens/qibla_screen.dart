@@ -36,6 +36,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
   }
 
   void _initCompass() {
+    if (_compassSubscription != null) return; // Zaten canlı akış var.
     try {
       final events = FlutterCompass.events;
       if (events == null) {
@@ -49,7 +50,9 @@ class _QiblaScreenState extends State<QiblaScreen> {
         return;
       }
       _compassSubscription = events.listen((event) {
-        if (event.heading != null && mounted && !_manualMode) {
+        // Bazı cihazlar geçersiz okumada negatif başlık gönderir — örneği atla.
+        if (event.heading == null || event.heading! < 0) return;
+        if (mounted && !_manualMode) {
           final targetHeading = (event.heading! + 360) % 360;
           final smoothed = _smoothHeading(_deviceHeading, targetHeading);
           // Hizalanma titreşimi build() içinde değil burada (side-effect güvenli).
@@ -93,9 +96,20 @@ class _QiblaScreenState extends State<QiblaScreen> {
     _compassSubscription = null;
     setState(() {
       _manualMode = true;
-      _deviceHeading = value;
+      _deviceHeading = value % 360;
       _wasAligned = false;
     });
+  }
+
+  void _resumeLive() {
+    // Rozete dokununca canlı sensöre geri dön.
+    if (_manualMode) {
+      setState(() {
+        _manualMode = false;
+        _wasAligned = false;
+      });
+      _initCompass();
+    }
   }
 
   @override
@@ -131,7 +145,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(settingsProvider.tr('qibla')),
-        backgroundColor: Colors.green.shade800,
+        backgroundColor: settingsProvider.primaryColor,
         foregroundColor: Colors.white,
         centerTitle: true,
       ),
@@ -184,16 +198,23 @@ class _QiblaScreenState extends State<QiblaScreen> {
                         size: 22,
                       ),
                       const SizedBox(width: 8),
-                      Text(
-                        isAligned
-                            ? settingsProvider.tr('qibla_aligned')
-                            : (qiblaAngle != null
-                                ? '${(location?.city == "Current Location" || location?.city == "current_location") ? settingsProvider.tr("current_location") : (location?.city ?? settingsProvider.tr("location"))}: ${qiblaAngle.toStringAsFixed(1)}°'
-                                : settingsProvider.tr('qibla_no_location')),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: MediaQuery.of(context).size.width - 140,
+                        ),
+                        child: Text(
+                          isAligned
+                              ? settingsProvider.tr('qibla_aligned')
+                              : (qiblaAngle != null
+                                  ? '${(location?.city == "Current Location" || location?.city == "current_location") ? settingsProvider.tr("current_location") : (location?.city ?? settingsProvider.tr("location"))}: ${qiblaAngle.toStringAsFixed(1)}°'
+                                  : settingsProvider.tr('qibla_no_location')),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
@@ -325,17 +346,22 @@ class _QiblaScreenState extends State<QiblaScreen> {
                                 style: const TextStyle(color: Colors.white70, fontSize: 13),
                               ),
                               const SizedBox(width: 6),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: (_hasCompassSensor && !_manualMode) ? Colors.green.shade800 : Colors.orange.shade900,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  (_hasCompassSensor && !_manualMode)
-                                      ? settingsProvider.tr('qibla_live')
-                                      : settingsProvider.tr('qibla_manual'),
-                                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                              // Rozete dokunmak manuel moddan canlı sensöre döndürür.
+                              InkWell(
+                                borderRadius: BorderRadius.circular(8),
+                                onTap: _hasCompassSensor ? _resumeLive : null,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: (_hasCompassSensor && !_manualMode) ? Colors.green.shade800 : Colors.orange.shade900,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    (_hasCompassSensor && !_manualMode)
+                                        ? settingsProvider.tr('qibla_live')
+                                        : settingsProvider.tr('qibla_manual'),
+                                    style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                                  ),
                                 ),
                               ),
                             ],
@@ -362,6 +388,17 @@ class _QiblaScreenState extends State<QiblaScreen> {
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                                 color: Colors.white60, fontSize: 11),
+                          ),
+                        ),
+                      if (_manualMode && _hasCompassSensor)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Text(
+                            settingsProvider.tr('qibla_resume_hint'),
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color: Colors.amber, fontSize: 11,
+                                fontWeight: FontWeight.w600),
                           ),
                         ),
                     ],
