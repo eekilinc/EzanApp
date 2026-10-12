@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/hijri_service.dart';
 
 class IslamicEvent {
   final String titleTr;
@@ -27,116 +28,188 @@ class IslamicEvent {
   int get daysRemaining {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final eventDay = DateTime(gregorianDate.year, gregorianDate.month, gregorianDate.day);
+    final eventDay = DateTime(
+      gregorianDate.year,
+      gregorianDate.month,
+      gregorianDate.day,
+    );
     return eventDay.difference(today).inDays;
   }
 }
 
+/// Bir dini günün tanımı: adımlar + hicri ay/günü.
+///
+/// Gregorian tarihi **sabit yazılmaz**; her çağrıda
+/// [HijriService.toHijri] ile "sıradaki oluşumu" bulunur. Böylece liste
+/// hiçbir zaman elle güncelleme gerektirmez ve yıl sonunda boşalmaz.
+class _EventDefinition {
+  final String titleTr;
+  final String titleEn;
+  final int hijriMonth; // 1 = Muharrem ... 12 = Zilhicce
+  final int hijriDay;
+
+  /// Hicri yıl başlığa yansıtılacaksa (ör. "Hicri Yılbaşı (1449)").
+  final bool includeHijriYearInTitle;
+
+  final IconData icon;
+  final Color color;
+
+  const _EventDefinition({
+    required this.titleTr,
+    required this.titleEn,
+    required this.hijriMonth,
+    required this.hijriDay,
+    this.includeHijriYearInTitle = false,
+    required this.icon,
+    required this.color,
+  });
+}
+
 class IslamicEventService {
-  static final List<IslamicEvent> events = [
-    IslamicEvent(
-      titleTr: 'Miraç Kandili',
-      titleEn: 'Isra and Miraj Night',
-      hijri: '27 Recep 1447',
-      dateTr: '15 Ocak 2026 Perşembe',
-      dateEn: '15 Jan 2026 Thursday',
-      gregorianDate: DateTime(2026, 1, 15),
-      icon: Icons.auto_awesome,
-      color: Colors.purple,
-    ),
-    IslamicEvent(
-      titleTr: 'Berat Kandili',
-      titleEn: 'Shab-e-Barat',
-      hijri: '15 Şaban 1447',
-      dateTr: '2 Şubat 2026 Pazartesi',
-      dateEn: '2 Feb 2026 Monday',
-      gregorianDate: DateTime(2026, 2, 2),
-      icon: Icons.brightness_7,
-      color: Colors.blue,
-    ),
-    IslamicEvent(
-      titleTr: 'Ramazan-ı Şerif Başlangıcı',
-      titleEn: 'First Day of Ramadan',
-      hijri: '1 Ramazan 1447',
-      dateTr: '18 Şubat 2026 Çarşamba',
-      dateEn: '18 Feb 2026 Wednesday',
-      gregorianDate: DateTime(2026, 2, 18),
-      icon: Icons.mosque,
-      color: Colors.green,
-    ),
-    IslamicEvent(
-      titleTr: 'Kadir Gecesi',
-      titleEn: 'Laylat al-Qadr',
-      hijri: '27 Ramazan 1447',
-      dateTr: '15 Mart 2026 Pazar',
-      dateEn: '15 Mar 2026 Sunday',
-      gregorianDate: DateTime(2026, 3, 15),
-      icon: Icons.star,
-      color: Colors.amber,
-    ),
-    IslamicEvent(
-      titleTr: 'Ramazan Bayramı (1. Gün)',
-      titleEn: 'Eid al-Fitr (Day 1)',
-      hijri: '1 Şevval 1447',
-      dateTr: '20 Mart 2026 Cuma',
-      dateEn: '20 Mar 2026 Friday',
-      gregorianDate: DateTime(2026, 3, 20),
-      icon: Icons.celebration,
-      color: Colors.teal,
-    ),
-    IslamicEvent(
-      titleTr: 'Kurban Bayramı (1. Gün)',
-      titleEn: 'Eid al-Adha (Day 1)',
-      hijri: '10 Zilhicce 1447',
-      dateTr: '27 Mayıs 2026 Çarşamba',
-      dateEn: '27 May 2026 Wednesday',
-      gregorianDate: DateTime(2026, 5, 27),
-      icon: Icons.favorite,
-      color: Colors.deepOrange,
-    ),
-    IslamicEvent(
-      titleTr: 'Hicri Yılbaşı (1448)',
-      titleEn: 'Islamic New Year (1448)',
-      hijri: '1 Muharrem 1448',
-      dateTr: '16 Haziran 2026 Salı',
-      dateEn: '16 Jun 2026 Tuesday',
-      gregorianDate: DateTime(2026, 6, 16),
-      icon: Icons.update,
-      color: Colors.indigo,
-    ),
-    IslamicEvent(
+  static const List<_EventDefinition> _definitions = [
+    _EventDefinition(
       titleTr: 'Aşure Günü',
       titleEn: 'Day of Ashura',
-      hijri: '10 Muharrem 1448',
-      dateTr: '25 Haziran 2026 Perşembe',
-      dateEn: '25 Jun 2026 Thursday',
-      gregorianDate: DateTime(2026, 6, 25),
+      hijriMonth: 1,
+      hijriDay: 10,
       icon: Icons.water_drop,
       color: Colors.cyan,
     ),
-    IslamicEvent(
+    _EventDefinition(
       titleTr: 'Mevlid Kandili',
       titleEn: 'Mawlid al-Nabi',
-      hijri: '12 Rebiülevvel 1448',
-      dateTr: '25 Ağustos 2026 Salı',
-      dateEn: '25 Aug 2026 Tuesday',
-      gregorianDate: DateTime(2026, 8, 25),
+      hijriMonth: 3,
+      hijriDay: 12,
       icon: Icons.stars,
       color: Colors.pink,
     ),
+    _EventDefinition(
+      titleTr: 'Hicri Yılbaşı',
+      titleEn: 'Islamic New Year',
+      hijriMonth: 1,
+      hijriDay: 1,
+      includeHijriYearInTitle: true,
+      icon: Icons.update,
+      color: Colors.indigo,
+    ),
+    _EventDefinition(
+      titleTr: 'Miraç Kandili',
+      titleEn: 'Isra and Miraj Night',
+      hijriMonth: 7,
+      hijriDay: 27,
+      icon: Icons.auto_awesome,
+      color: Colors.purple,
+    ),
+    _EventDefinition(
+      titleTr: 'Berat Kandili',
+      titleEn: 'Shab-e-Barat',
+      hijriMonth: 8,
+      hijriDay: 15,
+      icon: Icons.brightness_7,
+      color: Colors.blue,
+    ),
+    _EventDefinition(
+      titleTr: 'Ramazan-ı Şerif Başlangıcı',
+      titleEn: 'First Day of Ramadan',
+      hijriMonth: 9,
+      hijriDay: 1,
+      icon: Icons.mosque,
+      color: Colors.green,
+    ),
+    _EventDefinition(
+      titleTr: 'Kadir Gecesi',
+      titleEn: 'Laylat al-Qadr',
+      hijriMonth: 9,
+      hijriDay: 27,
+      icon: Icons.star,
+      color: Colors.amber,
+    ),
+    _EventDefinition(
+      titleTr: 'Ramazan Bayramı (1. Gün)',
+      titleEn: 'Eid al-Fitr (Day 1)',
+      hijriMonth: 10,
+      hijriDay: 1,
+      icon: Icons.celebration,
+      color: Colors.teal,
+    ),
+    _EventDefinition(
+      titleTr: 'Kurban Bayramı (1. Gün)',
+      titleEn: 'Eid al-Adha (Day 1)',
+      hijriMonth: 12,
+      hijriDay: 10,
+      icon: Icons.favorite,
+      color: Colors.deepOrange,
+    ),
   ];
 
-  static List<IslamicEvent> getUpcomingEvents() {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final upcoming = events.where((e) => !e.gregorianDate.isBefore(today)).toList();
-    upcoming.sort((a, b) => a.gregorianDate.compareTo(b.gregorianDate));
-    return upcoming;
+  /// [reference] tarihinden itibaren sıradaki oluşumları hesaplanmış,
+  /// tarih sırasına dizilmiş tüm dini günler.
+  ///
+  /// [reference] testler ve önizleme için verilebilir; verilmezse bugün.
+  static List<IslamicEvent> events({DateTime? reference}) {
+    final ref = reference ?? DateTime.now();
+    final list = _definitions.map((d) => _resolve(d, ref)).toList();
+    list.sort((a, b) => a.gregorianDate.compareTo(b.gregorianDate));
+    return list;
+  }
+
+  static List<IslamicEvent> getUpcomingEvents({DateTime? reference}) {
+    final ref = reference ?? DateTime.now();
+    final today = DateTime(ref.year, ref.month, ref.day);
+    return events(
+      reference: ref,
+    ).where((e) => !e.gregorianDate.isBefore(today)).toList();
   }
 
   /// Hatırlatma için sıradaki etkinlik (bugün dahil), yoksa null.
-  static IslamicEvent? getNextEvent() {
-    final upcoming = getUpcomingEvents();
+  static IslamicEvent? getNextEvent({DateTime? reference}) {
+    final upcoming = getUpcomingEvents(reference: reference);
     return upcoming.isEmpty ? null : upcoming.first;
+  }
+
+  /// Tanımın [reference] tarihinden sonraki ilk oluşumunu bulur.
+  static IslamicEvent _resolve(_EventDefinition d, DateTime reference) {
+    final start = DateTime(reference.year, reference.month, reference.day);
+    var candidate = start;
+    var hijriYear = 0;
+
+    // Bir hicri yıl ~354 gün. 380 gün tüm tanımları kapsar: Zilhicce 10'da
+    // aranan bir gün, en kötü durumda 1 Muharrem'e denk gelir.
+    for (var i = 0; i <= 380; i++) {
+      candidate = DateTime(start.year, start.month, start.day + i);
+      final h = HijriService.toHijri(candidate);
+      if (h.month == d.hijriMonth && h.day == d.hijriDay) {
+        hijriYear = h.year;
+        break;
+      }
+    }
+
+    // Tarihi doğrudan o güne bırakmak yerine hicri yıl + ay + günden
+    // geri hesapla; iki yol aynı güne düşer ama bu, "tanım = hicri gün"
+    // sözleşmesini tek yerde tutar.
+    final gregorian = HijriService.hijriToGregorian(
+      hijriYear,
+      d.hijriMonth,
+      d.hijriDay,
+    );
+
+    final titleTr = d.includeHijriYearInTitle
+        ? '${d.titleTr} ($hijriYear)'
+        : d.titleTr;
+    final titleEn = d.includeHijriYearInTitle
+        ? '${d.titleEn} ($hijriYear)'
+        : d.titleEn;
+
+    return IslamicEvent(
+      titleTr: titleTr,
+      titleEn: titleEn,
+      hijri:
+          '${d.hijriDay} ${HijriService.hijriMonthsTr[d.hijriMonth - 1]} $hijriYear',
+      dateTr: HijriService.getGregorianDate(gregorian, 'tr'),
+      dateEn: HijriService.getGregorianDate(gregorian, 'en'),
+      gregorianDate: gregorian,
+      icon: d.icon,
+      color: d.color,
+    );
   }
 }

@@ -174,7 +174,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     final settingsProvider =
         Provider.of<SettingsProvider>(context, listen: false);
 
-    await settingsProvider.init();
+    // SettingsProvider main()'de runApp öncesi yüklendi; burada yalnızca
+    // konum + vakitler yüklenir.
     await prayerProvider.initializeLocation(settingsProvider);
   }
 
@@ -184,6 +185,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       context: context,
       builder: (context) => LocationPicker(
         cities: context.read<PrayerProvider>().getCityList(),
+        gpsEnabled: context.read<PrayerProvider>().isGpsEnabled(),
         onCitySelected: (city) {
           context.read<PrayerProvider>().selectCity(city, settingsProvider);
         },
@@ -561,6 +563,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
               final prayers = prayerProvider.prayerTimes!.getTimelineList();
               final nextPrayer = prayerProvider.getNextPrayer();
+              final currentPrayer = prayerProvider.getCurrentPrayer();
               final timeUntilNext = prayerProvider.getTimeUntilNextPrayer();
               final nextDisplayName = nextPrayer != null
                   ? settingsProvider.tr(nextPrayer.name.toLowerCase())
@@ -899,7 +902,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       ),
 
                       if (settingsProvider.prayerTimesViewMode == 'compact')
-                        _buildCompactPrayerGrid(prayers, nextPrayer, settingsProvider, primaryColor, isDark)
+                        _buildCompactPrayerGrid(
+                          prayers,
+                          nextPrayer,
+                          currentPrayer?.prayer.name,
+                          settingsProvider,
+                          primaryColor,
+                          isDark,
+                        )
                       else
                         ...prayers.map((prayer) {
                           final minutes = settingsProvider.getReminderMinutes(
@@ -909,6 +919,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             prayer: prayer,
                             minutesBefore: minutes,
                             isNext: prayer.name == nextPrayer?.name,
+                            isCurrent: prayer.name == currentPrayer?.prayer.name,
                           );
                         }),
 
@@ -1252,6 +1263,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Widget _buildCompactPrayerGrid(
     List<PrayerEntry> prayers,
     PrayerEntry? nextPrayer,
+    String? currentPrayerName,
     SettingsProvider settingsProvider,
     Color primaryColor,
     bool isDark,
@@ -1286,6 +1298,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         itemBuilder: (context, index) {
           final prayer = prayers[index];
           final isNext = prayer.name == nextPrayer?.name;
+          final isCurrent = !isNext && prayer.name == currentPrayerName;
           final displayName = settingsProvider.tr(prayer.name.toLowerCase());
           final iconData = _getPrayerIcon(prayer.name);
 
@@ -1309,8 +1322,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               border: Border.all(
                 color: isNext
                     ? Colors.amber.shade400
-                    : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade300),
-                width: isNext ? 1.8 : 1.0,
+                    : (isCurrent
+                        ? (isDark ? Colors.teal : Colors.teal.shade700)
+                            .withValues(alpha: 0.7)
+                        : (isDark
+                            ? Colors.white.withValues(alpha: 0.05)
+                            : Colors.grey.shade300)),
+                width: isNext ? 1.8 : (isCurrent ? 1.4 : 1.0),
               ),
               boxShadow: isNext
                   ? [

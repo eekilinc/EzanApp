@@ -9,11 +9,15 @@ class PrayerCard extends StatefulWidget {
   final int minutesBefore;
   final bool isNext;
 
+  /// Şu an içinde bulunulan vakit (sonraki vakitten farklı olarak).
+  final bool isCurrent;
+
   const PrayerCard({
     super.key,
     required this.prayer,
     required this.minutesBefore,
     this.isNext = false,
+    this.isCurrent = false,
   });
 
   @override
@@ -188,6 +192,29 @@ class _PrayerCardState extends State<PrayerCard>
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                )
+              else if (widget.isCurrent)
+                Container(
+                  margin: const EdgeInsets.only(top: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: (isDark ? Colors.teal : Colors.teal.shade700)
+                        .withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: (isDark ? Colors.teal : Colors.teal.shade700)
+                          .withValues(alpha: 0.6),
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(
+                    settingsProvider.tr('current_prayer'),
+                    style: TextStyle(
+                      color: isDark ? Colors.teal.shade200 : Colors.teal.shade800,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
             ],
           ),
@@ -235,7 +262,13 @@ class _PrayerCardState extends State<PrayerCard>
       elevation: 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide.none,
+        side: widget.isCurrent
+            ? BorderSide(
+                color: (isDark ? Colors.teal : Colors.teal.shade700)
+                    .withValues(alpha: 0.5),
+                width: 1.4,
+              )
+            : BorderSide.none,
       ),
       color: isDark ? AppColors.darkCard : Colors.white,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),

@@ -63,8 +63,9 @@ class PrayerTimes {
     final adjustedTimings = Map<String, DateTime>.from(timings);
     offsets.forEach((prayerName, offsetMinutes) {
       if (offsetMinutes != 0 && adjustedTimings.containsKey(prayerName)) {
-        adjustedTimings[prayerName] =
-            adjustedTimings[prayerName]!.add(Duration(minutes: offsetMinutes));
+        adjustedTimings[prayerName] = adjustedTimings[prayerName]!.add(
+          Duration(minutes: offsetMinutes),
+        );
       }
     });
     return PrayerTimes(
@@ -79,10 +80,7 @@ class PrayerTimes {
     final prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
     return prayers
         .where((prayer) => timings.containsKey(prayer))
-        .map((prayer) => PrayerEntry(
-              name: prayer,
-              time: timings[prayer]!,
-            ))
+        .map((prayer) => PrayerEntry(name: prayer, time: timings[prayer]!))
         .toList();
   }
 
@@ -96,6 +94,107 @@ class PrayerTimes {
         .toList();
   }
 
+  /// [at] anında içinde bulunulan vakit.
+  ///
+  /// Gece yarısı ile sabah namazı arasında "içinde bulunulan vakit" dünün
+  /// Yatsı'sıdır; bu durumda `isFromYesterday` true döner ve vakit tarihi
+  /// bir gün geriye çekilir. Aksi hâlde 00:00–sabah arası hiçbir vakit
+  /// "geçerli" görünmez ve ilerleme çubuğu yanlış aralığı gösterir.
+  ///
+  /// Saf fonksiyondur — platforma veya saate bağlı değildir, [at] verilmezse
+  /// sistem saati kullanılır.
+  ({PrayerEntry prayer, bool isFromYesterday})? currentPrayerAt(DateTime at) {
+    final prayers = getTimelineList();
+    if (prayers.isEmpty) return null;
+
+    PrayerEntry? current;
+    for (final prayer in prayers) {
+      if (!prayer.time.isAfter(at)) {
+        current = prayer;
+      } else {
+        break;
+      }
+    }
+
+    if (current != null) return (prayer: current, isFromYesterday: false);
+
+    // Saat 00:00 – Fajr arası: dünün Yatsı'sındayız. Yalnızca çizelgede
+    // Isha varsa anlamlıdır.
+    final last = prayers.last;
+    if (last.name == 'Isha') {
+      return (
+        prayer: PrayerEntry(
+          name: last.name,
+          time: last.time.subtract(const Duration(days: 1)),
+        ),
+        isFromYesterday: true,
+      );
+    }
+
+    return null;
+  }
+
+  /// [at] anında sıradaki vakit.
+  ///
+  /// Bugünün tüm vakitleri geçtiyse ertesi günün Sabah'ını döndürür.
+  /// [at] verilmezse sistem saati kullanılır.
+  PrayerEntry? nextPrayerAt(DateTime at) {
+    final prayers = getTimelineList();
+    if (prayers.isEmpty) return null;
+
+    for (final prayer in prayers) {
+      if (prayer.time.isAfter(at)) return prayer;
+    }
+
+    final fajr = prayers.firstWhere(
+      (p) => p.name == 'Fajr',
+      orElse: () => prayers.first,
+    );
+    return PrayerEntry(
+      name: fajr.name,
+      time: fajr.time.add(const Duration(days: 1)),
+    );
+  }
+
+  /// [at] anında mevcut vakit aralığının ne kadarı geçtiğini döndürür (0..1).
+  ///
+  /// İlerleme çubuğu için: sıradaki vakde kadar kalan aralığın tamamlanma
+  /// oranı. Günün son vakti geçtiyse son vakitten ertesi günün ilk vakde
+  /// olan aralık kullanılır.
+  double progressAt(DateTime at) {
+    final prayers = getTimelineList();
+    if (prayers.isEmpty) return 0.0;
+
+    // [at]'dan sonraki ilk vakit; yoksa ertesi günün ilk vakti (Sabah).
+    var nextIndex = prayers.length;
+    for (var i = 0; i < prayers.length; i++) {
+      if (prayers[i].time.isAfter(at)) {
+        nextIndex = i;
+        break;
+      }
+    }
+
+    late final DateTime nextTime;
+    late final DateTime prevTime;
+
+    if (nextIndex < prayers.length) {
+      nextTime = prayers[nextIndex].time;
+      // İlk vakdin öncesi için makul bir alt sınır: 4 saat önce.
+      prevTime = nextIndex > 0
+          ? prayers[nextIndex - 1].time
+          : nextTime.subtract(const Duration(hours: 4));
+    } else {
+      // Günün son vakti de geçti: son vakitten ertesi günün ilk vakde.
+      prevTime = prayers.last.time;
+      nextTime = prayers.first.time.add(const Duration(days: 1));
+    }
+
+    final totalDuration = nextTime.difference(prevTime).inSeconds;
+    if (totalDuration <= 0) return 0.0;
+    final elapsed = at.difference(prevTime).inSeconds;
+    return (elapsed / totalDuration).clamp(0.0, 1.0);
+  }
+
   /// Güneş doğumunda ezan okunmaz — sadece sessiz/kısa hatırlatma verilir.
   static bool isAdhanTime(String name) => name != 'Sunrise';
 }
@@ -104,10 +203,7 @@ class PrayerEntry {
   final String name;
   final DateTime time;
 
-  PrayerEntry({
-    required this.name,
-    required this.time,
-  });
+  PrayerEntry({required this.name, required this.time});
 
   String getDisplayTime() {
     final hour = time.hour.toString().padLeft(2, '0');

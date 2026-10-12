@@ -6,8 +6,9 @@ import '../providers/settings_provider.dart';
 class IslamicEventsScreen extends StatelessWidget {
   const IslamicEventsScreen({super.key});
 
-  // Tek kaynak: IslamicEventService.events (tarih kaymasını önler).
-  List<IslamicEvent> get _events => IslamicEventService.events;
+  // Tek kaynak: IslamicEventService.events. Tarihler hicri tanımdan
+  // hesaplandığı için liste her zaman bugünden sonraki oluşumları içerir.
+  List<IslamicEvent> get _events => IslamicEventService.events();
 
   @override
   Widget build(BuildContext context) {
@@ -42,17 +43,11 @@ class IslamicEventsScreen extends StatelessWidget {
             final dateStr = event.getDate(isEn);
             final daysDiff = event.daysRemaining;
 
-            final isPast = daysDiff < 0;
             final isToday = daysDiff == 0;
 
-            String statusLabel;
-            if (isToday) {
-              statusLabel = isEn ? 'TODAY 🎉' : 'BUGÜN 🎉';
-            } else if (isPast) {
-              statusLabel = isEn ? 'Passed' : 'Geçti';
-            } else {
-              statusLabel = isEn ? '$daysDiff days left' : '$daysDiff gün kaldı';
-            }
+            final String statusLabel = isToday
+                ? (isEn ? 'TODAY 🎉' : 'BUGÜN 🎉')
+                : (isEn ? '$daysDiff days left' : '$daysDiff gün kaldı');
 
             final iconColor = event.color;
 
@@ -64,21 +59,21 @@ class IslamicEventsScreen extends StatelessWidget {
                 side: BorderSide(
                   color: isToday
                       ? Colors.amber
-                      : (isPast ? Colors.transparent : Colors.teal.shade300.withValues(alpha: 0.4)),
+                      : Colors.teal.shade300.withValues(alpha: 0.4),
                   width: isToday ? 2 : 1,
                 ),
               ),
-              color: isPast
-                  ? Colors.black.withValues(alpha: 0.3)
-                  : (isToday ? Colors.teal.shade800 : Colors.white.withValues(alpha: 0.12)),
+              color: isToday
+                  ? Colors.teal.shade800
+                  : Colors.white.withValues(alpha: 0.12),
               child: ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 leading: CircleAvatar(
                   radius: 24,
-                  backgroundColor: isPast ? Colors.grey.shade800 : iconColor.withValues(alpha: 0.25),
+                  backgroundColor: iconColor.withValues(alpha: 0.25),
                   child: Icon(
                     event.icon,
-                    color: isPast ? Colors.grey : (isToday ? Colors.amber : iconColor),
+                    color: isToday ? Colors.amber : iconColor,
                     size: 26,
                   ),
                 ),
@@ -87,7 +82,7 @@ class IslamicEventsScreen extends StatelessWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
-                    color: isPast ? Colors.grey.shade400 : Colors.white,
+                    color: Colors.white,
                   ),
                 ),
                 subtitle: Padding(
@@ -99,7 +94,7 @@ class IslamicEventsScreen extends StatelessWidget {
                         dateStr,
                         style: TextStyle(
                           fontSize: 13,
-                          color: isPast ? Colors.grey.shade500 : Colors.amber.shade200,
+                          color: Colors.amber.shade200,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -115,9 +110,7 @@ class IslamicEventsScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: isToday
                         ? Colors.amber
-                        : (isPast
-                            ? Colors.white10
-                            : Colors.teal.shade600.withValues(alpha: 0.4)),
+                        : Colors.teal.shade600.withValues(alpha: 0.4),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -125,7 +118,7 @@ class IslamicEventsScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: isToday ? Colors.black : (isPast ? Colors.grey : Colors.white),
+                      color: isToday ? Colors.black : Colors.white,
                     ),
                   ),
                 ),

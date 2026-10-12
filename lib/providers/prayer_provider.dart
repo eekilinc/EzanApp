@@ -5,7 +5,7 @@ import '../models/islamic_event.dart';
 import '../services/api_service.dart';
 import '../services/location_service.dart';
 import '../services/notification_service.dart';
-import '../constants/reminders.dart';
+import '../services/notification_planner.dart';
 import 'settings_provider.dart';
 
 class PrayerProvider extends ChangeNotifier {
@@ -60,23 +60,8 @@ class PrayerProvider extends ChangeNotifier {
       _loadedForDate = DateTime(nowStamp.year, nowStamp.month, nowStamp.day);
       _loadedWithOffset = nowStamp.timeZoneOffset;
 
-      // Schedule multi-day notifications for upcoming prayers using settings
-      await scheduleNotifications(
-        customReminderMinutes: settingsProvider?.reminderMinutes,
-        soundEnabled: settingsProvider?.soundEnabled ?? true,
-        vibrationEnabled: settingsProvider?.vibrationEnabled ?? true,
-        soundKey: settingsProvider?.notificationSound ?? 'adhan_makkah',
-        asrSchool: settingsProvider?.asrSchool ?? 'standard',
-        calcMethod: settingsProvider?.calcMethod ?? 13,
-        adhanSoundKey: settingsProvider?.adhanSound,
-        adhanSoundEnabled: settingsProvider?.effectiveAdhanSoundEnabled,
-        reminderSoundKey: settingsProvider?.reminderSound,
-        reminderSoundEnabled: settingsProvider?.effectiveReminderSoundEnabled,
-        fridayReminderEnabled: settingsProvider?.fridayReminderEnabled ?? true,
-        sahurReminderEnabled: settingsProvider?.sahurReminderEnabled ?? false,
-        eventReminderEnabled: settingsProvider?.eventReminderEnabled ?? true,
-        prayerOffsets: settingsProvider?.prayerTimeOffsets,
-      );
+      // Mevcut vakitlerle bildirimleri tazele (ayarlar boşsa atlanır).
+      await scheduleNotifications(settingsProvider);
 
       _isLoading = false;
       notifyListeners();
@@ -90,8 +75,9 @@ class PrayerProvider extends ChangeNotifier {
   /// Uygulama aradan dönünce çağrılır: gün devri veya saat dilimi/saat
   /// değişimi varsa vakitleri yeniden yükleyip bildirimleri tazeler.
   /// Yeniden yükleme yapıldıysa true döner (UI setState yapabilir).
-  Future<bool> refreshIfDateOrTimezoneChanged(
-      [SettingsProvider? settingsProvider]) async {
+  Future<bool> refreshIfDateOrTimezoneChanged([
+    SettingsProvider? settingsProvider,
+  ]) async {
     if (_location == null || _prayerTimes == null) return false;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -102,37 +88,57 @@ class PrayerProvider extends ChangeNotifier {
     return false;
   }
 
-  Future<void> scheduleNotifications({
-    Map<String, int>? customReminderMinutes,
-    bool soundEnabled = true,
-    bool vibrationEnabled = true,
-    String soundKey = 'adhan_makkah',
-    String asrSchool = 'standard',
-    int calcMethod = 13,
-    String? adhanSoundKey,
-    bool? adhanSoundEnabled,
-    String? reminderSoundKey,
-    bool? reminderSoundEnabled,
-    bool fridayReminderEnabled = true,
-    bool sahurReminderEnabled = false,
-    bool eventReminderEnabled = true,
-    Map<String, int>? prayerOffsets,
-  }) async {
-    if (_prayerTimes == null || _location == null) return;
+  /// Bildirimleri yeniden planlar.
+  ///
+  /// [settings] null ise hiçbir şey yapılmaz — vakitler ya da konum henüz
+  /// yoksa planlayacak bir şey de yoktur.
+  Future<void> scheduleNotifications(SettingsProvider? settings) async {
+    if (_prayerTimes == null || _location == null || settings == null) return;
 
+    final request = NotificationPlanRequest(
+      days: await _loadPlanningDays(settings.asrSchool, settings.calcMethod),
+      now: DateTime.now(),
+      reminderMinutes: settings.reminderMinutes,
+      prayerOffsets: settings.prayerTimeOffsets,
+      adhanSoundKey: settings.adhanSound,
+      adhanSoundEnabled: settings.effectiveAdhanSoundEnabled,
+      reminderSoundKey: settings.reminderSound,
+      reminderSoundEnabled: settings.effectiveReminderSoundEnabled,
+      vibrationEnabled: settings.vibrationEnabled,
+      fridayReminderEnabled: settings.fridayReminderEnabled,
+      sahurReminderEnabled: settings.sahurReminderEnabled,
+      nextEvent: settings.eventReminderEnabled ? _safeNextEvent() : null,
+    );
+
+    // Saf hesap: girdi -> planlanacak bildirimler.
+    final planned = NotificationPlanner.build(request);
+
+    // Planı baştan yazıyoruz. Bildirimleri biriktirmek Android'de
+    // AlarmManager kuyruğunu şişirir ve iptal edilmeyen kayıtlar kalır.
     await _notificationService.cancelAllNotifications();
+    for (final n in planned) {
+      await _notificationService.scheduleNotification(
+        id: n.id,
+        title: n.title,
+        body: n.body,
+        scheduledTime: n.scheduledTime,
+        soundEnabled: n.soundEnabled,
+        vibrationEnabled: n.vibrationEnabled,
+        soundKey: n.soundKey,
+        payload: n.payload,
+      );
+    }
+  }
 
-    final reminders = customReminderMinutes ?? defaultReminderMinutes;
+  /// Planlama için gün listesi: içinde bulunulan ay + pencere ay sonuna
+  /// yetişmiyorsa bir sonraki ay.
+  Future<List<PrayerTimes>> _loadPlanningDays(
+    String asrSchool,
+    int calcMethod,
+  ) async {
     final now = DateTime.now();
-    final todayMidnight = DateTime(now.year, now.month, now.day);
-
-    final String finalAdhanSound = adhanSoundKey ?? soundKey;
-    final bool finalAdhanEnabled = adhanSoundEnabled ?? soundEnabled;
-    final String finalReminderSound = reminderSoundKey ?? 'beep';
-    final bool finalReminderEnabled = reminderSoundEnabled ?? soundEnabled;
-
     try {
-      final monthlyList = await _apiService.getMonthlyPrayerTimes(
+      final month = await _apiService.getMonthlyPrayerTimes(
         latitude: _location!.latitude,
         longitude: _location!.longitude,
         year: now.year,
@@ -141,171 +147,45 @@ class PrayerProvider extends ChangeNotifier {
         calcMethod: calcMethod,
       );
 
-      List<PrayerTimes> allDays = List.from(monthlyList);
+      final days = List<PrayerTimes>.from(month);
+
+      // Pencere bugün+7 gün; ayın 24'ünden sonrası bir sonraki aya taşar.
       if (now.day >= 24) {
-        final nextMonthDate = DateTime(now.year, now.month + 1, 1);
         try {
-          final nextMonthList = await _apiService.getMonthlyPrayerTimes(
+          final nextMonth = await _apiService.getMonthlyPrayerTimes(
             latitude: _location!.latitude,
             longitude: _location!.longitude,
-            year: nextMonthDate.year,
-            month: nextMonthDate.month,
+            year: now.year,
+            month: now.month + 1,
             school: asrSchool,
             calcMethod: calcMethod,
           );
-          allDays.addAll(nextMonthList);
-        } catch (_) {}
-      }
-
-      for (final rawDayTimes in allDays) {
-        final dayTimes = rawDayTimes.withOffsets(prayerOffsets);
-        final dayDiff = dayTimes.date.difference(todayMidnight).inDays;
-        // Schedule for today and next 7 days only for maximum performance and OS memory efficiency
-        if (dayDiff < 0 || dayDiff > 7) continue;
-
-        final prayers = dayTimes.getTimelineList();
-        for (final prayer in prayers) {
-          final reminderMinutes = reminders[prayer.name] ?? defaultReminderMinutes[prayer.name] ?? 5;
-          if (prayer.name == 'Sunrise') {
-            // Güneş doğumunda ezan okunmaz — sadece kısa hatırlatma.
-            final sunriseTime = prayer.time;
-            if (!sunriseTime.isBefore(now) && finalReminderEnabled) {
-              await _notificationService.scheduleNotification(
-                id: ('${sunriseTime.year}${sunriseTime.month.toString().padLeft(2, '0')}${sunriseTime.day.toString().padLeft(2, '0')}Sunrise_exact').hashCode & 0x7FFFFFFF,
-                title: '🌅 Güneş Doğdu',
-                body: 'Kerahat vakti çıktı. Sabah namazı vakti sona erdi.',
-                scheduledTime: sunriseTime,
-                soundEnabled: finalReminderEnabled,
-                vibrationEnabled: vibrationEnabled,
-                soundKey: finalReminderSound,
-              );
-            }
-            if (reminderMinutes != 0) {
-              final DateTime reminderTime = reminderMinutes > 0
-                  ? sunriseTime.subtract(Duration(minutes: reminderMinutes))
-                  : sunriseTime.add(Duration(minutes: reminderMinutes.abs()));
-              if (!reminderTime.isBefore(now)) {
-                await _notificationService.scheduleNotification(
-                  id: ('${sunriseTime.year}${sunriseTime.month.toString().padLeft(2, '0')}${sunriseTime.day.toString().padLeft(2, '0')}Sunrise_reminder').hashCode & 0x7FFFFFFF,
-                  title: '🌅 Güneş Hatırlatması ⏰',
-                  body: reminderMinutes > 0
-                      ? 'Güneş doğumuna $reminderMinutes dakika kaldı.'
-                      : 'Güneş doğalı ${reminderMinutes.abs()} dakika oldu.',
-                  scheduledTime: reminderTime,
-                  soundEnabled: finalReminderEnabled,
-                  vibrationEnabled: vibrationEnabled,
-                  soundKey: finalReminderSound,
-                );
-              }
-            }
-          } else {
-            await _notificationService.schedulePrayerNotification(
-              prayerName: prayer.name,
-              prayerTime: prayer.time,
-              minutesBefore: reminderMinutes,
-              vibrationEnabled: vibrationEnabled,
-              adhanSoundKey: finalAdhanSound,
-              adhanSoundEnabled: finalAdhanEnabled,
-              reminderSoundKey: finalReminderSound,
-              reminderSoundEnabled: finalReminderEnabled,
-            );
-          }
-
-          // Special Friday Alert (1 hour before Friday Dhuhr)
-          if (fridayReminderEnabled && prayer.name == 'Dhuhr' && prayer.time.weekday == DateTime.friday) {
-            final fridayTime = prayer.time.subtract(const Duration(minutes: 60));
-            if (!fridayTime.isBefore(now)) {
-              await _notificationService.scheduleNotification(
-                id: 666000 + dayDiff,
-                title: '🕌 Cuma Gününüz Mübarek Olsun!',
-                body: 'Cuma Namazı vaktine 1 saat kaldı. Dualarınız kabul olsun. 🤲',
-                scheduledTime: fridayTime,
-                soundEnabled: finalReminderEnabled,
-                vibrationEnabled: vibrationEnabled,
-                soundKey: finalReminderSound,
-              );
-            }
-          }
-
-          // Special Sahur & Tahajjud Alert (45 min before Fajr)
-          if (sahurReminderEnabled && prayer.name == 'Fajr') {
-            final sahurTime = prayer.time.subtract(const Duration(minutes: 45));
-            if (!sahurTime.isBefore(now)) {
-              await _notificationService.scheduleNotification(
-                id: 555000 + dayDiff,
-                title: '🌙 Sahur & Teheccüd Uyarısı',
-                body: 'İmsak vaktine 45 dakika kaldı. Hayırlı Sahurlar! 🌙',
-                scheduledTime: sahurTime,
-                soundEnabled: finalReminderEnabled,
-                vibrationEnabled: vibrationEnabled,
-                soundKey: finalReminderSound,
-              );
-            }
-          }
+          days.addAll(nextMonth);
+        } catch (_) {
+          // Pencere bir sonraki aya yetişmiyor; içinde bulunulan ay yeter.
         }
       }
+
+      return days;
     } catch (_) {
-      // Fallback to today's prayer times if monthly fetch fails
-      final prayers = _prayerTimes!.getTimelineList();
-      for (final prayer in prayers) {
-        final reminderMinutes = reminders[prayer.name] ?? defaultReminderMinutes[prayer.name] ?? 5;
-        if (prayer.name == 'Sunrise') {
-          if (!prayer.time.isBefore(DateTime.now())) {
-            await _notificationService.scheduleNotification(
-              id: ('fallback${prayer.time.day}Sunrise').hashCode & 0x7FFFFFFF,
-              title: '🌅 Güneş Doğdu',
-              body: 'Kerahat vakti çıktı. Sabah namazı vakti sona erdi.',
-              scheduledTime: prayer.time,
-              soundEnabled: finalReminderEnabled,
-              vibrationEnabled: vibrationEnabled,
-              soundKey: finalReminderSound,
-            );
-          }
-          continue;
-        }
-        await _notificationService.schedulePrayerNotification(
-          prayerName: prayer.name,
-          prayerTime: prayer.time,
-          minutesBefore: reminderMinutes,
-          vibrationEnabled: vibrationEnabled,
-          adhanSoundKey: finalAdhanSound,
-          adhanSoundEnabled: finalAdhanEnabled,
-          reminderSoundKey: finalReminderSound,
-          reminderSoundEnabled: finalReminderEnabled,
-        );
-      }
-    }
-
-    // Dini gün / kandil hatırlatıcısı: sıradaki etkinlikten 1 gün önce sabah 09:00.
-    if (eventReminderEnabled) {
-      try {
-        final nextEvent = IslamicEventService.getNextEvent();
-        if (nextEvent != null) {
-          final reminderDay = DateTime(
-            nextEvent.gregorianDate.year,
-            nextEvent.gregorianDate.month,
-            nextEvent.gregorianDate.day,
-          ).subtract(const Duration(days: 1));
-          final reminderTime =
-              DateTime(reminderDay.year, reminderDay.month, reminderDay.day, 9);
-          if (!reminderTime.isBefore(DateTime.now())) {
-            await _notificationService.scheduleNotification(
-              id: 777001,
-              title: '🕌 Yarın: ${nextEvent.titleTr}',
-              body:
-                  '${nextEvent.hijri} — ${nextEvent.dateTr}. Mübarek olsun! 🤲',
-              scheduledTime: reminderTime,
-              soundEnabled: finalReminderEnabled,
-              vibrationEnabled: vibrationEnabled,
-              soundKey: finalReminderSound,
-            );
-          }
-        }
-      } catch (_) {}
+      // Aylık veri alınamadı — bugünkü vakitlerle devam. Bildirim eksik
+      // olsa da hiç bildirim almamaktan iyidir.
+      return [_prayerTimes!];
     }
   }
 
-  Future<void> selectCity(String cityName, [SettingsProvider? settingsProvider]) async {
+  IslamicEvent? _safeNextEvent() {
+    try {
+      return IslamicEventService.getNextEvent();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> selectCity(
+    String cityName, [
+    SettingsProvider? settingsProvider,
+  ]) async {
     try {
       _location = await _locationService.selectCity(cityName);
       await loadPrayerTimes(settingsProvider);
@@ -336,86 +216,29 @@ class PrayerProvider extends ChangeNotifier {
     return _locationService.getCityList();
   }
 
-  PrayerEntry? getCurrentPrayer() {
-    if (_prayerTimes == null) return null;
-    // 6'lı zaman çizelgesi: gece yarısından sonra (Sabah'tan önce)
-    // dünün Yatsı'sındayız — bugünün gelecek Yatsı'sını değil, null dönüp
-    // UI'nin "dün Yatsı" durumunu göstermesine izin veriyoruz.
-    final prayers = _prayerTimes!.getTimelineList();
-    final now = DateTime.now();
-
-    PrayerEntry? current;
-    for (final prayer in prayers) {
-      if (!prayer.time.isAfter(now)) {
-        current = prayer;
-      } else {
-        break;
-      }
-    }
-    return current;
+  /// Şu an içinde bulunulan vakit.
+  ///
+  /// Hesaplama [PrayerTimes.currentPrayerAt] üzerinde yapılır; gece yarısı
+  /// kenar durumu dahil tüm mantık orada ve testlidir.
+  ({PrayerEntry prayer, bool isFromYesterday})? getCurrentPrayer({
+    DateTime? now,
+  }) {
+    return _prayerTimes?.currentPrayerAt(now ?? DateTime.now());
   }
 
   double getPrayerProgress() {
-    if (_prayerTimes == null) return 0.0;
-    final prayers = _prayerTimes!.getTimelineList();
-    final now = DateTime.now();
-    if (prayers.isEmpty) return 0.0;
-
-    DateTime prevTime = prayers.first.time.subtract(const Duration(hours: 4));
-    DateTime nextTime = prayers.first.time.add(const Duration(days: 1));
-
-    bool found = false;
-    for (int i = 0; i < prayers.length; i++) {
-      if (prayers[i].time.isAfter(now)) {
-        nextTime = prayers[i].time;
-        prevTime = i > 0
-            ? prayers[i - 1].time
-            : prayers[i].time.subtract(const Duration(hours: 4));
-        found = true;
-        break;
-      }
-    }
-
-    if (!found) {
-      prevTime = prayers.last.time;
-      nextTime = prayers.first.time.add(const Duration(days: 1));
-    }
-
-    final totalDuration = nextTime.difference(prevTime).inSeconds;
-    if (totalDuration <= 0) return 0.0;
-    final elapsed = now.difference(prevTime).inSeconds;
-    return (elapsed / totalDuration).clamp(0.0, 1.0);
+    return _prayerTimes?.progressAt(DateTime.now()) ?? 0.0;
   }
 
   PrayerEntry? getNextPrayer() {
-    if (_prayerTimes == null) return null;
-
-    // Güneş dahil 6'lı çizelge: Sabah'tan sonra sıradaki Güneş'tir.
-    final prayers = _prayerTimes!.getTimelineList();
-    final now = DateTime.now();
-
-    for (final prayer in prayers) {
-      if (prayer.time.isAfter(now)) {
-        return prayer;
-      }
-    }
-
-    // If all today's prayers have passed, return tomorrow's Fajr (Sabah Namazı)
-    if (prayers.isNotEmpty) {
-      final todayFajr = prayers.firstWhere((p) => p.name == 'Fajr', orElse: () => prayers.first);
-      final tomorrowFajrTime = todayFajr.time.add(const Duration(days: 1));
-      return PrayerEntry(name: 'Fajr', time: tomorrowFajrTime);
-    }
-
-    return null;
+    return _prayerTimes?.nextPrayerAt(DateTime.now());
   }
 
   Duration? getTimeUntilNextPrayer() {
     final nextPrayer = getNextPrayer();
     if (nextPrayer == null) return null;
 
-    final now = DateTime.now();
-    final diff = nextPrayer.time.difference(now);
+    final diff = nextPrayer.time.difference(DateTime.now());
     return diff.isNegative ? Duration.zero : diff;
   }
 }

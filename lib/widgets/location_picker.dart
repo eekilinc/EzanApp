@@ -8,11 +8,17 @@ class LocationPicker extends StatefulWidget {
   final Function(String) onCitySelected;
   final Function() onUseGpsPressed;
 
+  /// Cihazda konum servisi açık mı. Kapalıysa GPS butonu devre dışı
+  /// bırakılır ve nedeni kullanıcıya gösterilir (null = bilinmiyor, eski
+  /// davranış korunur).
+  final Future<bool>? gpsEnabled;
+
   const LocationPicker({
     super.key,
     required this.cities,
     required this.onCitySelected,
     required this.onUseGpsPressed,
+    this.gpsEnabled,
   });
 
   @override
@@ -23,11 +29,26 @@ class _LocationPickerState extends State<LocationPicker> {
   late TextEditingController _searchController;
   late List<String> _filteredCities;
 
+  /// null = henüz bilinmiyor / kontrol edilemedi → devre dışı bırakma.
+  bool? _gpsOn;
+
   @override
   void initState() {
     super.initState();
     _searchController = TextEditingController();
     _filteredCities = widget.cities;
+    _checkGps();
+  }
+
+  Future<void> _checkGps() async {
+    final future = widget.gpsEnabled;
+    if (future == null) return;
+    try {
+      final on = await future;
+      if (mounted) setState(() => _gpsOn = on);
+    } catch (_) {
+      // Kontrol edilemezse butonu eski davranış gibi bırak.
+    }
   }
 
   @override
@@ -57,6 +78,7 @@ class _LocationPickerState extends State<LocationPicker> {
     final bgColor = isDark ? AppColors.darkSurface : Colors.white;
     final cardBgColor = isDark ? AppColors.darkCardAlt : Colors.grey.shade100;
     final textColor = isDark ? Colors.white : Colors.grey.shade900;
+    final gpsOn = _gpsOn;
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
@@ -150,18 +172,23 @@ class _LocationPickerState extends State<LocationPicker> {
                 color: Colors.transparent,
                 child: InkWell(
                   borderRadius: BorderRadius.circular(16),
-                  onTap: widget.onUseGpsPressed,
+                  // GPS kapalıysa buton çalışmaz; nedeni hemen altında yazılıdır.
+                  onTap: gpsOn == false ? null : widget.onUseGpsPressed,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.my_location, color: Colors.white, size: 22),
+                        Icon(
+                          Icons.my_location,
+                          color: gpsOn == false ? Colors.white38 : Colors.white,
+                          size: 22,
+                        ),
                         const SizedBox(width: 10),
                         Text(
                           settingsProvider.tr('use_gps_location'),
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: gpsOn == false ? Colors.white38 : Colors.white,
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
                           ),
@@ -173,6 +200,27 @@ class _LocationPickerState extends State<LocationPicker> {
               ),
             ),
           ),
+
+          // GPS butonunun altında açıklama — ayrı bir kardeş widget, böylece
+          // butonun kendi yapısı değişmez.
+          if (gpsOn == false)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.location_off_outlined,
+                      size: 14, color: Colors.orange),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      settingsProvider.tr('gps_disabled_hint'),
+                      style: const TextStyle(color: Colors.orange, fontSize: 12),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           const SizedBox(height: 16),
 
           // Search Bar

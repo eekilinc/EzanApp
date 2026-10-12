@@ -45,40 +45,54 @@ void main() async {
             try {
               final settingsProvider = context.read<SettingsProvider>();
               if (settingsProvider.effectiveAdhanSoundEnabled) {
-                AudioService().playNotificationSound(settingsProvider.adhanSound);
+                AudioService().playNotificationSound(
+                  settingsProvider.adhanSound,
+                );
               }
             } catch (_) {}
           }
         }
       } else {
         // Persistent status bar notification or home payload -> open main app screen cleanly
-        navigatorKey.currentState?.pushNamedAndRemoveUntil('/home', (route) => false);
+        navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          '/home',
+          (route) => false,
+        );
       }
     },
   );
-  runApp(const MyApp());
+
+  // Ayarları runApp'den önce yükle: aksi hâlde MaterialApp ilk frame'i
+  // varsayılan temayla çizip splash'ta görünür bir renk değişimi (flash)
+  // yapar. Provider artık hazır olduğu için aşağıda .value ile veriliyor.
+  final settingsProvider = SettingsProvider();
+  await settingsProvider.init();
+
+  runApp(EzanApp(settingsProvider: settingsProvider));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class EzanApp extends StatelessWidget {
+  final SettingsProvider settingsProvider;
+
+  const EzanApp({super.key, required this.settingsProvider});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => PrayerProvider()),
-        ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        ChangeNotifierProvider.value(value: settingsProvider),
       ],
       child: Consumer<SettingsProvider>(
-        builder: (context, settingsProvider, _) {
+        builder: (context, settings, _) {
           return MaterialApp(
             navigatorKey: navigatorKey,
             title: 'Ezan Hatırlatıcı',
             debugShowCheckedModeBanner: false,
-            themeMode: settingsProvider.themeMode,
+            themeMode: settings.themeMode,
             theme: ThemeData(
               colorScheme: ColorScheme.fromSeed(
-                seedColor: settingsProvider.primaryColor,
+                seedColor: settings.primaryColor,
                 brightness: Brightness.light,
               ),
               useMaterial3: true,
@@ -93,19 +107,25 @@ class MyApp extends StatelessWidget {
               ),
               chipTheme: ChipThemeData(
                 backgroundColor: Colors.grey.shade200,
-                selectedColor: settingsProvider.primaryColor.withValues(alpha: 0.2),
-                labelStyle: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
-                secondaryLabelStyle: TextStyle(color: settingsProvider.primaryColor, fontWeight: FontWeight.bold),
+                selectedColor: settings.primaryColor.withValues(alpha: 0.2),
+                labelStyle: const TextStyle(
+                  color: Colors.black87,
+                  fontWeight: FontWeight.w600,
+                ),
+                secondaryLabelStyle: TextStyle(
+                  color: settings.primaryColor,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               appBarTheme: AppBarTheme(
-                backgroundColor: settingsProvider.primaryColor,
+                backgroundColor: settings.primaryColor,
                 foregroundColor: Colors.white,
                 elevation: 0,
               ),
             ),
             darkTheme: ThemeData(
               colorScheme: ColorScheme.fromSeed(
-                seedColor: settingsProvider.primaryColor,
+                seedColor: settings.primaryColor,
                 brightness: Brightness.dark,
                 surface: AppColors.darkSurface,
               ),
@@ -121,9 +141,15 @@ class MyApp extends StatelessWidget {
               ),
               chipTheme: ChipThemeData(
                 backgroundColor: AppColors.darkCardAlt,
-                selectedColor: settingsProvider.primaryColor,
-                labelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                secondaryLabelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                selectedColor: settings.primaryColor,
+                labelStyle: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+                secondaryLabelStyle: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               appBarTheme: const AppBarTheme(
                 backgroundColor: AppColors.darkAppBar,

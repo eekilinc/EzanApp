@@ -93,12 +93,6 @@ class AudioService extends ChangeNotifier {
     }
   }
 
-  /// Tam vakit ezanını çalar. Parametre kullanıcının seçtiği ses anahtarıdır
-  /// (örn. `adhan_madinah`); verilmemişse Mekke ezanı varsayılır.
-  Future<void> playAdhan([String soundKey = 'adhan_makkah']) async {
-    await playNotificationSound(soundKey);
-  }
-
   Future<void> stop() async {
     try {
       await _audioPlayer.stop();

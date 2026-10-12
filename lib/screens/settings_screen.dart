@@ -20,22 +20,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _isPlayingAudio = false;
 
   void _updateNotifications(SettingsProvider settingsProvider) {
-    context.read<PrayerProvider>().scheduleNotifications(
-          customReminderMinutes: settingsProvider.reminderMinutes,
-          soundEnabled: settingsProvider.soundEnabled,
-          vibrationEnabled: settingsProvider.vibrationEnabled,
-          soundKey: settingsProvider.notificationSound,
-          asrSchool: settingsProvider.asrSchool,
-          calcMethod: settingsProvider.calcMethod,
-          adhanSoundKey: settingsProvider.adhanSound,
-          adhanSoundEnabled: settingsProvider.effectiveAdhanSoundEnabled,
-          reminderSoundKey: settingsProvider.reminderSound,
-          reminderSoundEnabled: settingsProvider.effectiveReminderSoundEnabled,
-          fridayReminderEnabled: settingsProvider.fridayReminderEnabled,
-          sahurReminderEnabled: settingsProvider.sahurReminderEnabled,
-          eventReminderEnabled: settingsProvider.eventReminderEnabled,
-          prayerOffsets: settingsProvider.prayerTimeOffsets,
-        );
+    // Ayar değişti → bildirim planını baştan yaz.
+    context.read<PrayerProvider>().scheduleNotifications(settingsProvider);
   }
 
   Future<void> _toggleAudioPreview(String soundKey) async {
@@ -787,6 +773,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.amber.shade800,
                               foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Anlık test: zamanlamayı değil, bildirim İZNİNİ ve
+                        // kanalı doğrular. İzin reddedilmişse zamanlanmış
+                        // bildirimler sessizce hiç gelmez; bu buton
+                        // kullanıcıya bunu görünür kılar.
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () async {
+                              await NotificationService()
+                                  .requestExactAlarmsPermission();
+                              final sent = await NotificationService()
+                                  .showTestNotification(
+                                soundEnabled: true,
+                                vibrationEnabled:
+                                    settingsProvider.vibrationEnabled,
+                                soundKey: settingsProvider.reminderSound,
+                              );
+                              if (!context.mounted) return;
+                              final messenger = ScaffoldMessenger.of(context);
+                              messenger.showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    sent
+                                        ? settingsProvider
+                                            .tr('test_notification_sent')
+                                        : settingsProvider
+                                            .tr('test_notification_failed'),
+                                  ),
+                                  backgroundColor: sent
+                                      ? Colors.green.shade700
+                                      : Colors.red.shade700,
+                                  duration: const Duration(seconds: 3),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.notifications_active,
+                                size: 18),
+                            label: Text(settingsProvider
+                                .tr('test_notification_permission')),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: primaryColor,
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),

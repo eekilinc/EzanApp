@@ -3,14 +3,19 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/prayer_times.dart';
+import 'lru_cache.dart';
 
 class ApiService {
   static const String _baseUrl = 'https://api.aladhan.com/v1';
   static const String _cacheKeyPrefix = 'cached_prayer_times_';
   
-  // In-memory cache for instant zero-latency access
-  static final Map<String, PrayerTimes> _memoryCache = {};
-  static final Map<String, List<PrayerTimes>> _monthlyMemoryCache = {};
+  // In-memory cache for instant zero-latency access.
+  // Sınırlı: günlük veri en fazla 45 gün, aylık veri en fazla 6 ay.
+  // Gerçek kullanımda bu sınırlara yaklaşılmaz; ama sınırsız büyümenin
+  // önüne geçmek için.
+  static final LruCache<String, PrayerTimes> _memoryCache = LruCache(45);
+  static final LruCache<String, List<PrayerTimes>> _monthlyMemoryCache =
+      LruCache(6);
 
   final Dio _dio = Dio(BaseOptions(
     connectTimeout: const Duration(seconds: 8),
@@ -28,9 +33,8 @@ class ApiService {
     final cacheKey = '$_cacheKeyPrefix${dateStr}_${latitude.toStringAsFixed(2)}_${longitude.toStringAsFixed(2)}_${school}_$calcMethod';
 
     // 1. Check in-memory cache (0ms instant return)
-    if (_memoryCache.containsKey(cacheKey)) {
-      return _memoryCache[cacheKey]!;
-    }
+    final cachedToday = _memoryCache.get(cacheKey);
+    if (cachedToday != null) return cachedToday;
 
     // 2. Check SharedPreferences cache (fast local disk read)
     final prefs = await SharedPreferences.getInstance();
@@ -40,7 +44,7 @@ class ApiService {
       try {
         final cachedData = jsonDecode(cachedJson) as Map<String, dynamic>;
         final prayerTimes = PrayerTimes.fromJson(cachedData);
-        _memoryCache[cacheKey] = prayerTimes;
+        _memoryCache.put(cacheKey, prayerTimes);
 
         // Background refresh in background without blocking UI
         unawaited(_fetchAndCacheToday(latitude, longitude, school, calcMethod, cacheKey, prefs));
@@ -79,7 +83,7 @@ class ApiService {
 
       await prefs.setString(cacheKey, jsonEncode(prayerData));
       final prayerTimes = PrayerTimes.fromJson(prayerData);
-      _memoryCache[cacheKey] = prayerTimes;
+      _memoryCache.put(cacheKey, prayerTimes);
 
       return prayerTimes;
     } else {
@@ -97,9 +101,8 @@ class ApiService {
   }) async {
     final cacheKey = 'cached_monthly_${year}_${month}_${latitude.toStringAsFixed(2)}_${longitude.toStringAsFixed(2)}_${school}_$calcMethod';
 
-    if (_monthlyMemoryCache.containsKey(cacheKey)) {
-      return _monthlyMemoryCache[cacheKey]!;
-    }
+    final cachedMonth = _monthlyMemoryCache.get(cacheKey);
+    if (cachedMonth != null) return cachedMonth;
 
     final prefs = await SharedPreferences.getInstance();
     final cachedJson = prefs.getString(cacheKey);
@@ -107,7 +110,7 @@ class ApiService {
       try {
         final list = jsonDecode(cachedJson) as List<dynamic>;
         final monthlyTimes = list.map((item) => PrayerTimes.fromJson(item as Map<String, dynamic>)).toList();
-        _monthlyMemoryCache[cacheKey] = monthlyTimes;
+        _monthlyMemoryCache.put(cacheKey, monthlyTimes);
         return monthlyTimes;
       } catch (_) {}
     }
@@ -129,7 +132,7 @@ class ApiService {
 
         await prefs.setString(cacheKey, jsonEncode(list));
         final monthlyTimes = list.map((item) => PrayerTimes.fromJson(item as Map<String, dynamic>)).toList();
-        _monthlyMemoryCache[cacheKey] = monthlyTimes;
+        _monthlyMemoryCache.put(cacheKey, monthlyTimes);
 
         return monthlyTimes;
       } else {

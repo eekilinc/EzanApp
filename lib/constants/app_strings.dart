@@ -10,6 +10,7 @@ class AppStrings {
       'turkish': 'Türkçe 🇹🇷',
       'english': 'English 🇬🇧',
       'next_prayer': 'SONRAKİ VAKİT',
+      'current_prayer': 'ŞU AN',
       'time_remaining': 'Kalan Süre',
       'todays_prayers': 'Bugünün Namaz Saatleri',
       'location': 'Konum',
@@ -28,7 +29,8 @@ class AppStrings {
       'vibration': 'Titreşim',
       'vibration_desc': 'Bildirim geldiğinde cihazı titreştir',
       'select_notification_sound': 'Bildirim Sesi Seçimi',
-      'select_sound_sub': 'Namaz vakti veya hatırlatmada çalacak olan sesi tercih edin:',
+      'select_sound_sub':
+          'Namaz vakti veya hatırlatmada çalacak olan sesi tercih edin:',
       'sound_makkah': 'Mekke Ezanı 🕋',
       'sound_makkah_sub': 'Klasik ve heybetli Mekke-i Mükerreme Ezanı',
       'sound_madinah': 'Medine Ezanı 🕌',
@@ -54,8 +56,10 @@ class AppStrings {
       'sound_beep_sub': 'Sade ve kısa uyarı tonu',
       'adhan_sound_settings': 'Ezan Vakti Ses Ayarları (Tam Vakit) 🕌',
       'adhan_sound_desc': 'Tam ezan vakti girdiğinde (0. dakika) çalacak ses',
-      'reminder_sound_settings': 'Hatırlatıcı / Uyarı Ses Ayarları (Kala / Sonra) ⏰',
-      'reminder_sound_desc': 'Vakit öncesinde veya sonrasında çalacak kısa uyarı sesi',
+      'reminder_sound_settings':
+          'Hatırlatıcı / Uyarı Ses Ayarları (Kala / Sonra) ⏰',
+      'reminder_sound_desc':
+          'Vakit öncesinde veya sonrasında çalacak kısa uyarı sesi',
       'adhan_sound_toggle': 'Ezan Vakti Sesi Okunsun',
       'reminder_sound_toggle': 'Hatırlatıcı Uyarısı Çalsın',
       'select_adhan_sound': 'Ezan Vakti Sesi Seçimi 🕌',
@@ -64,8 +68,12 @@ class AppStrings {
       'test_reminder_sound': 'Hatırlatıcı Sesini Test Et ⏰',
       'test_notification': 'Test Bildirimi Gönder',
       'test_notification_sent': 'Test bildirimi gönderildi! 🔔',
+      'test_notification_failed':
+          'Bildirim gönderilemedi. Bildirim iznini kontrol edin. 🔕',
+      'test_notification_permission': 'Bildirim İznini Test Et',
       'reminder_times': 'Hatırlatma Süreleri ⏰',
-      'reminder_times_desc': 'Vakit öncesinde (kala) veya vakit girdikten (sonra) ne zaman bildirim almak istediğinizi ayarlayın:',
+      'reminder_times_desc':
+          'Vakit öncesinde (kala) veya vakit girdikten (sonra) ne zaman bildirim almak istediğinizi ayarlayın:',
       'on_time': 'Vakit girince',
       'min_before': 'dakika önce',
       'min_after': 'dakika sonra',
@@ -73,9 +81,11 @@ class AppStrings {
       'qibla_angle': 'Kıble Açısı',
       'distance_to_kaaba': 'Kâbe\'ye Uzaklık',
       'qibla_aligned': 'Kıble Yönündesiniz! 🕌',
-      'qibla_guide': '💡 Telefonunuzu düz bir zeminde tutun ve sarı ok tam yukarı gelene kadar cihazınızı döndürün.',
+      'qibla_guide':
+          '💡 Telefonunuzu düz bir zeminde tutun ve sarı ok tam yukarı gelene kadar cihazınızı döndürün.',
       'device_heading': 'Cihaz Yönü (Pusula Ayarı)',
-      'about_description': 'Ezan Hatırlatıcı, dünya genelinde doğru namaz vakitleri, canlı sayaçlar, özelleştirilebilir hatırlatmalar ve Kıble pusulası sunan modern bir İslami yardımcı uygulamadır.',
+      'about_description':
+          'Ezan Hatırlatıcı, dünya genelinde doğru namaz vakitleri, canlı sayaçlar, özelleştirilebilir hatırlatmalar ve Kıble pusulası sunan modern bir İslami yardımcı uygulamadır.',
       'version': 'Sürüm',
       'developer': 'Geliştirici',
       'data_source': 'Veri Kaynağı',
@@ -113,7 +123,8 @@ class AppStrings {
       'day': 'Gün',
       'date': 'Tarih',
       'exact_alarm_title': 'Tam Vaktinde Alarm İzni (Android 12+)',
-      'exact_alarm_desc': 'Ezan vaktinde bildirimlerin gecikmeden tam saniyesinde çalabilmesi için Alarmlar & Hatırlatıcılar izninin açık olduğundan emin olun.',
+      'exact_alarm_desc':
+          'Ezan vaktinde bildirimlerin gecikmeden tam saniyesinde çalabilmesi için Alarmlar & Hatırlatıcılar izninin açık olduğundan emin olun.',
       'request_exact_alarm': 'Tam Vakit Alarm İznini Kontrol Et ⏰',
       'color_theme': 'Renk Paleti & Ana Tema 🎨',
       'color_theme_desc': 'Uygulamanızın ana vurgu rengini seçin',
@@ -123,23 +134,30 @@ class AppStrings {
       'theme_crimson': 'Lal 🔴',
       'theme_amber': 'Kehribar 👑',
       'calendar_dialog_title': 'Hicri & Miladi Takvim 🗓️',
-      'calendar_dialog_desc': 'Bugünün Miladi & Hicri tarihi ve mübarek dini günler',
+      'calendar_dialog_desc':
+          'Bugünün Miladi & Hicri tarihi ve mübarek dini günler',
       'calc_method_title': 'Namaz Vakti Hesaplama Metodu 📐',
-      'calc_method_desc': 'Namaz vakitlerinin alındığı resmi kurum ve takvim metodunu seçin',
+      'calc_method_desc':
+          'Namaz vakitlerinin alındığı resmi kurum ve takvim metodunu seçin',
       'ongoing_notification': 'Kalıcı Durum Çubuğu Bildirimi 📌',
-      'ongoing_notification_desc': 'Bildirim çubuğunda canlı sıradaki vakti ve geri sayımı gösterir',
+      'ongoing_notification_desc':
+          'Bildirim çubuğunda canlı sıradaki vakti ve geri sayımı gösterir',
       'prayer_time_label': 'Vakti',
       'countdown_label': 'Geri Sayım',
       'view_standard': 'Kartlar 📇',
       'view_compact': 'Kompakt 📐',
       'friday_reminder': 'Cuma Günleri Özel Cuma Uyarısı 🕌',
-      'friday_reminder_desc': 'Her Cuma günü Cuma namazına 1 saat kala özel mübarek cuma uyarısı gönderir',
+      'friday_reminder_desc':
+          'Her Cuma günü Cuma namazına 1 saat kala özel mübarek cuma uyarısı gönderir',
       'sahur_reminder': 'İmsak Öncesi Sahur & Teheccüd Uyarısı 🌙',
-      'sahur_reminder_desc': 'İmsak vaktine 45 dakika kala sahur ve gece ibadeti için özel uyarı gönderir',
+      'sahur_reminder_desc':
+          'İmsak vaktine 45 dakika kala sahur ve gece ibadeti için özel uyarı gönderir',
       'method_13': 'Diyanet İşleri Başkanlığı (Türkiye & Avrupa) 🇹🇷',
-      'method_13_desc': 'Türkiye, Belçika, Almanya, Fransa ve Avrupa camileri için resmi Diyanet takvimi.',
+      'method_13_desc':
+          'Türkiye, Belçika, Almanya, Fransa ve Avrupa camileri için resmi Diyanet takvimi.',
       'method_3': 'Dünya İslam Birliği (MWL - Muslim World League) 🌍',
-      'method_3_desc': 'Avrupa ve dünya genelinde yaygın kullanılan hesaplama standardı.',
+      'method_3_desc':
+          'Avrupa ve dünya genelinde yaygın kullanılan hesaplama standardı.',
       'method_4': 'Ümmü\'l-Kurâ Üniversitesi (Mekke-i Mükerreme) 🕋',
       'method_4_desc': 'Suudi Arabistan ve Körfez ülkeleri resmi takvimi.',
       'method_5': 'Mısır Genel Ölçüm Heyeti (Egyptian General Survey) 🇪🇬',
@@ -147,14 +165,17 @@ class AppStrings {
       'method_2': 'Kuzey Amerika İslam Cemiyeti (ISNA) 🇺🇸',
       'method_2_desc': 'Amerika ve Kanada genelinde kullanılan standart.',
       'method_12': 'Fransa İslami Örgütler Birliği (UOIF) 🇫🇷',
-      'method_12_desc': 'Fransa özel 12 derece açılı yatsı ve imsak hesaplaması.',
+      'method_12_desc':
+          'Fransa özel 12 derece açılı yatsı ve imsak hesaplaması.',
       'method_15': 'Hilal Gözlem Komitesi (Moonsighting Committee) 🌙',
       'method_15_desc': 'Küresel rasathane ve gözlem esaslı takvim.',
       'manual_time_adjust': 'Namaz Vakti Manuel Düzeltme (Offset) ⏱️',
-      'manual_time_adjust_desc': 'Bölgenize veya yerel cami takviminize göre her vakte +/- dakika tolerans ekleyin',
+      'manual_time_adjust_desc':
+          'Bölgenize veya yerel cami takviminize göre her vakte +/- dakika tolerans ekleyin',
       'minute_offset': 'dk tolerans',
       'reset_offsets': 'Tüm Düzeltmeleri Sıfırla',
-      'reset_offsets_confirm': 'Tüm vakit toleransları 0 olarak sıfırlansın mı?',
+      'reset_offsets_confirm':
+          'Tüm vakit toleransları 0 olarak sıfırlansın mı?',
       'offsets_reset_done': 'Vakit düzeltmeleri sıfırlandı',
       'adjust_offsets_title': 'Vakit Dakika Düzeltme',
       'save': 'Kaydet',
@@ -170,7 +191,8 @@ class AppStrings {
       'release_badge': 'v5.3.0 Final Sürüm',
       'offsets_applied_toast': 'Namaz vakitleri ve bildirimler güncellendi ⏱️',
       'check_for_updates': 'Güncellemeleri Denetle',
-      'check_for_updates_desc': 'GitHub üzerinden en son sürümü ve yenilikleri kontrol edin',
+      'check_for_updates_desc':
+          'GitHub üzerinden en son sürümü ve yenilikleri kontrol edin',
       'checking_for_updates': 'En son sürüm kontrol ediliyor... 🚀',
       'app_is_up_to_date': 'Uygulamanız güncel! ({version}) 🎉',
       'new_version_available': 'Yeni Sürüm Mevcut! 🎉',
@@ -179,13 +201,19 @@ class AppStrings {
       'update_notes': 'Sürüm Notları & Yenilikler:',
       'current_version': 'Mevcut Sürüm',
       'latest_version': 'Yeni Sürüm',
-      'update_check_error': 'Güncelleme kontrolü yapılamadı. İnternet bağlantınızı kontrol edin.',
+      'update_check_error':
+          'Güncelleme kontrolü yapılamadı. İnternet bağlantınızı kontrol edin.',
       'battery_title': 'Pil Optimizasyonu & Arka Plan 🔋',
-      'battery_desc': 'Bazı telefonlar (Xiaomi, Samsung, Huawei) pil tasarrufu için arka plan bildirimlerini susturur. Ezanların zamanında çalması için bu uygulama için pil optimizasyonunu kapatın.',
+      'battery_desc':
+          'Bazı telefonlar (Xiaomi, Samsung, Huawei) pil tasarrufu için arka plan bildirimlerini susturur. Ezanların zamanında çalması için bu uygulama için pil optimizasyonunu kapatın.',
       'battery_open_settings': 'Uygulama Ayarlarını Aç ⚙️',
       'exact_alarm_active': 'Tam Vakit Alarm İzni AKTİF! ⏰',
-      'exact_alarm_missing': 'Lütfen cihaz ayarlarınızdan Alarmlar ve Hatırlatıcılar iznini açın.',
-      'gps_unavailable': 'GPS konumu alınamadı. Konum servisinin açık olduğundan emin olun veya listeden şehir seçin. 📡',
+      'exact_alarm_missing':
+          'Lütfen cihaz ayarlarınızdan Alarmlar ve Hatırlatıcılar iznini açın.',
+      'gps_unavailable':
+          'GPS konumu alınamadı. Konum servisinin açık olduğundan emin olun veya listeden şehir seçin. 📡',
+      'gps_disabled_hint':
+          'Cihazınızda konum servisi kapalı — GPS\'i kullanmak için ayarlardan açın.',
       'qibla_no_location': 'Kıble açısı için önce konum seçin 📍',
       'cardinal_n': 'K',
       'cardinal_s': 'G',
@@ -193,14 +221,17 @@ class AppStrings {
       'cardinal_w': 'B',
       'qibla_live': 'Pusula Canlı 📡',
       'qibla_manual': 'Manuel ⚙️',
-      'qibla_manual_hint': 'Cihazınızda pusula sensörü yok veya manuel moddasınız — kaydırıcıyla kalibre edin. Manyetik sapmayı kapatmak için ok tam yukarı bakana kadar ayarlayın.',
-      'qibla_resume_hint': 'Canlı pusulaya dönmek için yukarıdaki rozete dokunun. 📡',
+      'qibla_manual_hint':
+          'Cihazınızda pusula sensörü yok veya manuel moddasınız — kaydırıcıyla kalibre edin. Manyetik sapmayı kapatmak için ok tam yukarı bakana kadar ayarlayın.',
+      'qibla_resume_hint':
+          'Canlı pusulaya dönmek için yukarıdaki rozete dokunun. 📡',
       'close': 'Kapat',
       'turkish_cities': 'Türkiye İlleri',
       'no_city_found': 'Aramanızla eşleşen şehir bulunamadı',
       'special_extra_notifications': 'Özel Ekstra Bildirimler 🌟',
       'event_reminder': 'Dini Gün & Kandil Uyarısı 🕌',
-      'event_reminder_desc': 'Yaklaşan kandil ve dini günlerden 1 gün önce sabah hatırlatma gönderir',
+      'event_reminder_desc':
+          'Yaklaşan kandil ve dini günlerden 1 gün önce sabah hatırlatma gönderir',
       'duas_search_hint': 'Dua ara...',
       'duas_favorites_only': 'Sadece Favoriler ⭐',
       'duas_no_result': 'Aramanızla eşleşen dua bulunamadı',
@@ -218,6 +249,7 @@ class AppStrings {
       'turkish': 'Türkçe 🇹🇷',
       'english': 'English 🇬🇧',
       'next_prayer': 'NEXT PRAYER',
+      'current_prayer': 'NOW',
       'time_remaining': 'Time Remaining',
       'todays_prayers': 'Today\'s Prayer Times',
       'location': 'Location',
@@ -236,7 +268,8 @@ class AppStrings {
       'vibration': 'Vibration',
       'vibration_desc': 'Vibrate device upon notification',
       'select_notification_sound': 'Notification Sound Selection',
-      'select_sound_sub': 'Choose your preferred recitation tone for prayer reminders:',
+      'select_sound_sub':
+          'Choose your preferred recitation tone for prayer reminders:',
       'sound_makkah': 'Makkah Adhan 🕋',
       'sound_makkah_sub': 'Classic & majestic Makkah Al-Mukarramah Adhan',
       'sound_madinah': 'Madinah Adhan 🕌',
@@ -258,7 +291,8 @@ class AppStrings {
       'adhan_sound_settings': 'Exact Adhan Sound Settings 🕌',
       'adhan_sound_desc': 'Sound played at exact prayer time (0 min offset)',
       'reminder_sound_settings': 'Reminder / Warning Sound Settings ⏰',
-      'reminder_sound_desc': 'Short warning sound for early or late prayer reminders',
+      'reminder_sound_desc':
+          'Short warning sound for early or late prayer reminders',
       'adhan_sound_toggle': 'Play Adhan Sound at Exact Time',
       'reminder_sound_toggle': 'Play Warning Sound for Reminders',
       'select_adhan_sound': 'Select Adhan Sound 🕌',
@@ -267,23 +301,30 @@ class AppStrings {
       'test_reminder_sound': 'Test Reminder Sound ⏰',
       'test_notification': 'Send Test Notification',
       'test_notification_sent': 'Test notification sent! 🔔',
+      'test_notification_failed':
+          'Could not send notification. Check notification permission. 🔕',
+      'test_notification_permission': 'Test Notification Permission',
       'reminder_times': 'Reminder Times ⏰',
-      'reminder_times_desc': 'Set how many minutes before each prayer you wish to be notified:',
+      'reminder_times_desc':
+          'Set how many minutes before each prayer you wish to be notified:',
       'on_time': 'At prayer time',
       'min_before': 'min before',
       'exact_time': 'Exact Time',
       'qibla_angle': 'Qibla Angle',
       'distance_to_kaaba': 'Distance to Kaaba',
       'qibla_aligned': 'You are Facing Qibla! 🕌',
-      'qibla_guide': '💡 Keep device flat and rotate until yellow arrow points directly up.',
+      'qibla_guide':
+          '💡 Keep device flat and rotate until yellow arrow points directly up.',
       'device_heading': 'Device Heading (Compass Adjustment)',
-      'about_description': 'Prayer Times Reminder is a modern Islamic utility app offering accurate global prayer schedules, live countdowns, custom reminders, and Qibla compass.',
+      'about_description':
+          'Prayer Times Reminder is a modern Islamic utility app offering accurate global prayer schedules, live countdowns, custom reminders, and Qibla compass.',
       'version': 'Version',
       'developer': 'Developer',
       'data_source': 'Data Source',
       'audio_source': 'Audio Sources',
       'aladhan_api': 'Aladhan REST API (Global prayer timings)',
-      'audio_recitations': 'Makkah & Madinah Vocal Recitations (Haramain Audio)',
+      'audio_recitations':
+          'Makkah & Madinah Vocal Recitations (Haramain Audio)',
       'features': 'Key Features',
       'feature_1': '⏱️ Live Prayer Countdown Timer',
       'feature_2': '🔔 Customizable Scheduled Local Notifications',
@@ -315,7 +356,8 @@ class AppStrings {
       'day': 'Day',
       'date': 'Date',
       'exact_alarm_title': 'Exact Alarm Permission (Android 12+)',
-      'exact_alarm_desc': 'Enable Alarms & Reminders permission so prayer notifications play exactly on time without delay.',
+      'exact_alarm_desc':
+          'Enable Alarms & Reminders permission so prayer notifications play exactly on time without delay.',
       'request_exact_alarm': 'Check Exact Alarm Permission ⏰',
       'color_theme': 'Color Palette & Theme 🎨',
       'color_theme_desc': 'Choose application primary accent color',
@@ -327,19 +369,24 @@ class AppStrings {
       'calendar_dialog_title': 'Hijri & Gregorian Calendar 🗓️',
       'calendar_dialog_desc': 'Today\'s Gregorian & Hijri date and holy events',
       'calc_method_title': 'Calculation Method (Authority) 📐',
-      'calc_method_desc': 'Select official authority and calendar method for prayer times',
+      'calc_method_desc':
+          'Select official authority and calendar method for prayer times',
       'ongoing_notification': 'Persistent Status Bar Notification 📌',
-      'ongoing_notification_desc': 'Show live upcoming prayer time & countdown in notification shade',
+      'ongoing_notification_desc':
+          'Show live upcoming prayer time & countdown in notification shade',
       'prayer_time_label': 'Time',
       'countdown_label': 'Countdown',
       'view_standard': 'Cards 📇',
       'view_compact': 'Compact 📐',
       'friday_reminder': 'Special Blessed Friday Alert 🕌',
-      'friday_reminder_desc': 'Send a special reminder 1 hour before Friday Dhuhr prayer',
+      'friday_reminder_desc':
+          'Send a special reminder 1 hour before Friday Dhuhr prayer',
       'sahur_reminder': 'Pre-Fajr Sahur & Tahajjud Alert 🌙',
-      'sahur_reminder_desc': 'Send a wake-up reminder 45 minutes before Fajr/Imsak',
+      'sahur_reminder_desc':
+          'Send a wake-up reminder 45 minutes before Fajr/Imsak',
       'method_13': 'Diyanet İşleri Başkanlığı (Turkey & Europe) 🇹🇷',
-      'method_13_desc': 'Official Diyanet calendar recommended for Turkey, Belgium, Germany & Europe.',
+      'method_13_desc':
+          'Official Diyanet calendar recommended for Turkey, Belgium, Germany & Europe.',
       'method_3': 'Muslim World League (MWL) 🌍',
       'method_3_desc': 'Standard calculation used across Europe and worldwide.',
       'method_4': 'Umm Al-Qura University (Makkah) 🕋',
@@ -353,7 +400,8 @@ class AppStrings {
       'method_15': 'Moonsighting Committee Worldwide 🌙',
       'method_15_desc': 'Global astronomical observation calendar.',
       'manual_time_adjust': 'Manual Prayer Time Adjustment (Offset) ⏱️',
-      'manual_time_adjust_desc': 'Add +/- minute tolerance to each prayer time for your local mosque or region',
+      'manual_time_adjust_desc':
+          'Add +/- minute tolerance to each prayer time for your local mosque or region',
       'minute_offset': 'min offset',
       'reset_offsets': 'Reset All Adjustments',
       'reset_offsets_confirm': 'Reset all prayer time adjustments back to 0?',
@@ -372,7 +420,8 @@ class AppStrings {
       'release_badge': 'v5.3.0 Final Release',
       'offsets_applied_toast': 'Prayer times & notifications updated ⏱️',
       'check_for_updates': 'Check for Updates',
-      'check_for_updates_desc': 'Check for the latest version & release notes on GitHub',
+      'check_for_updates_desc':
+          'Check for the latest version & release notes on GitHub',
       'checking_for_updates': 'Checking for latest release... 🚀',
       'app_is_up_to_date': 'Your app is up to date! ({version}) 🎉',
       'new_version_available': 'New Version Available! 🎉',
@@ -381,14 +430,20 @@ class AppStrings {
       'update_notes': 'Release Notes & What\'s New:',
       'current_version': 'Current Version',
       'latest_version': 'New Version',
-      'update_check_error': 'Could not check for updates. Please check your internet connection.',
+      'update_check_error':
+          'Could not check for updates. Please check your internet connection.',
       'min_after': 'min after',
       'battery_title': 'Battery Optimization & Background 🔋',
-      'battery_desc': 'Some phones (Xiaomi, Samsung, Huawei) silence background notifications to save battery. Disable battery optimization for this app so adhans play on time.',
+      'battery_desc':
+          'Some phones (Xiaomi, Samsung, Huawei) silence background notifications to save battery. Disable battery optimization for this app so adhans play on time.',
       'battery_open_settings': 'Open App Settings ⚙️',
       'exact_alarm_active': 'Exact Alarm Permission is ACTIVE! ⏰',
-      'exact_alarm_missing': 'Please enable Alarms & Reminders in system settings.',
-      'gps_unavailable': 'Could not get GPS location. Make sure location services are on, or pick a city from the list. 📡',
+      'exact_alarm_missing':
+          'Please enable Alarms & Reminders in system settings.',
+      'gps_unavailable':
+          'Could not get GPS location. Make sure location services are on, or pick a city from the list. 📡',
+      'gps_disabled_hint':
+          'Location services are off on your device — turn them on in Settings to use GPS.',
       'qibla_no_location': 'Select a location first for Qibla angle 📍',
       'cardinal_n': 'N',
       'cardinal_s': 'S',
@@ -396,14 +451,16 @@ class AppStrings {
       'cardinal_w': 'W',
       'qibla_live': 'Compass Live 📡',
       'qibla_manual': 'Manual ⚙️',
-      'qibla_manual_hint': 'No compass sensor, or you are in manual mode — calibrate with the slider until the arrow points straight up.',
+      'qibla_manual_hint':
+          'No compass sensor, or you are in manual mode — calibrate with the slider until the arrow points straight up.',
       'qibla_resume_hint': 'Tap the badge above to return to live compass. 📡',
       'close': 'Close',
       'turkish_cities': 'Cities of Türkiye',
       'no_city_found': 'No city matches your search',
       'special_extra_notifications': 'Special Extra Notifications 🌟',
       'event_reminder': 'Holy Day & Kandil Alert 🕌',
-      'event_reminder_desc': 'Send a morning reminder 1 day before upcoming kandils and holy days',
+      'event_reminder_desc':
+          'Send a morning reminder 1 day before upcoming kandils and holy days',
       'duas_search_hint': 'Search duas...',
       'duas_favorites_only': 'Favorites Only ⭐',
       'duas_no_result': 'No dua matches your search',

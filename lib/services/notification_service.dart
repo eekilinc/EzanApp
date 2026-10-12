@@ -2,7 +2,6 @@ import 'dart:typed_data';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tzdata;
-import '../constants/reminders.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -329,6 +328,7 @@ class NotificationService {
     bool soundEnabled = true,
     bool vibrationEnabled = true,
     String soundKey = 'adhan_makkah',
+    String payload = 'alarm',
   }) async {
     // Do not schedule if time has already passed
     if (scheduledTime.isBefore(DateTime.now())) {
@@ -380,7 +380,7 @@ class NotificationService {
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
-        payload: 'alarm',
+        payload: payload,
       );
     } catch (e1) {
       try {
@@ -393,7 +393,7 @@ class NotificationService {
           androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
           uiLocalNotificationDateInterpretation:
               UILocalNotificationDateInterpretation.absoluteTime,
-          payload: 'alarm',
+          payload: payload,
         );
       } catch (_) {}
     }
@@ -405,71 +405,6 @@ class NotificationService {
 
   Future<void> cancelAllNotifications() async {
     await _notificationsPlugin.cancelAll();
-  }
-
-  int _generateNotificationId(String prayer, DateTime date, String type) {
-    return '${date.year}${date.month.toString().padLeft(2, '0')}${date.day.toString().padLeft(2, '0')}${prayer}_$type'.hashCode & 0x7FFFFFFF;
-  }
-
-  Future<void> schedulePrayerNotification({
-    required String prayerName,
-    required DateTime prayerTime,
-    required int minutesBefore,
-    bool soundEnabled = true,
-    bool vibrationEnabled = true,
-    String soundKey = 'adhan_makkah',
-    String? adhanSoundKey,
-    bool? adhanSoundEnabled,
-    String? reminderSoundKey,
-    bool? reminderSoundEnabled,
-  }) async {
-    final displayName = prayerDisplayNames[prayerName] ?? prayerName;
-
-    final String finalAdhanSound = adhanSoundKey ?? soundKey;
-    final bool finalAdhanEnabled = adhanSoundEnabled ?? soundEnabled;
-    final String finalReminderSound = reminderSoundKey ?? 'beep';
-    final bool finalReminderEnabled = reminderSoundEnabled ?? soundEnabled;
-
-    // 1. ALWAYS Schedule Exact Prayer Time (0 min offset - Exact Adhan)
-    if (!prayerTime.isBefore(DateTime.now())) {
-      final exactId = _generateNotificationId(prayerName, prayerTime, 'exact');
-      await scheduleNotification(
-        id: exactId,
-        title: '$displayName Vakti Girdi 🕌',
-        body: '$displayName ezanı okunuyor. Haydi namaza! 🕌',
-        scheduledTime: prayerTime,
-        soundEnabled: finalAdhanEnabled,
-        vibrationEnabled: vibrationEnabled,
-        soundKey: finalAdhanSound,
-      );
-    }
-
-    // 2. ALSO Schedule Custom Offset Reminder (if minutesBefore != 0)
-    if (minutesBefore != 0) {
-      final DateTime reminderTime;
-      if (minutesBefore > 0) {
-        reminderTime = prayerTime.subtract(Duration(minutes: minutesBefore));
-      } else {
-        reminderTime = prayerTime.add(Duration(minutes: minutesBefore.abs()));
-      }
-
-      if (!reminderTime.isBefore(DateTime.now())) {
-        final reminderId = _generateNotificationId(prayerName, prayerTime, 'reminder');
-        final String message = minutesBefore > 0
-            ? '$displayName vakit girmesine $minutesBefore dakika kaldı.'
-            : '$displayName vakti gireli ${minutesBefore.abs()} dakika oldu.';
-
-        await scheduleNotification(
-          id: reminderId,
-          title: '$displayName Hatırlatması ⏰',
-          body: message,
-          scheduledTime: reminderTime,
-          soundEnabled: finalReminderEnabled,
-          vibrationEnabled: vibrationEnabled,
-          soundKey: finalReminderSound,
-        );
-      }
-    }
   }
 
   Future<void> showOngoingNotification({

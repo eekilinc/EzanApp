@@ -6,6 +6,25 @@ import '../constants/app_version.dart';
 import '../models/app_update_info.dart';
 import '../providers/settings_provider.dart';
 
+/// GitHub Releases üzerinden uygulama içi güncelleme.
+///
+/// GÜVEN MODELİ — okumadan önce bilin:
+/// İndirilen APK doğrulanmaz. Güven, tamamen HTTPS + GitHub kimlik
+/// doğrulamasına dayanır. Yani resmi `eekilinc/EzanApp` deposuna yalnızca
+/// depo sahibi (veya hesabı ele geçirilirse saldırgan) APK yükleyebilir.
+///
+/// Neden imza doğrulaması yok: Android, Play Store dışı bir APK'yı
+/// yüklerken uygulamanın kendi imzasıyla aynı imzayı doğrulamaz; bu
+/// doğrulama sunucu tarafında (Play Integrity / ek imza kontrolü) yapılır.
+/// Uygulama içi doğrulama için release imzasının (key.properties)
+/// parmak izi build sırasında uygulamaya gömülür ve indirilen APK'nın
+/// parmak izi karşılaştırılır — bu, CI'da imzalı paket üretildiği için ek
+/// altyapı gerektirir ve şu an eklenmemiştir.
+///
+/// Etki: Depo hesabı ele geçirilirse kullanıcılara kötü niyetli APK
+/// sunulabilir. Dini içerikli bir uygulama için bu, altyapısal bir güven
+/// sınırıdır ve bilinçli olarak kabul edilmiştir (ücretsiz/adsız/izlemeyen
+/// taahhüdü korunur). Gerçek bir çözüm Play Store dağıtımıdır.
 class UpdateService {
   static final Dio _dio = Dio(
     BaseOptions(
